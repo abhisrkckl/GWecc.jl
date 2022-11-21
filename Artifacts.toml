@@ -1,0 +1,6 @@
+[gwecc_data]
+git-tree-sha1 = "c0e4b493cff1eaedc6b2a08ebf18658bce2bd431"
+
+    [[gwecc_data.download]]
+    sha256 = "981c5d09e1bd7e1c47a0c78fcbb6b04cc154524b4eaf2749adb3ce196a95cea7"
+    url = "file:/home/susobhan/Work/GWecc.jl/data.tar.gz"
