@@ -1,8 +1,10 @@
-export e_from_tau, tau_from_e
+export e_from_τ, τ_from_e
 
 import DataInterpolations
 import JLD
 using HypergeometricFunctions
+
+include("Parameters.jl")
 
 function read_precomputed_tau_e(datafile::String)
     data = JLD.load(datafile)
@@ -13,36 +15,6 @@ taus, es = read_precomputed_tau_e("/home/susobhan/Work/GWecc.jl/data/tau_e.jld")
 tau_from_e_spline = DataInterpolations.CubicSpline(taus, es)
 e_from_tau_spline = DataInterpolations.CubicSpline(es, taus)
 
-struct ScaledTime
-    τ::Float64
-    ScaledTime(τ::Float64) = τ>=0 ? new(τ) : throw(DomainError(τ, "τ<0 encountered."))
-end
-
-struct Eccentricity
-    e::Float64
-    Eccentricity(e::Float64) = (e>0 && e<1) ? new(e) : throw(DomainError(e, "e out of range."))
-end
-
-struct Mass
-    m::Float64
-    Mass(m::Float64) = (m>=5e-2 && m<=5e4) ? new(m) : throw(DomainError(m, "m out of range."))
-end
-
-struct MeanMotion
-    n::Float64
-    MeanMotion(n::Float64) = (n>=6.3e-10 && n<=6.3e-6) ? new(n) : throw(DomainError(n, "n out of range."))
-end
-
-struct ScaledAngle
-    θbar::Float64
-    ScaledAngle(θbar::Float64) = (θbar>=0 && θbar<=0.5) ? new(θbar) : throw(DomainError(θbar, "θbar out of range."))
-end
-
-struct SymmetricMassRatio
-    η::Float64
-    ScaledAngle(η::Float64) = (η>0 && η<=0.25) ? new(η) : throw(DomainError(η, "η out of range."))
-end
-
 eccmin = Eccentricity(minimum(es)) 
 eccmax = Eccentricity(maximum(es))
 taumin = ScaledTime(minimum(taus))
@@ -51,10 +23,9 @@ taumax = ScaledTime(maximum(taus))
 a::Float64 = 2 * sqrt(2) / 5 / 5^(63/2299) / 17^(1181/2299);
 b::Float64 = 2/sqrt(1-eccmax.e) - a*taumax.τ;
 
-macro validate(value, condition, message)
-    if not condition(value)
-        throw(DomainError(value, message))
-    end
+function chirp_mass(Mtot::Mass, eta::SymmetricMassRatio) :: Mass
+    Mch = Mtot.m * eta.η^(3/5)
+    return Mass(Mch)
 end
 
 function e_from_τ(tau::ScaledTime) :: Eccentricity
@@ -74,7 +45,7 @@ function e_from_τ(tau::ScaledTime) :: Eccentricity
     return Eccentricity(e);
 end
 
-function tau_from_e(ecc::Eccentricity) :: ScaledTime
+function τ_from_e(ecc::Eccentricity) :: ScaledTime
     e = ecc.e
     emin = eccmin.e
     emax = eccmax.e
@@ -184,4 +155,70 @@ function γbar3_from_e(ecc::Eccentricity, eta::SymmetricMassRatio) :: ScaledAngl
     γbar3 = (γbar3_0 + η*γbar3_1 * η*η*γbar3_2) / e^(6/19);
     return ScaledAngle(γbar3)
 end
+
+function τ_from_t(delay::Time, tau0::ScaledTime, κ::Float64) :: ScaledTime
+    return ScaledTime(tau0.τ - κ*delay.t)
+end
+
+function θ_from_θbar(θbar_now::ScaledAngle, θbar_init::ScaledAngle, coeff::Float64, θ_init::Angle) :: Angle
+    θ0 = θ_init.θ
+    θbar = θbar_now.θbar
+    θbar0 = θbar_init.θbar
+    θ = θ0 + (θbar0 - θbar)*coeff
+    return Angle(θ)    
+end
+
+function θ_from_θbar(θbar_now::ScaledAngle, θbar_init::ScaledAngle, coeff::Float64) :: Angle
+    θbar = θbar_now.θbar
+    θbar0 = θbar_init.θbar
+    θ = (θbar0 - θbar)*coeff
+    return Angle(θ)    
+end
+
+function evolve_orbit(Mtot::Mass, eta::SymmetricMassRatio,
+                      n_init::MeanMotion, e_init::Eccentricity, 
+                      l_init::Angle, proj_pars::ProjectionParams,
+                      delay::Time, pulsar_term::Bool)
+
+    γ_init = Angle(pulsar_term ? proj_pars.γp : proj_pars.γ0)
+
+    Mchirp::Mass = chirp_mass(Mtot, eta)
+
+    κ::Float64 = evolv_coeff_κ(Mchirp, n_init, e_init)
+    tau0::ScaledTime = τ_from_e(e_init)
+    tau::ScaledTime = τ_from_t(delay, tau0, κ)
+
+    if tau.τ<0
+        throw(DomainError(tau, "The binary has already merged (τ<0)."))
+    end
+    
+    e::Eccentricity = e_from_τ(tau)
+    n::MeanMotion = n_from_e(n_init, e_init, e)
+    
+    α::Float64 = evolv_coeff_α(Mchirp, n_init, e_init)
+    lbar0::ScaledAngle = lbar_from_e(e_init)
+    lbar::ScaledAngle = lbar_from_e(e)
+    l::Angle = θ_from_θbar(lbar, lbar0, α, l_init)
+
+    β::Float64 = evolv_coeff_β(Mchirp, Mtot, n_init, e_init)
+    γbar0::ScaledAngle = γbar_from_e(e0);
+    γbar::ScaledAngle = γbar_from_e(e);
+    γ1::Angle = θ_from_θbar(γbar, γbar0, β, γ_init);
+
+    β2::Float64 = evolv_coeff_β2(Mchirp, Mtot, n_init, e_init)
+    γbar20::ScaledAngle = γbar2_from_e(e_init, eta);
+    γbar2::ScaledAngle = γbar2_from_e(e, eta);
+    γ2::Angle = θ_from_θbar(γbar2, γbar20, β2);
+
+    β3::Float64 = evolv_coeff_β3(Mchirp, Mtot, n_init, e_init)
+    γbar30::ScaledAngle = γbar3_from_e(e_init, eta);
+    γbar3::ScaledAngle = γbar3_from_e(e, eta);
+    γ3::Angle = θ_from_θbar(γbar3, γbar30, β3);
+
+    γ = Angle(γ1.θ + γ2.θ + γ3.θ);
+    
+    return n, e, l, γ
+end
+
+
 
