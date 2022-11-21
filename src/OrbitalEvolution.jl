@@ -20,7 +20,7 @@ end
 
 struct Eccentricity
     e::Float64
-    Eccentricity(e::Float64) = (e>=0 && e<1) ? new(e) : throw(DomainError(e, "e out of range."))
+    Eccentricity(e::Float64) = (e>0 && e<1) ? new(e) : throw(DomainError(e, "e out of range."))
 end
 
 struct Mass
