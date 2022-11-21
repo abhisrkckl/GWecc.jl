@@ -1,22 +1,14 @@
-module OrbitalEvolution
+export e_from_tau, tau_from_e
 
 import DataInterpolations
+import JLD
 
 function read_precomputed_tau_e(datafile::String)
-    total_file_size::Int32 = 59587;
-    y = Array{Float64}(undef, total_file_size);
-    read!(datafile, y);
-    
-    l::Int32 = (size(y)[1]-1) ÷ 2;
-    taus = y[2:l+1];
-    es = y[l+2:total_file_size];
-
-    @assert size(taus) == size(es);
-
-    return taus, es;
+    data = JLD.load(datafile)
+    return data["taus"], data["es"]
 end
 
-taus, es = read_precomputed_tau_e("_evolve_.dat")
+taus, es = read_precomputed_tau_e("/home/susobhan/Work/GWecc.jl/data/tau_e.jld")
 tau_from_e_spline = DataInterpolations.CubicSpline(taus, es)
 e_from_tau_spline = DataInterpolations.CubicSpline(es, taus)
 
@@ -59,5 +51,3 @@ end
 
 # fig = plot(taus, es, fmt=:png)
 # savefig(fig, "e_vs_tau.png")
-
-end

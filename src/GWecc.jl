@@ -1,5 +1,5 @@
 module GWecc
 
-greet() = print("Hello World!")
+include("OrbitalEvolution.jl")
 
 end # module GWecc
