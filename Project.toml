@@ -1,0 +1,4 @@
+name = "GWecc"
+uuid = "7a00343e-1486-4c3e-99d0-061b9ee738a7"
+authors = ["Abhimanyu Susobhanan <abhisrkckl@gmail.com>"]
+version = "0.1.0"
