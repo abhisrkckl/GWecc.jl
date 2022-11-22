@@ -1,7 +1,7 @@
 export e_from_τ, τ_from_e, eccmin, eccmax, taumin, taumax
-export evolv_coeff_κ,
-    evolv_coeff_α, evolv_coeff_β, evolv_coeff_β2, evolv_coeff_β3, EvolvCoeffs
+export evolv_coeff_κ, evolv_coeff_α, evolv_coeff_β, evolv_coeff_β2, evolv_coeff_β3
 export n_from_e, lbar_from_e, γbar_from_e, γbar2_from_e, γbar3_from_e
+export EvolvCoeffs, evolve_orbit
 
 import DataInterpolations
 import JLD
@@ -111,19 +111,6 @@ function evolv_coeff_β3(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::
            (304 + 121 * e0^2)^(435 / 2299) / sqrt(1 - e0^2)
 end
 
-function n_from_e(n_init::MeanMotion, e_init::Eccentricity, e_now::Eccentricity)::MeanMotion
-    n0 = n_init.n
-    e0 = e_init.e
-    e = e_now.e
-
-    n =
-        n0 *
-        (e0 / e)^(18 / 19) *
-        ((1 - e^2) / (1 - e0^2))^1.5 *
-        ((304 + 121 * e0^2) / (304 + 121 * e^2))^(1305 / 2299)
-    return MeanMotion(n)
-end
-
 function lbar_from_e(ecc::Eccentricity)::ScaledMeanAnomaly
     e = ecc.e
 
@@ -193,42 +180,12 @@ function γbar123_from_e(ecc::Eccentricity, mass::Mass)::ScaledPeriastronAngle
     return ScaledPeriastronAngle(γbar1, γbar2, γbar3)
 end
 
-function τ_from_t(delay::Time, tau0::ScaledTime, κ::Float64)::ScaledTime
-    return ScaledTime(tau0.τ - κ * delay.t)
-end
-
-function l_from_lbar(
-    lbar_now::ScaledMeanAnomaly,
-    lbar_init::ScaledMeanAnomaly,
-    coeff::Float64,
-    l_init::Angle,
-)::Angle
-    l0 = l_init.θ
-    lbar = lbar_now.lbar
-    lbar0 = lbar_init.lbar
-    l = l0 + (lbar0 - lbar) * coeff
-    return Angle(l)
-end
-
-function γ_from_γbar(
-    γbar_now::ScaledPeriastronAngle,
-    γbar_init::ScaledPeriastronAngle,
-    coeffs::Float64,
-)::Angle
-    γbar1 = γbar_now.γbar1
-    γbar2 = γbar_now.γbar2
-    γbar3 = γbar_now.γbar3
-    γbar10 = γbar_init.γbar1
-    γbar20 = γbar_init.γbar2
-    γbar30 = γbar_init.γbar3
-
-    θbar = θbar_now.θbar
-    θbar0 = θbar_init.θbar
-    θ = (θbar0 - θbar) * coeff
-    return Angle(θ)
-end
-
 struct EvolvCoeffs
+    mass::Mass
+
+    n_init::MeanMotion
+    e_init::Eccentricity
+
     κ::Float64
     τ0::ScaledTime
 
@@ -242,6 +199,9 @@ struct EvolvCoeffs
 
     function EvolvCoeffs(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)
         new(
+            mass,
+            n_init,
+            e_init,
             evolv_coeff_κ(mass, n_init, e_init),
             τ_from_e(e_init),
             evolv_coeff_α(mass, n_init, e_init),
@@ -258,54 +218,75 @@ struct EvolvCoeffs
     end
 end
 
-#= function evolve_orbit(
-    Mtot::Mass,
-    eta::SymmetricMassRatio,
-    n_init::MeanMotion,
-    e_init::Eccentricity,
+function n_from_e(coeffs::EvolvCoeffs, e_now::Eccentricity)::MeanMotion
+    n0 = coeffs.n_init.n
+    e0 = coeffs.e_init.e
+    e = e_now.e
+
+    n =
+        n0 *
+        (e0 / e)^(18 / 19) *
+        ((1 - e^2) / (1 - e0^2))^1.5 *
+        ((304 + 121 * e0^2) / (304 + 121 * e^2))^(1305 / 2299)
+    return MeanMotion(n)
+end
+
+function τ_from_t(delay::Time, coeffs::EvolvCoeffs)::ScaledTime
+    τ0 = coeffs.τ0.τ
+    κ = coeffs.κ
+    dt = delay.t
+    return ScaledTime(τ0 - κ * dt)
+end
+
+function l_from_lbar(
+    coeffs::EvolvCoeffs,
     l_init::Angle,
-    proj_pars::ProjectionParams,
-    delay::Time,
-    pulsar_term::Bool,
-)
+    lbar_now::ScaledMeanAnomaly
+)::Angle
+    l0 = l_init.θ
+    lbar = lbar_now.lbar
+    lbar0 = coeffs.lbar0.lbar
+    α = coeffs.α
+    l = l0 + (lbar0 - lbar) * α
+    return Angle(l)
+end
 
-    γ_init = Angle(pulsar_term ? proj_pars.γp : proj_pars.γ0)
+function γ_from_γbar(
+    coeffs::EvolvCoeffs,
+    γ_init::Angle,
+    γbar_now::ScaledPeriastronAngle
+)::Angle
+    γbar1 = γbar_now.γbar1
+    γbar2 = γbar_now.γbar2
+    γbar3 = γbar_now.γbar3
+    γbar10 = coeffs.γbar0_123.γbar1
+    γbar20 = coeffs.γbar0_123.γbar2
+    γbar30 = coeffs.γbar0_123.γbar3
 
-    Mchirp::Mass = chirp_mass(Mtot, eta)
+    β1 = coeffs.β
+    β2 = coeffs.β2
+    β3 = coeffs.β3
 
-    κ::Float64 = evolv_coeff_κ(Mchirp, n_init, e_init)
-    tau0::ScaledTime = τ_from_e(e_init)
-    tau::ScaledTime = τ_from_t(delay, tau0, κ)
+    γ0 = γ_init.θ
 
-    if tau.τ < 0
-        throw(DomainError(tau, "The binary has already merged (τ<0)."))
-    end
+    γ = γ0 + (γbar10-γbar1)*β1 + (γbar20-γbar2)*β2 + (γbar30-γbar3)*β3
+    return Angle(γ)
+end
 
-    e::Eccentricity = e_from_τ(tau)
-    n::MeanMotion = n_from_e(n_init, e_init, e)
+function evolve_orbit(
+    coeffs::EvolvCoeffs,
+    l_init::Angle,
+    γ_init::Angle,
+    delay::Time
+)    
+    τ::ScaledTime = τ_from_t(delay, coeffs)
+    e::Eccentricity = e_from_τ(τ)
+    n::MeanMotion = n_from_e(coeffs, e)
+    lbar::ScaledMeanAnomaly = lbar_from_e(e)
+    γbar123::ScaledPeriastronAngle = γbar123_from_e(e, coeffs.mass)
 
-    α::Float64 = evolv_coeff_α(Mchirp, n_init, e_init)
-    lbar0::ScaledAngle = lbar_from_e(e_init)
-    lbar::ScaledAngle = lbar_from_e(e)
-    l::Angle = θ_from_θbar(lbar, lbar0, α, l_init)
-
-    β::Float64 = evolv_coeff_β(Mchirp, Mtot, n_init, e_init)
-    γbar0::ScaledAngle = γbar_from_e(e0)
-    γbar::ScaledAngle = γbar_from_e(e)
-    γ1::Angle = θ_from_θbar(γbar, γbar0, β, γ_init)
-
-    β2::Float64 = evolv_coeff_β2(Mchirp, Mtot, n_init, e_init)
-    γbar20::ScaledAngle = γbar2_from_e(e_init, eta)
-    γbar2::ScaledAngle = γbar2_from_e(e, eta)
-    γ2::Angle = θ_from_θbar(γbar2, γbar20, β2)
-
-    β3::Float64 = evolv_coeff_β3(Mchirp, Mtot, n_init, e_init)
-    γbar30::ScaledAngle = γbar3_from_e(e_init, eta)
-    γbar3::ScaledAngle = γbar3_from_e(e, eta)
-    γ3::Angle = θ_from_θbar(γbar3, γbar30, β3)
-
-    γ = Angle(γ1.θ + γ2.θ + γ3.θ)
+    l::Angle = l_from_lbar(coeffs, l_init, lbar)
+    γ::Angle = γ_from_γbar(coeffs, γ_init, γbar123)
 
     return n, e, l, γ
 end
- =#

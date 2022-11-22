@@ -69,8 +69,8 @@ end
 
 struct Angle
     θ::Float64
-    ScaledTime(θ::Float64) =
-        θ >= 0 ? new(θ) : throw(DomainError(θ, "isnan(θ) encountered."))
+    Angle(θ::Float64) =
+        isfinite(θ) ? new(θ) : throw(DomainError(θ, "isnan(θ) encountered."))
 end
 
 struct ProjectionParams
