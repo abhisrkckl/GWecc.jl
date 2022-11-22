@@ -71,10 +71,10 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         delay0 = Time(0.0)
         n0, e0, l0, γ0 = evolve_orbit(coeffs, l_init, γ_init, delay0)
 
-        @test n0.n ≈ n_init.n atol=1e-9
-        @test e0.e ≈ e_init.e atol=1e-9
-        @test_broken l0.θ ≈ l_init.θ atol=1e-9
-        @test γ0.θ ≈ γ_init.θ atol=1e-9
+        @test n0.n ≈ n_init.n atol = 1e-9
+        @test e0.e ≈ e_init.e atol = 1e-9
+        @test_broken l0.θ ≈ l_init.θ atol = 1e-9
+        @test γ0.θ ≈ γ_init.θ atol = 1e-9
 
         delay1 = Time(-10000.0)
         n1, e1, l1, γ1 = evolve_orbit(coeffs, l_init, γ_init, delay1)
