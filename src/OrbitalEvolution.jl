@@ -1,4 +1,4 @@
-export e_from_τ, τ_from_e
+export e_from_τ, τ_from_e, eccmin, eccmax, taumin, taumax
 
 import DataInterpolations
 import JLD
@@ -35,7 +35,7 @@ function e_from_τ(tau::ScaledTime) :: Eccentricity
 
     if τ < τmin
         coeff::Float64 = 2^(559/726) * 3^(19/48) / 19^(145/242);
-        e = coeff * τmin^(19/48);
+        e = coeff * τ^(19/48);
     elseif τ > τmax
         e = 1 - 4/(a*τ+b)^2;
     else

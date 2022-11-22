@@ -1,10 +1,12 @@
+export ProjectionParams, SkyLocation, ScaledTime, Time, Eccentricity, Mass, MeanMotion
+
 struct ProjectionParams
     ψ::Float64
     cosι::Float64
     γ0::Float64
     γp::Float64
 
-    function ProjectionParams(ψ::Float64) 
+    function ProjectionParams(ψ::Float64, cosι::Float64, γ0::Float64, γp::Float64) 
         if !(ψ>=0 && ψ<=π) 
             throw(DomainError(ψ, "ψ out of range."))
         elseif !(cosι>=-1 && cosι<1)
@@ -36,7 +38,7 @@ end
 
 struct ScaledTime
     τ::Float64
-    ScaledTime(τ::Float64) = τ>=0 ? new(τ) : throw(DomainError(τ, "τ<0 encountered."))
+    ScaledTime(τ::Float64) = isfinite(τ) && τ>=0 ? new(τ) : throw(DomainError(τ, "τ<0 encountered."))
 end
 
 struct Time
