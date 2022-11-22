@@ -4,7 +4,7 @@ struct ProjectionParams
     γ0::Float64
     γp::Float64
 
-    function PolarizationAngle(ψ::Float64) 
+    function ProjectionParams(ψ::Float64) 
         if !(ψ>=0 && ψ<=π) 
             throw(DomainError(ψ, "ψ out of range."))
         elseif !(cosι>=-1 && cosι<1)
