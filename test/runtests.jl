@@ -181,4 +181,19 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test dγ3_dt_anl2 ≈ dγ3_dt_anl1 atol = 1e-9
         end
     end
+
+    @testset "mikkola" begin
+        e = Eccentricity(0.1)
+        l = Angle(0.0)
+        @test l == mikkola(e, l)
+
+        for e in [0.1, 0.5, 0.9]
+            ecc = Eccentricity(e)
+            for _l in -7.0:0.5:7.0
+                l = Angle(_l)
+                u = mikkola(ecc, l)
+                @test l.θ ≈ kepler(ecc, u).θ
+            end
+        end
+    end
 end
