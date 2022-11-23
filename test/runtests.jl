@@ -121,6 +121,12 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             de_dt_anl2 = -κ * de_dτ_anl
             @test de_dt_anl1 ≈ de_dt_anl2
 
+            dn_dt_anl = derivative_dn_dt(mass, n, ecc)
+            dn_de_anl = dn_dt_anl / de_dt_anl1
+            n_from_e_func = e1 -> n_from_e(coeffs, Eccentricity(e1)).n
+            dn_de_num = numdiff(n_from_e_func, e)
+            @test dn_de_anl ≈ dn_de_num
+
             dlbar_de_anl = derivative_dlbar_de(ecc)
             dlbar_de_num = numdiff(lbar_from_e, e)
             @test dlbar_de_anl ≈ dlbar_de_num atol=1e-9
@@ -133,7 +139,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             dl_dt_anl1 = n.n
             @test dl_dt_anl2 ≈ dl_dt_anl1 atol=1e-9
 
-            
+
         end
     end
 end

@@ -2,7 +2,7 @@ export e_from_τ, τ_from_e, eccmin, eccmax, taumin, taumax
 export evolv_coeff_κ, evolv_coeff_α, evolv_coeff_β, evolv_coeff_β2, evolv_coeff_β3
 export n_from_e, lbar_from_e, γbar_from_e, γbar2_from_e, γbar3_from_e
 export EvolvCoeffs, evolve_orbit
-export derivative_dτ_de, derivative_de_dt, derivative_dlbar_de
+export derivative_dτ_de, derivative_de_dt, derivative_dn_dt, derivative_dlbar_de
 
 import DataInterpolations
 import JLD
@@ -305,6 +305,13 @@ function derivative_de_dt(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::Floa
     n = norb.n
     e = ecc.e
     return (-1/15) * (Mch*n)^(5/3) * n * e * (304+121*e^2) / (1-e^2)^2.5
+end
+
+function derivative_dn_dt(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::Float64
+    Mch = mass.Mch
+    n = norb.n
+    e = ecc.e
+    return (1/5) * (Mch*n)^(5/3) * n^2 * (96 + 292*e^2 + 37*e^4) / (1-e^2)^3.5
 end
 
 function derivative_dlbar_de(ecc::Eccentricity)::Float64
