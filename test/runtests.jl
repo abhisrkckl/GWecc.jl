@@ -1,5 +1,6 @@
 using GWecc
 using Test
+using FiniteDifferences
 
 e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))).e
 
@@ -21,16 +22,20 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @test_throws DomainError Eccentricity(1.0)
 
         @test_throws DomainError ScaledTime(-1.0)
+        @test ScaledTime(0.0).τ == 0.0
         @test ScaledTime(10.0).τ == 10.0
         @test_throws DomainError ScaledTime(Inf)
 
-        @test isapprox(e_from_τ_from_e(eccmin.e / 4), eccmin.e / 4)
-        @test isapprox(e_from_τ_from_e(eccmin.e), eccmin.e)
-        @test isapprox(e_from_τ_from_e(0.1), 0.1)
-        @test isapprox(e_from_τ_from_e(0.5), 0.5)
-        @test isapprox(e_from_τ_from_e(0.9), 0.9)
-        @test isapprox(e_from_τ_from_e(eccmax.e), eccmax.e)
-        @test isapprox(e_from_τ_from_e((eccmax.e + 1) / 2), (eccmax.e + 1) / 2)
+        for e in [eccmin.e / 4, eccmin.e, 0.1, 0.5, 0.9, eccmax.e, (eccmax.e + 1) / 2]
+            @test e_from_τ_from_e(0.1) ≈ 0.1
+        end
+        # @test isapprox(e_from_τ_from_e(eccmin.e / 4), eccmin.e / 4)
+        # @test isapprox(e_from_τ_from_e(eccmin.e), eccmin.e)
+        # @test isapprox(e_from_τ_from_e(0.1), 0.1)
+        # @test isapprox(e_from_τ_from_e(0.5), 0.5)
+        # @test isapprox(e_from_τ_from_e(0.9), 0.9)
+        # @test isapprox(e_from_τ_from_e(eccmax.e), eccmax.e)
+        # @test isapprox(e_from_τ_from_e((eccmax.e + 1) / 2), (eccmax.e + 1) / 2)
     end
 
     @testset "coeffs" begin
@@ -70,7 +75,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         delay0 = Time(0.0)
         n0, e0, l0, γ0 = evolve_orbit(coeffs, l_init, γ_init, delay0)
-
         @test n0.n ≈ n_init.n atol = 1e-9
         @test e0.e ≈ e_init.e atol = 1e-9
         @test_broken l0.θ ≈ l_init.θ atol = 1e-9
@@ -78,7 +82,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         delay1 = Time(-10000.0)
         n1, e1, l1, γ1 = evolve_orbit(coeffs, l_init, γ_init, delay1)
-
         @test n1.n < n_init.n
         @test e1.e > e_init.e
         @test l1.θ < l_init.θ
@@ -86,10 +89,51 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         delay2 = Time(10000.0)
         n2, e2, l2, γ2 = evolve_orbit(coeffs, l_init, γ_init, delay2)
-
         @test n2.n > n_init.n
         @test e2.e < e_init.e
         @test l2.θ > l_init.θ
         @test γ2.θ > γ_init.θ
+    end
+
+    @testset "derivatives" begin
+        numdiff = central_fdm(5, 1)
+        
+        mass = Mass(5000.0, 0.1)
+        n = MeanMotion(1e-8)
+        l = Angle(0.0)
+        γ = Angle(0.0)
+
+        for e in [0.1, 0.5, 0.9]
+            ecc = Eccentricity(e)
+            coeffs = EvolvCoeffs(mass, n, ecc)
+
+            dτ_de_anl = derivative_dτ_de(ecc)
+            dτ_de_num = numdiff(τ_from_e, e)
+            @test dτ_de_anl ≈ dτ_de_num atol=1e-9
+
+            τ = τ_from_e(e)
+            de_dτ_num = numdiff(e_from_τ, τ)
+            de_dτ_anl = 1/dτ_de_anl
+            @test de_dτ_anl ≈ de_dτ_num atol=1e-9
+
+            κ = evolv_coeff_κ(mass, n, ecc)
+            de_dt_anl1 = derivative_de_dt(mass, n, ecc)
+            de_dt_anl2 = -κ * de_dτ_anl
+            @test de_dt_anl1 ≈ de_dt_anl2
+
+            dlbar_de_anl = derivative_dlbar_de(ecc)
+            dlbar_de_num = numdiff(lbar_from_e, e)
+            @test dlbar_de_anl ≈ dlbar_de_num atol=1e-9
+
+            α = evolv_coeff_α(mass, n, ecc)
+            dlbar_dτ_anl = dlbar_de_anl * de_dτ_anl
+            dl_dτ_anl = -α * dlbar_dτ_anl
+            dτ_dt_anl = -κ
+            dl_dt_anl2 = dl_dτ_anl * dτ_dt_anl
+            dl_dt_anl1 = n.n
+            @test dl_dt_anl2 ≈ dl_dt_anl1 atol=1e-9
+
+            
+        end
     end
 end

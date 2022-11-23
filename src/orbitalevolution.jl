@@ -2,12 +2,13 @@ export e_from_τ, τ_from_e, eccmin, eccmax, taumin, taumax
 export evolv_coeff_κ, evolv_coeff_α, evolv_coeff_β, evolv_coeff_β2, evolv_coeff_β3
 export n_from_e, lbar_from_e, γbar_from_e, γbar2_from_e, γbar3_from_e
 export EvolvCoeffs, evolve_orbit
+export derivative_dτ_de, derivative_de_dt, derivative_dlbar_de
 
 import DataInterpolations
 import JLD
 using HypergeometricFunctions
 
-include("Parameters.jl")
+include("parameters.jl")
 
 function read_precomputed_tau_e(datafile::String)
     data = JLD.load(datafile)
@@ -42,6 +43,7 @@ function e_from_τ(tau::ScaledTime)::Eccentricity
 
     return Eccentricity(e)
 end
+e_from_τ(τ::Float64)::Float64 = e_from_τ(ScaledTime(τ)).e
 
 function τ_from_e(ecc::Eccentricity)::ScaledTime
     e = ecc.e
@@ -59,13 +61,14 @@ function τ_from_e(ecc::Eccentricity)::ScaledTime
 
     return ScaledTime(τ)
 end
+τ_from_e(e::Float64)::Float64 = τ_from_e(Eccentricity(e)).τ
 
 function evolv_coeff_κ(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::Float64
     Mch = mass.Mch
     n0 = n_init.n
     e0 = e_init.e
 
-    return Mch^(5 / 3) / 15 * n0^(8 / 3) * e0^(48 / 19) * (304 + 121 * e0^2)^(3480 / 2299) /
+    return (1/15) * (Mch*n0)^(5 / 3) * n0 * e0^(48 / 19) * (304 + 121 * e0^2)^(3480 / 2299) /
            (1 - e0^2)^4
 end
 
@@ -118,6 +121,7 @@ function lbar_from_e(ecc::Eccentricity)::ScaledMeanAnomaly
     lbar = coeff * e * e^(11 / 19) * _₂F₁(124 / 2299, 15 / 19, 34 / 19, -121 * e^2 / 304)
     return ScaledMeanAnomaly(lbar)
 end
+lbar_from_e(e::Float64)::Float64 = lbar_from_e(Eccentricity(e)).lbar
 
 function γbar_from_e(ecc::Eccentricity)::Float64
     e = ecc.e
@@ -289,4 +293,21 @@ function evolve_orbit(
     γ::Angle = γ_from_γbar(coeffs, γ_init, γbar123)
 
     return n, e, l, γ
+end
+
+function derivative_dτ_de(ecc::Eccentricity)::Float64
+    e = ecc.e
+    return e^(29/19) * (121*e^2+304)^(1181/2299) / (1-e^2)^(3/2)
+end
+
+function derivative_de_dt(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::Float64
+    Mch = mass.Mch
+    n = norb.n
+    e = ecc.e
+    return (-1/15) * (Mch*n)^(5/3) * n * e * (304+121*e^2) / (1-e^2)^2.5
+end
+
+function derivative_dlbar_de(ecc::Eccentricity)::Float64
+    e = ecc.e
+    return e^(11/19) / (304+121*e^2)^(124/2299)
 end

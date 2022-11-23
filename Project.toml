@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 DataInterpolations = "82cc6244-b520-54b8-b5a6-8a565e85f1d0"
+FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
 HypergeometricFunctions = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
 JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"

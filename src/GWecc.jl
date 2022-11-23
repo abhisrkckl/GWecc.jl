@@ -1,5 +1,5 @@
 module GWecc
 
-include("OrbitalEvolution.jl")
+include("orbitalevolution.jl")
 
 end # module GWecc
