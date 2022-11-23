@@ -337,7 +337,7 @@ function derivative_dγbar3_de(ecc::Eccentricity, mass::Mass)::Float64
     e = ecc.e
     η = mass.η
     return (18240 − 25376*η + 492*(π^2)*η + 896*η^2 + (28128 − 27840*η + 123*(π^2)*η + 5120*η^2)*e^2 
-        + (2496 − 1760*η + 1040*η^2)*e^4 + (1920 − 768*η + (3840 − 1536*η)*e^2)*sqrt(1-e^2))
+        + (2496 − 1760*η + 1040*η^2)*e^4 + (1920 − 768*η + (3840 − 1536*η)*e^2)*sqrt(1-e^2)) / e^(25/19) / (304+121*e^2)^(2734/2299)
 end
 
 function advance_of_periastron_1PN(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::PeriastronAdvance

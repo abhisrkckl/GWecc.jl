@@ -164,18 +164,21 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             dγ2_dt_anl1 = k2 * n.n
             @test dγ2_dt_anl2 ≈ dγ2_dt_anl1 atol=1e-9
 
-            # dγbar3_de_anl = derivative_dγbar3_de(ecc, mass)
-            # γbar3_from_e_func = e1 -> γbar3_from_e(Eccentricity(e1), mass)
-            # dγbar3_de_num = numdiff(γbar3_from_e_func, e)
-            # @test dγbar3_de_anl ≈ dγbar3_de_num atol=1e-9
+            dγbar3_de_anl = derivative_dγbar3_de(ecc, mass)
+            γbar3_from_e_func = e1 -> γbar3_from_e(Eccentricity(e1), mass)
+            dγbar3_de_num = numdiff(γbar3_from_e_func, e)
+            # This comparison is so imprecise because γbar3_from_e implements a
+            # Pade approximant rather than the exact expression. This is OK because
+            # this is a 3PN correction.
+            @test dγbar3_de_anl ≈ dγbar3_de_num rtol=1e-2
 
-            # β3 = evolv_coeff_β3(mass, n, ecc)
-            # dγbar3_dτ_anl = dγbar3_de_anl * de_dτ_anl
-            # dγ3_dτ_anl = -β2 * dγbar3_dτ_anl
-            # dγ3_dt_anl2 = dγ3_dτ_anl * dτ_dt_anl
-            # k3 = advance_of_periastron_3PN(mass, n, ecc).k
-            # dγ3_dt_anl1 = k3 * n.n
-            # @test dγ3_dt_anl2 ≈ dγ3_dt_anl1 atol=1e-9
+            β3 = evolv_coeff_β3(mass, n, ecc)
+            dγbar3_dτ_anl = dγbar3_de_anl * de_dτ_anl
+            dγ3_dτ_anl = -β2 * dγbar3_dτ_anl
+            dγ3_dt_anl2 = dγ3_dτ_anl * dτ_dt_anl
+            k3 = advance_of_periastron_3PN(mass, n, ecc).k
+            dγ3_dt_anl1 = k3 * n.n
+            @test dγ3_dt_anl2 ≈ dγ3_dt_anl1 atol=1e-9
         end
     end
 end
