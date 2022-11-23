@@ -77,7 +77,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         n0, e0, l0, γ0 = evolve_orbit(coeffs, l_init, γ_init, delay0)
         @test n0.n ≈ n_init.n atol = 1e-9
         @test e0.e ≈ e_init.e atol = 1e-9
-        @test_broken l0.θ ≈ l_init.θ atol = 1e-9
+        @test l0.θ ≈ l_init.θ atol = 1e-8
         @test γ0.θ ≈ γ_init.θ atol = 1e-9
 
         delay1 = Time(-10000.0)
@@ -139,7 +139,43 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             dl_dt_anl1 = n.n
             @test dl_dt_anl2 ≈ dl_dt_anl1 atol=1e-9
 
+            dγbar_de_anl = derivative_dγbar_de(ecc)
+            dγbar_de_num = numdiff(γbar_from_e, e)
+            @test dγbar_de_anl ≈ dγbar_de_num atol=1e-9
 
+            β = evolv_coeff_β(mass, n, ecc)
+            dγbar_dτ_anl = dγbar_de_anl * de_dτ_anl
+            dγ_dτ_anl = -β * dγbar_dτ_anl
+            dγ_dt_anl2 = dγ_dτ_anl * dτ_dt_anl
+            k1 = advance_of_periastron_1PN(mass, n, ecc).k
+            dγ_dt_anl1 = k1 * n.n
+            @test dγ_dt_anl2 ≈ dγ_dt_anl1 atol=1e-9
+
+            dγbar2_de_anl = derivative_dγbar2_de(ecc, mass)
+            γbar2_from_e_func = e1 -> γbar2_from_e(Eccentricity(e1), mass)
+            dγbar2_de_num = numdiff(γbar2_from_e_func, e)
+            @test dγbar2_de_anl ≈ dγbar2_de_num atol=1e-9
+
+            β2 = evolv_coeff_β2(mass, n, ecc)
+            dγbar2_dτ_anl = dγbar2_de_anl * de_dτ_anl
+            dγ2_dτ_anl = -β2 * dγbar2_dτ_anl
+            dγ2_dt_anl2 = dγ2_dτ_anl * dτ_dt_anl
+            k2 = advance_of_periastron_2PN(mass, n, ecc).k
+            dγ2_dt_anl1 = k2 * n.n
+            @test dγ2_dt_anl2 ≈ dγ2_dt_anl1 atol=1e-9
+
+            # dγbar3_de_anl = derivative_dγbar3_de(ecc, mass)
+            # γbar3_from_e_func = e1 -> γbar3_from_e(Eccentricity(e1), mass)
+            # dγbar3_de_num = numdiff(γbar3_from_e_func, e)
+            # @test dγbar3_de_anl ≈ dγbar3_de_num atol=1e-9
+
+            # β3 = evolv_coeff_β3(mass, n, ecc)
+            # dγbar3_dτ_anl = dγbar3_de_anl * de_dτ_anl
+            # dγ3_dτ_anl = -β2 * dγbar3_dτ_anl
+            # dγ3_dt_anl2 = dγ3_dτ_anl * dτ_dt_anl
+            # k3 = advance_of_periastron_3PN(mass, n, ecc).k
+            # dγ3_dt_anl1 = k3 * n.n
+            # @test dγ3_dt_anl2 ≈ dγ3_dt_anl1 atol=1e-9
         end
     end
 end

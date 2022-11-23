@@ -73,6 +73,11 @@ struct Angle
         isfinite(θ) ? new(θ) : throw(DomainError(θ, "isnan(θ) encountered."))
 end
 
+struct PeriastronAdvance
+    k::Float64
+    PeriastronAdvance(k::Float64) = abs(k) < 0.25 ? new(k) : throw(DomainError(k, "k out of range."))
+end
+
 struct ProjectionParams
     ψ::Float64
     cosι::Float64

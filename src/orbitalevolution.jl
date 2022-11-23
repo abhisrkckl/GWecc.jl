@@ -2,7 +2,9 @@ export e_from_τ, τ_from_e, eccmin, eccmax, taumin, taumax
 export evolv_coeff_κ, evolv_coeff_α, evolv_coeff_β, evolv_coeff_β2, evolv_coeff_β3
 export n_from_e, lbar_from_e, γbar_from_e, γbar2_from_e, γbar3_from_e
 export EvolvCoeffs, evolve_orbit
-export derivative_dτ_de, derivative_de_dt, derivative_dn_dt, derivative_dlbar_de
+export derivative_dτ_de, derivative_de_dt, derivative_dn_dt
+export derivative_dlbar_de, derivative_dγbar_de, derivative_dγbar2_de, derivative_dγbar3_de
+export advance_of_periastron_1PN, advance_of_periastron_2PN, advance_of_periastron_3PN
 
 import DataInterpolations
 import JLD
@@ -129,6 +131,7 @@ function γbar_from_e(ecc::Eccentricity)::Float64
     γbar = coeff * e^(18 / 19) * _₂F₁(994 / 2299, 9 / 19, 28 / 19, -121 * e^2 / 304)
     return γbar
 end
+γbar_from_e(e::Float64)::Float64 = γbar_from_e(Eccentricity(e))
 
 function γbar2_from_e(ecc::Eccentricity, mass::Mass)::Float64
     e = ecc.e
@@ -317,4 +320,56 @@ end
 function derivative_dlbar_de(ecc::Eccentricity)::Float64
     e = ecc.e
     return e^(11/19) / (304+121*e^2)^(124/2299)
+end
+
+function derivative_dγbar_de(ecc::Eccentricity)::Float64
+    e = ecc.e
+    return e^(-1/19) / (304+121*e^2)^(994/2299)
+end
+
+function derivative_dγbar2_de(ecc::Eccentricity, mass::Mass)::Float64
+    e = ecc.e
+    η = mass.η
+    return (e^2*(51-26*η) - 28*η + 78) / e^(13/19) / (304+121*e^2)^(1864/2299)
+end
+
+function derivative_dγbar3_de(ecc::Eccentricity, mass::Mass)::Float64
+    e = ecc.e
+    η = mass.η
+    return (18240 − 25376*η + 492*(π^2)*η + 896*η^2 + (28128 − 27840*η + 123*(π^2)*η + 5120*η^2)*e^2 
+        + (2496 − 1760*η + 1040*η^2)*e^4 + (1920 − 768*η + (3840 − 1536*η)*e^2)*sqrt(1-e^2))
+end
+
+function advance_of_periastron_1PN(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::PeriastronAdvance
+    e = ecc.e
+    n = norb.n
+    M = mass.m
+    x = (M*n)^(2/3)
+    k = 3*x/(1-e^2)
+    return PeriastronAdvance(k)
+end
+
+function advance_of_periastron_2PN(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::PeriastronAdvance
+    e = ecc.e
+    n = norb.n
+    M = mass.m
+    η = mass.η
+    x = (M*n)^(2/3)
+    k2 = 0.25 * x^2 * ((51 - 26*η)*e^2 − 28*η + 78) / (1-e^2)^2
+    return PeriastronAdvance(k2)
+end
+
+function advance_of_periastron_3PN(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::PeriastronAdvance
+    e = ecc.e
+    n = norb.n
+    M = mass.m
+    η = mass.η
+    x = (M*n)^(2/3)
+    k3 = (1/128) * x^3 * (
+        (18240 − 25376*η + 492*(π^2)*η + 896*η^2 
+        + (28128 − 27840*η + 123*(π^2)*η + 5120*η^2)*e^2 
+        + (2496 − 1760*η + 1040*η^2)*e^4 + (1920 − 768*η 
+        + (3840 − 1536*η)*e^2)*sqrt(1−e^2))
+    ) / (1-e^2)^3
+    return PeriastronAdvance(k3)
 end
