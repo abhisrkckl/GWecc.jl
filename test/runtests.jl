@@ -97,7 +97,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
     @testset "derivatives" begin
         numdiff = central_fdm(5, 1)
-        
+
         mass = Mass(5000.0, 0.1)
         n = MeanMotion(1e-8)
         l = Angle(0.0)
@@ -109,12 +109,12 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
             dτ_de_anl = derivative_dτ_de(ecc)
             dτ_de_num = numdiff(τ_from_e, e)
-            @test dτ_de_anl ≈ dτ_de_num atol=1e-9
+            @test dτ_de_anl ≈ dτ_de_num atol = 1e-9
 
             τ = τ_from_e(e)
             de_dτ_num = numdiff(e_from_τ, τ)
-            de_dτ_anl = 1/dτ_de_anl
-            @test de_dτ_anl ≈ de_dτ_num atol=1e-9
+            de_dτ_anl = 1 / dτ_de_anl
+            @test de_dτ_anl ≈ de_dτ_num atol = 1e-9
 
             κ = evolv_coeff_κ(mass, n, ecc)
             de_dt_anl1 = derivative_de_dt(mass, n, ecc)
@@ -129,7 +129,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
             dlbar_de_anl = derivative_dlbar_de(ecc)
             dlbar_de_num = numdiff(lbar_from_e, e)
-            @test dlbar_de_anl ≈ dlbar_de_num atol=1e-9
+            @test dlbar_de_anl ≈ dlbar_de_num atol = 1e-9
 
             α = evolv_coeff_α(mass, n, ecc)
             dlbar_dτ_anl = dlbar_de_anl * de_dτ_anl
@@ -137,11 +137,11 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             dτ_dt_anl = -κ
             dl_dt_anl2 = dl_dτ_anl * dτ_dt_anl
             dl_dt_anl1 = n.n
-            @test dl_dt_anl2 ≈ dl_dt_anl1 atol=1e-9
+            @test dl_dt_anl2 ≈ dl_dt_anl1 atol = 1e-9
 
             dγbar_de_anl = derivative_dγbar_de(ecc)
             dγbar_de_num = numdiff(γbar_from_e, e)
-            @test dγbar_de_anl ≈ dγbar_de_num atol=1e-9
+            @test dγbar_de_anl ≈ dγbar_de_num atol = 1e-9
 
             β = evolv_coeff_β(mass, n, ecc)
             dγbar_dτ_anl = dγbar_de_anl * de_dτ_anl
@@ -149,12 +149,12 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             dγ_dt_anl2 = dγ_dτ_anl * dτ_dt_anl
             k1 = advance_of_periastron_1PN(mass, n, ecc).k
             dγ_dt_anl1 = k1 * n.n
-            @test dγ_dt_anl2 ≈ dγ_dt_anl1 atol=1e-9
+            @test dγ_dt_anl2 ≈ dγ_dt_anl1 atol = 1e-9
 
             dγbar2_de_anl = derivative_dγbar2_de(ecc, mass)
             γbar2_from_e_func = e1 -> γbar2_from_e(Eccentricity(e1), mass)
             dγbar2_de_num = numdiff(γbar2_from_e_func, e)
-            @test dγbar2_de_anl ≈ dγbar2_de_num atol=1e-9
+            @test dγbar2_de_anl ≈ dγbar2_de_num atol = 1e-9
 
             β2 = evolv_coeff_β2(mass, n, ecc)
             dγbar2_dτ_anl = dγbar2_de_anl * de_dτ_anl
@@ -162,7 +162,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             dγ2_dt_anl2 = dγ2_dτ_anl * dτ_dt_anl
             k2 = advance_of_periastron_2PN(mass, n, ecc).k
             dγ2_dt_anl1 = k2 * n.n
-            @test dγ2_dt_anl2 ≈ dγ2_dt_anl1 atol=1e-9
+            @test dγ2_dt_anl2 ≈ dγ2_dt_anl1 atol = 1e-9
 
             dγbar3_de_anl = derivative_dγbar3_de(ecc, mass)
             γbar3_from_e_func = e1 -> γbar3_from_e(Eccentricity(e1), mass)
@@ -170,7 +170,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             # This comparison is so imprecise because γbar3_from_e implements a
             # Pade approximant rather than the exact expression. This is OK because
             # this is a 3PN correction.
-            @test dγbar3_de_anl ≈ dγbar3_de_num rtol=1e-2
+            @test dγbar3_de_anl ≈ dγbar3_de_num rtol = 1e-2
 
             β3 = evolv_coeff_β3(mass, n, ecc)
             dγbar3_dτ_anl = dγbar3_de_anl * de_dτ_anl
@@ -178,7 +178,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             dγ3_dt_anl2 = dγ3_dτ_anl * dτ_dt_anl
             k3 = advance_of_periastron_3PN(mass, n, ecc).k
             dγ3_dt_anl1 = k3 * n.n
-            @test dγ3_dt_anl2 ≈ dγ3_dt_anl1 atol=1e-9
+            @test dγ3_dt_anl2 ≈ dγ3_dt_anl1 atol = 1e-9
         end
     end
 end
