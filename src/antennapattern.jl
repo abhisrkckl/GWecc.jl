@@ -17,9 +17,9 @@ struct AntennaPattern
             throw(DomainError(cosµ, "cosµ ≈ 1 encountered."))
         end
 
-        n1 = cos(λp)*cos(βp),
-        n2 = sin(λp)*cos(βp),
-        n3 = sin(βp);
+        n1 = cos(λp)*cos(βp)
+        n2 = sin(λp)*cos(βp)
+        n3 = sin(βp)
 
         e11p = (sin(λ)^2)-(cos(λ)^2)*(sin(β)^2)
         e21p = -sin(λ)*cos(λ)*((sin(β)^2)+1)
@@ -35,15 +35,15 @@ struct AntennaPattern
               n2*(n1*e21p+n2*e22p+n3*e23p)+
               n3*(n1*e31p+n2*e32p+n3*e33p)) * 0.5 / (1-cosµ)
         
-        e11c = sin(2*λ)*sin(β),
-        e21c = -cos(2*λ)*sin(β),
-        e31c = -sin(λ)*cos(β),
-        e12c = -cos(2*λ)*sin(β),
-        e22c = -sin(2*λ)*sin(β),
-        e32c = cos(λ)*cos(β),
-        e13c = -sin(λ)*cos(β),
-        e23c = cos(λ)*cos(β),
-        e33c  = 0;
+        e11c = sin(2*λ)*sin(β)
+        e21c = -cos(2*λ)*sin(β)
+        e31c = -sin(λ)*cos(β)
+        e12c = -cos(2*λ)*sin(β)
+        e22c = -sin(2*λ)*sin(β)
+        e32c = cos(λ)*cos(β)
+        e13c = -sin(λ)*cos(β)
+        e23c = cos(λ)*cos(β)
+        e33c  = 0
 
         Fx = (n1*(n1*e11c+n2*e12c+n3*e13c)+
               n2*(n1*e21c+n2*e22c+n3*e23c)+
