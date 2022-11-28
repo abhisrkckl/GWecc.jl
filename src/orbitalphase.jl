@@ -1,4 +1,4 @@
-export mikkola, kepler
+export mikkola, kepler, SinCos
 
 function mikkola(ecc::Eccentricity, ll::Angle)::Angle
     l = ll.θ
@@ -56,4 +56,12 @@ function kepler(ecc::Eccentricity, uu::Angle)::Angle
     u = uu.θ
     e = ecc.e
     return Angle(u - e*sin(u))
+end
+
+struct SinCos
+    x::Angle
+    sinx::Float64
+    cosx::Float64
+    
+    SinCos(x::Angle) = new(x, sin(x.θ), cos(x.θ))
 end

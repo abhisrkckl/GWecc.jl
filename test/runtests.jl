@@ -196,4 +196,11 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             end
         end
     end
+
+    @testset "orbital phase" begin
+        for θ in -7.0:0.5:7.0
+            scθ = SinCos(Angle(θ))
+            @test scθ.sinx^2 + scθ.cosx^2 ≈ 1.0
+        end
+    end
 end
