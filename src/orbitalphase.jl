@@ -1,4 +1,4 @@
-export mikkola, kepler, SinCos
+export mikkola, kepler, true_anomaly_diff, OrbitalPhase
 
 function mikkola(ecc::Eccentricity, ll::Angle)::Angle
     l = ll.θ
@@ -58,10 +58,37 @@ function kepler(ecc::Eccentricity, uu::Angle)::Angle
     return Angle(u - e*sin(u))
 end
 
-struct SinCos
-    x::Angle
-    sinx::Float64
-    cosx::Float64
-    
-    SinCos(x::Angle) = new(x, sin(x.θ), cos(x.θ))
+function true_anomaly_diff(ecc::Eccentricity, scu::SinCos)::Angle
+    e = ecc.e
+    u = scu.x.θ
+    su = scu.sinx
+    cu = scu.cosx
+    βφ = (e>1e-15) ? (1-sqrt(1-e^2))/e : (e/2 + (e^3)/8 + (e^5)/16)
+    v_u = u + 2*atan(βφ*su, 1-βφ*cu)
+    v_l = v_u + e*su
+    return Angle(v_l)
+end
+
+struct OrbitalPhase
+    scu::SinCos
+    sc2φ::SinCos
+    sc2ω::SinCos
+
+    function OrbitalPhase(mass::Mass, n::MeanMotion, et::Eccentricity, l::Angle, γ::Angle)
+        scu = SinCos(mikkola(et, l))
+        
+        eφ = angular_eccentricity(mass, n, et)
+        v_l = true_anomaly_diff(eφ, scu).θ
+        l = l.θ
+        v = v_l + l 
+        
+        k = advance_of_periastron(mass, n, et).k
+        W = (1+k)*v_l
+
+        γ = γ.θ
+        φ = γ + l + W
+        ω = φ - v
+
+        return new(scu, SinCos(Angle(2*φ)), SinCos(Angle(2*ω)))
+    end
 end

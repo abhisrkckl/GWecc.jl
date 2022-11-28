@@ -1,7 +1,7 @@
 export ProjectionParams, SkyLocation
 export ScaledTime, Time
 export Eccentricity, MeanMotion
-export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle
+export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
 
 struct ScaledTime
@@ -73,10 +73,12 @@ struct Angle
         isfinite(θ) ? new(θ) : throw(DomainError(θ, "isnan(θ) encountered."))
 end
 
-struct PeriastronAdvance
-    k::Float64
-    PeriastronAdvance(k::Float64) =
-        abs(k) < 0.25 ? new(k) : throw(DomainError(k, "k out of range."))
+struct SinCos
+    x::Angle
+    sinx::Float64
+    cosx::Float64
+    
+    SinCos(x::Angle) = new(x, sin(x.θ), cos(x.θ))
 end
 
 struct ProjectionParams
