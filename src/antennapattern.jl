@@ -48,10 +48,10 @@ struct AntennaPattern
     Fx::Float64
 
     function AntennaPattern(psrpos::SkyLocation, gwpos::SkyLocation)
-        λp = psrpos.ra
-        βp = psrpos.dec
-        λ = gwpos.ra
-        β = gwpos.dec
+        # λp = psrpos.ra
+        # βp = psrpos.dec
+        # λ = gwpos.ra
+        # β = gwpos.dec
 
         # cosµ = cos(β) * cos(βp) * cos(λ - λp) + sin(β) * sin(βp)
 

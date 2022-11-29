@@ -2,6 +2,7 @@ using GWecc
 using Test
 using FiniteDifferences
 using LinearAlgebra
+using UnPack
 
 e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))).e
 
@@ -263,5 +264,10 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @test ep*ec + ec*ep ≈ zeros(3,3) atol=1e-9
         @test ep*nhat ≈ zeros(3) atol=1e-9
         @test ec*nhat ≈ zeros(3) atol=1e-9
+
+        ap1 = AntennaPattern(psrpos, gwpos)
+        ap2 = AntennaPattern(gwpos, psrpos)
+        @test ap1.cosµ ≈ ap2.cosµ
+        @test ap1.Fp^2 + ap1.Fx^2 ≈ ap2.Fp^2 + ap2.Fx^2
     end
 end
