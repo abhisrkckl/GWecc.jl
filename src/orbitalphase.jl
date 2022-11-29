@@ -1,4 +1,4 @@
-export mikkola, kepler, true_anomaly_diff, OrbitalPhase
+export mikkola, kepler, true_anomaly, true_anomaly_diff, OrbitalPhase
 
 function mikkola(ecc::Eccentricity, ll::Angle)::Angle
     l = ll.θ
@@ -60,13 +60,55 @@ end
 
 function true_anomaly_diff(ecc::Eccentricity, scu::SinCos)::Angle
     e = ecc.e
-    u = scu.x.θ
     su = scu.sinx
     cu = scu.cosx
     βφ = (e>1e-15) ? (1-sqrt(1-e^2))/e : (e/2 + (e^3)/8 + (e^5)/16)
-    v_u = u + 2*atan(βφ*su, 1-βφ*cu)
+    v_u = 2*atan(βφ*su, 1-βφ*cu)
     v_l = v_u + e*su
     return Angle(v_l)
+end
+
+function true_anomaly(ecc::Eccentricity, scu::SinCos)::Angle
+    e = ecc.e
+    u = scu.x.θ
+
+    if u<0
+        scu1 = SinCos(Angle(-u))
+        return Angle(-true_anomaly(ecc, scu1).θ)
+    end
+
+    if u>2*π
+        ncycles = u ÷ (2*π)
+        u1 = u % (2*π)
+        scu1 = SinCos(Angle(u1))
+        v1 = true_anomaly(ecc, scu1).θ
+        return Angle(v1 + ncycles*(2*π))
+    end
+
+    if u>π
+        u1 = 2*π - u
+        scu1 = SinCos(Angle(u1))
+        v1 = true_anomaly(ecc, scu1).θ
+        return Angle(2*π - v1)
+    end
+
+    sgn = sign(u)
+    u = u*sgn
+
+    ncycles = floor(u/(2*π));
+    u = u - 2*π*ncycles # 0<=l<2*pi
+
+    flag = u > π
+    if flag
+        u = 2*π - u; # 0<=l<=pi
+    end
+
+    v = 2*atan(sqrt((1+e)/(1-e)) * tan(u/2))
+
+    v = flag ? (2*π-v) : v
+    u = sgn*(v + 2*π*ncycles)
+    
+    return Angle(v)
 end
 
 struct OrbitalPhase

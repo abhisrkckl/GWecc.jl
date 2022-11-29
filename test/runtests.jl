@@ -204,6 +204,20 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         end
     end
 
+    @testset "true anomaly" begin
+        for e in [0.1, 0.5, 0.9]
+            ecc = Eccentricity(e)
+            for _l in LinRange(-4*π, 4*π, 10)
+                l = Angle(_l)
+                u = mikkola(ecc, l)
+                scu = SinCos(u)
+                v_l = true_anomaly_diff(ecc, scu)
+                v = true_anomaly(ecc, scu)
+                @test v_l.θ ≈ v.θ - l.θ atol=1e-9
+            end
+        end
+    end
+
     @testset "orbital phase" begin
         mass = Mass(5000.0, 0.1)
         n = MeanMotion(1e-8)
