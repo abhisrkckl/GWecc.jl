@@ -221,16 +221,27 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
     @testset "orbital phase" begin
         mass = Mass(5000.0, 0.1)
         n = MeanMotion(1e-8)
-        l = Angle(0.0)
         γ = Angle(3.5)
+        γ_ = γ.θ
 
-        for e in [0.1, 0.5, 0.9]
-            et = Eccentricity(e)
-            orbital_phase = OrbitalPhase(mass, n, et, l, γ)
-            φ = orbital_phase.sc2φ.x.θ / 2
-            u = orbital_phase.scu.x
-            γ_ = γ.θ
-            @test φ ≈ γ_
+        for l_ in [0.0, 1.3, 2.3, 3.3, 4.3]
+            l = Angle(l_)
+            for e in [1e-9, 0.1, 0.5, 0.9]
+                et = Eccentricity(e)
+                orbital_phase = OrbitalPhase(mass, n, et, l, γ)
+                φ = orbital_phase.sc2φ.x.θ / 2
+                u = orbital_phase.scu.x
+                
+                if l == 0.0
+                    @test φ ≈ γ_
+                end
+
+                if e == 1e-9
+                    @test φ ≈ l_ + γ_
+                end
+            end
         end
     end
+
+
 end
