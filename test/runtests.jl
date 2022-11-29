@@ -182,43 +182,43 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         end
     end
 
-    @testset "mikkola" begin
-        e = Eccentricity(0.1)
-        l = Angle(0.0)
-        @test l == mikkola(e, l)
-
-        for e in [0.1, 0.5, 0.9]
-            ecc = Eccentricity(e)
-            for _l = -7.0:0.5:7.0
-                l = Angle(_l)
-                u = mikkola(ecc, l)
-                @test l.θ ≈ kepler(ecc, u).θ
-            end
-        end
-    end
-
-    @testset "sincos" begin
-        for θ = -7.0:0.5:7.0
-            scθ = SinCos(Angle(θ))
-            @test scθ.sinx^2 + scθ.cosx^2 ≈ 1.0
-        end
-    end
-
-    @testset "true anomaly" begin
-        for e in [0.1, 0.5, 0.9]
-            ecc = Eccentricity(e)
-            for _l in LinRange(-4 * π, 4 * π, 10)
-                l = Angle(_l)
-                u = mikkola(ecc, l)
-                scu = SinCos(u)
-                v_l = true_anomaly_diff(ecc, scu)
-                v = true_anomaly(ecc, scu)
-                @test v_l.θ ≈ v.θ - l.θ atol = 1e-9
-            end
-        end
-    end
-
     @testset "orbital phase" begin
+        @testset "sincos" begin
+            for θ = -7.0:0.5:7.0
+                scθ = SinCos(Angle(θ))
+                @test scθ.sinx^2 + scθ.cosx^2 ≈ 1.0
+            end
+        end
+
+        @testset "mikkola" begin
+            e = Eccentricity(0.1)
+            l = Angle(0.0)
+            @test l == mikkola(e, l)
+    
+            for e in [0.1, 0.5, 0.9]
+                ecc = Eccentricity(e)
+                for _l = -7.0:0.5:7.0
+                    l = Angle(_l)
+                    u = mikkola(ecc, l)
+                    @test l.θ ≈ kepler(ecc, u).θ
+                end
+            end
+        end
+
+        @testset "true anomaly" begin
+            for e in [0.1, 0.5, 0.9]
+                ecc = Eccentricity(e)
+                for _l in LinRange(-4 * π, 4 * π, 10)
+                    l = Angle(_l)
+                    u = mikkola(ecc, l)
+                    scu = SinCos(u)
+                    v_l = true_anomaly_diff(ecc, scu)
+                    v = true_anomaly(ecc, scu)
+                    @test v_l.θ ≈ v.θ - l.θ atol = 1e-9
+                end
+            end
+        end
+
         mass = Mass(5000.0, 0.1)
         n = MeanMotion(1e-8)
         γ = Angle(3.5)
