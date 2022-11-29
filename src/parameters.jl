@@ -107,7 +107,7 @@ struct SkyLocation
     dec::Float64
 
     function SkyLocation(ra::Float64, dec::Float64)
-        if !(ra >= 0 && ψ < 2 * π)
+        if !(ra >= 0 && ra < 2 * π)
             throw(DomainError(ra, "ra out of range."))
         elseif !(dec >= -π / 2 && dec <= π / 2)
             throw(DomainError(dec, "dec out of range."))

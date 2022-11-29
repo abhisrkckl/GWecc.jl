@@ -1,6 +1,7 @@
 using GWecc
 using Test
 using FiniteDifferences
+using LinearAlgebra
 
 e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))).e
 
@@ -241,5 +242,26 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 end
             end
         end
+    end
+
+    @testset "antenna pattern" begin
+        ra_p = 1.5
+        dec_p = -0.8
+        ra_gw = 0.5
+        dec_gw = 0.75
+
+        psrpos = SkyLocation(ra_p, dec_p)
+        gwpos = SkyLocation(ra_gw, dec_gw)
+
+        nhat = sky_direction_uvec(gwpos)
+        @test norm(nhat) ≈ 1.0
+
+        phat = sky_direction_uvec(psrpos)
+        @test norm(phat) ≈ 1.0
+        
+        ep, ec = gw_polarization_tensors(gwpos)
+        @test ep*ec + ec*ep ≈ zeros(3,3) atol=1e-9
+        @test ep*nhat ≈ zeros(3) atol=1e-9
+        @test ec*nhat ≈ zeros(3) atol=1e-9
     end
 end
