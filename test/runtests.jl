@@ -189,7 +189,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         for e in [0.1, 0.5, 0.9]
             ecc = Eccentricity(e)
-            for _l in -7.0:0.5:7.0
+            for _l = -7.0:0.5:7.0
                 l = Angle(_l)
                 u = mikkola(ecc, l)
                 @test l.θ ≈ kepler(ecc, u).θ
@@ -198,7 +198,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
     end
 
     @testset "sincos" begin
-        for θ in -7.0:0.5:7.0
+        for θ = -7.0:0.5:7.0
             scθ = SinCos(Angle(θ))
             @test scθ.sinx^2 + scθ.cosx^2 ≈ 1.0
         end
@@ -207,13 +207,13 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
     @testset "true anomaly" begin
         for e in [0.1, 0.5, 0.9]
             ecc = Eccentricity(e)
-            for _l in LinRange(-4*π, 4*π, 10)
+            for _l in LinRange(-4 * π, 4 * π, 10)
                 l = Angle(_l)
                 u = mikkola(ecc, l)
                 scu = SinCos(u)
                 v_l = true_anomaly_diff(ecc, scu)
                 v = true_anomaly(ecc, scu)
-                @test v_l.θ ≈ v.θ - l.θ atol=1e-9
+                @test v_l.θ ≈ v.θ - l.θ atol = 1e-9
             end
         end
     end
@@ -227,7 +227,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         for e in [0.1, 0.5, 0.9]
             et = Eccentricity(e)
             orbital_phase = OrbitalPhase(mass, n, et, l, γ)
-            φ = orbital_phase.sc2φ.x.θ/2
+            φ = orbital_phase.sc2φ.x.θ / 2
             u = orbital_phase.scu.x
             γ_ = γ.θ
             @test φ ≈ γ_

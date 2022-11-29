@@ -1,6 +1,10 @@
-export PNParam, pn_param_x, 
-    PeriastronAdvance, advance_of_periastron, 
-    advance_of_periastron_1PN, advance_of_periastron_2PN, advance_of_periastron_3PN,
+export PNParam,
+    pn_param_x,
+    PeriastronAdvance,
+    advance_of_periastron,
+    advance_of_periastron_1PN,
+    advance_of_periastron_2PN,
+    advance_of_periastron_3PN,
     angular_eccentricity
 
 struct PNParam
@@ -21,7 +25,7 @@ function pn_param_x(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::PNParam
     e = ecc.e
     x = (m * n)^(2 / 3)
     k = advance_of_periastron(mass, norb, ecc).k
-    x = x * (1+k)^(2/3)
+    x = x * (1 + k)^(2 / 3)
     return PNParam(x)
 end
 
@@ -87,7 +91,15 @@ function angular_eccentricity(mass::Mass, n::MeanMotion, ecc::Eccentricity)
     x = pn_param_x(mass, n, ecc).x
     e = ecc.e
     η = mass.η
-    ots = sqrt(1-e^2)
-    eφ =  e * (1 + x*(4 - η) + (x^2)*(4*(-12*(26 + 15*ots) + η*(17 + 72*ots + η)) + (e^2) *(1152 + η*(-659 + 41*η)))/(96*(-1 + e^2)))
+    ots = sqrt(1 - e^2)
+    eφ =
+        e * (
+            1 +
+            x * (4 - η) +
+            (x^2) * (
+                4 * (-12 * (26 + 15 * ots) + η * (17 + 72 * ots + η)) +
+                (e^2) * (1152 + η * (-659 + 41 * η))
+            ) / (96 * (-1 + e^2))
+        )
     return Eccentricity(eφ)
 end

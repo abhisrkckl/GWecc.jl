@@ -77,7 +77,7 @@ struct SinCos
     x::Angle
     sinx::Float64
     cosx::Float64
-    
+
     SinCos(x::Angle) = new(x, sin(x.θ), cos(x.θ))
 end
 
