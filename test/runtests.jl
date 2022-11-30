@@ -361,5 +361,69 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         )
         @test all(isfinite.(rs))
         @test all(isapprox.(rs, rEs + rPs))
+
+        hE = waveform(mass, coeffs, l_init, proj, dl, ap, [EARTH], Δp, dt)
+        hP = waveform(mass, coeffs, l_init, proj, dl, ap, [PULSAR], Δp, dt)
+        h = waveform(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
+        @test h ≈ hP + hE
+
+        hpE, hxE = waveform_hpx(mass, coeffs, l_init, proj, dl, false, dt)
+        hpP, hxP = waveform_hpx(mass, coeffs, l_init, proj, dl, true, dtp)
+        @test hP ≈ ap.Fp * hpP + ap.Fx * hxP
+        @test hE ≈ -(ap.Fp * hpE + ap.Fx * hxE)
+
+        hs = waveform(
+            mass,
+            n_init,
+            e_init,
+            l_init,
+            proj,
+            dl,
+            dp,
+            psrpos,
+            gwpos,
+            z,
+            [EARTH, PULSAR],
+            tref,
+            tEs,
+        )
+        hEs = waveform(
+            mass,
+            n_init,
+            e_init,
+            l_init,
+            proj,
+            dl,
+            dp,
+            psrpos,
+            gwpos,
+            z,
+            [EARTH],
+            tref,
+            tEs,
+        )
+        hPs = waveform(
+            mass,
+            n_init,
+            e_init,
+            l_init,
+            proj,
+            dl,
+            dp,
+            psrpos,
+            gwpos,
+            z,
+            [PULSAR],
+            tref,
+            tEs,
+        )
+        @test all(isfinite.(hs))
+        @test all(isapprox.(hs, hEs + hPs))
+
+        numdiff = central_fdm(5, 1)
+        s_from_t_func = dt_ -> residual(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, Time(dt_))
+        h_anl = waveform(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
+        h_num = numdiff(s_from_t_func, dt.t)
+        @test h_anl ≈ h_num atol=1e-9
     end
 end

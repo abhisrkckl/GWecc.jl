@@ -1,25 +1,39 @@
-export residual_spx, residual, residuals
+export gw_amplitude, waveform_a_coeffs, waveform_hpx, waveform
 
-function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
+function gw_amplitude(mass::Mass, norb::MeanMotion, ecc::Eccentricity, dl::Distance)
+    m, η = mass.m, mass.η
+    dgw = dl.D
+    x = pn_param_x(mass, norb, ecc).x
+    return m * η * x / dgw
+end
+
+function waveform_a_coeffs(proj::ProjectionParams)
+    ci = proj.cosι
+    return 1 - ci^2, 1 + ci^2, 2 * ci
+end
+
+function waveform_A(ecc::Eccentricity, phase::OrbitalPhase)
     e = ecc.e
     su = phase.scu.sinx
     cu = phase.scu.cosx
-    c2u = cu * cu - su * su
-    s2ω = phase.sc2ω.sinx
-    c2ω = phase.sc2ω.cosx
+    s2φ = phase.sc2φ.sinx
+    c2φ = phase.sc2φ.cosx
 
-    P = ((e + (-2 + e * e) * cu) * su) / (1 - e * cu)
-    Q = (sqrt(1 - e^2) * (e * cu - c2u)) / (1 - e * cu)
-    R = e * su
+    χ = e*cu
+    ξ = e*su
+
+    P = (2*e^2 - χ^2 + χ - 2) / (1-χ)^2
+    Q = (2 * sqrt(1 - e^2) * ξ) / (1-χ)^2
+    R = χ / (1-χ)
 
     A0 = R
-    A1 = -P * s2ω + Q * c2ω
-    A2 = P * c2ω + Q * s2ω
+    A1 = -Q * s2φ + P * c2φ
+    A2 = Q * c2φ + P * s2φ
 
     return A0, A1, A2
 end
 
-function residual_spx(
+function waveform_hpx(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
@@ -33,24 +47,23 @@ function residual_spx(
     n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, dt)
     phase = OrbitalPhase(mass, n, e, l, γ)
 
-    A0, A1, A2 = residual_A(e, phase)
+    A0, A1, A2 = waveform_A(e, phase)
     a0, a1, a2 = waveform_a_coeffs(proj)
 
     h0 = gw_amplitude(mass, n, e, dl)
-    s0 = h0 / n.n
 
-    sA = s0 * (a1 * A1 + a0 * A0)
-    sB = s0 * (a2 * A2)
+    hA = h0 * (a1 * A1 + a0 * A0)
+    hB = h0 * (a2 * A2)
 
     s2ψ, c2ψ = proj.sc2ψ.sinx, proj.sc2ψ.cosx
 
-    sp = c2ψ * sA - s2ψ * sB
-    sx = s2ψ * sA + c2ψ * sB
+    hp = c2ψ * hA - s2ψ * hB
+    hx = s2ψ * hA + c2ψ * hB
 
-    return sp, sx
+    return hp, hx
 end
 
-function residual(
+function waveform(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
@@ -61,26 +74,26 @@ function residual(
     Δp::Time,
     dt::Time,
 )
-    sp = 0.0
-    sx = 0.0
+    hp = 0.0
+    hx = 0.0
 
     if EARTH in terms
-        spE, sxE = residual_spx(mass, coeffs, l_init, proj, dl, false, dt)
-        sp = sp - spE
-        sx = sx - sxE
+        hpE, hxE = waveform_hpx(mass, coeffs, l_init, proj, dl, false, dt)
+        hp = hp - hpE
+        hx = hx - hxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        spP, sxP = residual_spx(mass, coeffs, l_init, proj, dl, true, dtp)
-        sp = sp + spP
-        sx = sx + sxP
+        hpP, hxP = waveform_hpx(mass, coeffs, l_init, proj, dl, true, dtp)
+        hp = hp + hpP
+        hx = hx + hxP
     end
 
-    return ap.Fp * sp + ap.Fx * sx
+    return ap.Fp * hp + ap.Fx * hx
 end
 
-function residuals(
+function waveform(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
@@ -101,8 +114,7 @@ function residuals(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp, z)
 
-    ss =
-        [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts] * (1 + z.z)
+    ss = [waveform(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts]
 
     return ss
 end
