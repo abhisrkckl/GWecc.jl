@@ -421,9 +421,11 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @test all(isapprox.(hs, hEs + hPs))
 
         numdiff = central_fdm(5, 1)
-        s_from_t_func = dt_ -> residual(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, Time(dt_))
+        s_from_t_func =
+            dt_ ->
+                residual(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, Time(dt_))
         h_anl = waveform(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
         h_num = numdiff(s_from_t_func, dt.t)
-        @test h_anl ≈ h_num atol=1e-9
+        @test h_anl ≈ h_num atol = 1e-9
     end
 end

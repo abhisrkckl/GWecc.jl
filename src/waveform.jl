@@ -19,12 +19,12 @@ function waveform_A(ecc::Eccentricity, phase::OrbitalPhase)
     s2φ = phase.sc2φ.sinx
     c2φ = phase.sc2φ.cosx
 
-    χ = e*cu
-    ξ = e*su
+    χ = e * cu
+    ξ = e * su
 
-    P = (2*e^2 - χ^2 + χ - 2) / (1-χ)^2
-    Q = (2 * sqrt(1 - e^2) * ξ) / (1-χ)^2
-    R = χ / (1-χ)
+    P = (2 * e^2 - χ^2 + χ - 2) / (1 - χ)^2
+    Q = (2 * sqrt(1 - e^2) * ξ) / (1 - χ)^2
+    R = χ / (1 - χ)
 
     A0 = R
     A1 = -Q * s2φ + P * c2φ
