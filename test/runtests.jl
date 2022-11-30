@@ -17,20 +17,20 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test Mass(1.0, 0.1).m == 1.0
             @test Mass(1.0, 0.25).η == 0.25
             @test Mass(1.0, 0.1).m > Mass(1.0, 0.1).Mch
-        end    
+        end
     end
-    
+
     @testset "orbital evlution" begin
         @testset "e and τ" begin
             @test_throws DomainError Eccentricity(0.0)
             @test Eccentricity(0.1).e == 0.1
             @test_throws DomainError Eccentricity(1.0)
-    
+
             @test_throws DomainError ScaledTime(-1.0)
             @test ScaledTime(0.0).τ == 0.0
             @test ScaledTime(10.0).τ == 10.0
             @test_throws DomainError ScaledTime(Inf)
-    
+
             for e in [eccmin.e / 4, eccmin.e, 0.1, 0.5, 0.9, eccmax.e, (eccmax.e + 1) / 2]
                 @test e_from_τ_from_e(e) ≈ e
             end
@@ -53,16 +53,16 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             n = MeanMotion(1e-8)
             e1 = Eccentricity(0.1)
             e2 = Eccentricity(0.2)
-    
+
             lbar1 = lbar_from_e(e1)
             lbar2 = lbar_from_e(e2)
             @test lbar1.lbar < lbar2.lbar
-    
+
             γbar1 = γbar_from_e(e1)
             γbar2 = γbar_from_e(e2)
             @test γbar1 < γbar2
         end
-        
+
         @testset "evolve_orbit" begin
             mass = Mass(5000.0, 0.1)
             n_init = MeanMotion(1e-8)
@@ -314,9 +314,51 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         tEs = Time.(LinRange(0.0, 10000.0, 100))
         tref = Time(10000.0)
-        rs = residuals(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [EARTH, PULSAR], tref, tEs)
-        rEs = residuals(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
-        rPs = residuals(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
+        rs = residuals(
+            mass,
+            n_init,
+            e_init,
+            l_init,
+            proj,
+            dl,
+            dp,
+            psrpos,
+            gwpos,
+            z,
+            [EARTH, PULSAR],
+            tref,
+            tEs,
+        )
+        rEs = residuals(
+            mass,
+            n_init,
+            e_init,
+            l_init,
+            proj,
+            dl,
+            dp,
+            psrpos,
+            gwpos,
+            z,
+            [EARTH],
+            tref,
+            tEs,
+        )
+        rPs = residuals(
+            mass,
+            n_init,
+            e_init,
+            l_init,
+            proj,
+            dl,
+            dp,
+            psrpos,
+            gwpos,
+            z,
+            [PULSAR],
+            tref,
+            tEs,
+        )
         @test all(isfinite.(rs))
         @test all(isapprox.(rs, rEs + rPs))
     end

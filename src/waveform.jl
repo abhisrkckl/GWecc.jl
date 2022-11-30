@@ -38,7 +38,7 @@ function residual_spx(
     proj::ProjectionParams,
     dl::Distance,
     psrterm::Bool,
-    dt::Time
+    dt::Time,
 )
     γ_init = psrterm ? Angle(proj.γp) : Angle(proj.γ0)
 
@@ -71,7 +71,7 @@ function residual(
     ap::AntennaPattern,
     terms::Vector{Term},
     Δp::Time,
-    dt::Time
+    dt::Time,
 )
     sp = 0.0
     sx = 0.0
@@ -105,7 +105,7 @@ function residuals(
     z::Redshift,
     terms::Vector{Term},
     tref::Time,
-    tEs::Vector{Time}
+    tEs::Vector{Time},
 )
     dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
 
@@ -113,7 +113,8 @@ function residuals(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp, z)
 
-    ss = [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts] * (1+z.z)
+    ss =
+        [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts] * (1 + z.z)
 
     return ss
 end
