@@ -38,7 +38,7 @@ function gw_polarization_tensors(pos::SkyLocation)
 
     ep = [e11p e12p e13p; e21p e22p e23p; e31p e32p e33p]
     ec = [e11c e12c e13c; e21c e22c e23c; e31c e32c e33c]
-    
+
     return ep, ec
 end
 
@@ -70,5 +70,5 @@ function pulsar_term_delay(ap::AntennaPattern, psrdist::Distance, redshift::Reds
     dp = psrdist.D
     cosµ = ap.cosµ
     z = redshift.z
-    return Time(-dp * (1-cosµ) / (1+z))
+    return Time(-dp * (1 - cosµ) / (1 + z))
 end

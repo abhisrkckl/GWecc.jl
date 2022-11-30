@@ -1,9 +1,11 @@
 export ProjectionParams, SkyLocation
-export ScaledTime, Time, Distance, Redshift
+export ScaledTime, Time, Distance, Redshift, apply_redshift
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
 export Term, EARTH, PULSAR
+
+import Base.+, Base.-, Base.*
 
 struct ScaledTime
     τ::Float64
@@ -15,6 +17,11 @@ struct Time
     t::Float64
     Time(t::Float64) = isfinite(t) ? new(t) : throw(DomainError(t, "isnan(t) encountered."))
 end
+t1::Time + t2::Time = Time(t1.t + t2.t)
+t1::Time - t2::Time = Time(t1.t - t2.t)
+-t1::Time = Time(-t1.t)
+a::Number * t1::Time = Time(a * t1.t)
+t1::Time * a::Number = a * t1
 
 struct Eccentricity
     e::Float64
@@ -98,7 +105,7 @@ struct ProjectionParams
         elseif !(γp >= 0 && γp <= π)
             throw(DomainError(γp, "γp out of range."))
         else
-            return new(SinCos(Angle(2*ψ)), cosι, γ0, γp)
+            return new(SinCos(Angle(2 * ψ)), cosι, γ0, γp)
         end
     end
 end
@@ -120,12 +127,15 @@ end
 
 struct Distance
     D::Float64
-    Distance(D::Float64) = D>0 ? new(D) : throw(DomainError(D, "distance should be positive."))
+    Distance(D::Float64) =
+        D > 0 ? new(D) : throw(DomainError(D, "distance should be positive."))
 end
 
 struct Redshift
     z::Float64
-    Redshift(z::Float64) = z>=0 ? new(z) : throw(DomainError(z, "redshift should be positive."))
+    Redshift(z::Float64) =
+        z >= 0 ? new(z) : throw(DomainError(z, "redshift should be positive."))
 end
+apply_redshift(t::Time, tref::Time, z::Redshift)::Time = tref + (1 + z.z) * (t - tref)
 
 @enum Term EARTH PULSAR

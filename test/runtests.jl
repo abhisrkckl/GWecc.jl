@@ -196,7 +196,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             e = Eccentricity(0.1)
             l = Angle(0.0)
             @test l == mikkola(e, l)
-    
+
             for e in [0.1, 0.5, 0.9]
                 ecc = Eccentricity(e)
                 for _l = -7.0:0.5:7.0
@@ -233,7 +233,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 orbital_phase = OrbitalPhase(mass, n, et, l, γ)
                 φ = orbital_phase.sc2φ.x.θ / 2
                 u = orbital_phase.scu.x
-                
+
                 if l == 0.0
                     @test φ ≈ γ_
                 end
@@ -259,11 +259,11 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         phat = sky_direction_uvec(psrpos)
         @test norm(phat) ≈ 1.0
-        
+
         ep, ec = gw_polarization_tensors(gwpos)
-        @test ep*ec + ec*ep ≈ zeros(3,3) atol=1e-9
-        @test ep*nhat ≈ zeros(3) atol=1e-9
-        @test ec*nhat ≈ zeros(3) atol=1e-9
+        @test ep * ec + ec * ep ≈ zeros(3, 3) atol = 1e-9
+        @test ep * nhat ≈ zeros(3) atol = 1e-9
+        @test ec * nhat ≈ zeros(3) atol = 1e-9
 
         ap1 = AntennaPattern(psrpos, gwpos)
         ap2 = AntennaPattern(gwpos, psrpos)
@@ -302,10 +302,16 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         proj = ProjectionParams(ψ, cosι, γ0, γp)
 
         dt = Time(10000.0)
-        sE = residual(mass, coeffs, l_init, proj, dl, dt, ap, [EARTH], Δp)
-        sP = residual(mass, coeffs, l_init, proj, dl, dt, ap, [PULSAR], Δp)
-        s = residual(mass, coeffs, l_init, proj, dl, dt, ap, [EARTH, PULSAR], Δp)
+        sE = residual(mass, coeffs, l_init, proj, dl, ap, [EARTH], Δp, dt)
+        sP = residual(mass, coeffs, l_init, proj, dl, ap, [PULSAR], Δp, dt)
+        s = residual(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
         @test s ≈ sP + sE
+
+        dtp = dt + Δp
+        spE, sxE = residual_spx(mass, coeffs, l_init, proj, dl, false, dt)
+        spP, sxP = residual_spx(mass, coeffs, l_init, proj, dl, true, dtp)
+        @test sP ≈ ap.Fp * spP + ap.Fx * sxP
+        @test sE ≈ -(ap.Fp * spE + ap.Fx * sxE)
     end
 
 end

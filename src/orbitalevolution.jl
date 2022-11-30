@@ -23,8 +23,8 @@ eccmax = Eccentricity(maximum(es))
 taumin = ScaledTime(minimum(taus))
 taumax = ScaledTime(maximum(taus))
 
-a::Float64 = 2 * sqrt(2) / 5 / 5^(63 / 2299) / 17^(1181 / 2299);
-b::Float64 = 2 / sqrt(1 - eccmax.e) - a * taumax.τ;
+a::Float64 = 2 * sqrt(2) / 5 / 5^(63 / 2299) / 17^(1181 / 2299)
+b::Float64 = 2 / sqrt(1 - eccmax.e) - a * taumax.τ
 
 function e_from_τ(tau::ScaledTime)::Eccentricity
     τ = tau.τ
