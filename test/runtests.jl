@@ -32,7 +32,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test_throws DomainError ScaledTime(Inf)
     
             for e in [eccmin.e / 4, eccmin.e, 0.1, 0.5, 0.9, eccmax.e, (eccmax.e + 1) / 2]
-                @test e_from_τ_from_e(0.1) ≈ 0.1
+                @test e_from_τ_from_e(e) ≈ e
             end
         end
 
@@ -266,6 +266,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         ap2 = AntennaPattern(gwpos, psrpos)
         @test ap1.cosµ ≈ ap2.cosµ
         @test ap1.Fp^2 + ap1.Fx^2 ≈ ap2.Fp^2 + ap2.Fx^2
+
+        @test_throws DomainError AntennaPattern(gwpos, gwpos)
     end
 
     @testset "waveform and residuals" begin
