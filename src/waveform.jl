@@ -1,4 +1,4 @@
-export gw_amplitude, residual_spx, residual
+export gw_amplitude, residual_spx, residual, residuals
 
 function gw_amplitude(mass::Mass, norb::MeanMotion, ecc::Eccentricity, dl::Distance)
     m, η = mass.m, mass.η
