@@ -3,7 +3,7 @@ export ScaledTime, Time, Distance, Redshift
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
-export Term
+export Term, EARTH, PULSAR
 
 struct ScaledTime
     τ::Float64
@@ -98,7 +98,7 @@ struct ProjectionParams
         elseif !(γp >= 0 && γp <= π)
             throw(DomainError(γp, "γp out of range."))
         else
-            return new(SinCos(2*ψ), cosι, γ0, γp)
+            return new(SinCos(Angle(2*ψ)), cosι, γ0, γp)
         end
     end
 end

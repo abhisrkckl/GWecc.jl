@@ -273,11 +273,39 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
     @testset "waveform and residuals" begin
         mass = Mass(5000.0, 0.1)
-        norb = MeanMotion(1e-8)
-        ecc = Eccentricity(0.1)
+        n_init = MeanMotion(1e-8)
+        e_init = Eccentricity(0.1)
+        l_init = Angle(0.1)
+        γ_init = Angle(1.25)
+        coeffs = EvolvCoeffs(mass, n_init, e_init)
         dl = Distance(1e16)
-        h0 = gw_amplitude(mass, norb, ecc, dl)
+
+        h0 = gw_amplitude(mass, n_init, e_init, dl)
         @test h0 > 0
+
+        ra_p = 1.5
+        dec_p = -0.8
+        ra_gw = 0.5
+        dec_gw = 0.75
+        psrpos = SkyLocation(ra_p, dec_p)
+        gwpos = SkyLocation(ra_gw, dec_gw)
+        psrdist = Distance(1e13)
+        ap = AntennaPattern(psrpos, gwpos)
+        redshift = Redshift(0.1)
+        Δp = pulsar_term_delay(ap, psrdist, redshift)
+        @test Δp.t < 0
+
+        ψ = 1.1
+        cosι = 0.52
+        γ0 = γ_init.θ
+        γp = γ0 + 0.2
+        proj = ProjectionParams(ψ, cosι, γ0, γp)
+
+        dt = Time(10000.0)
+        sE = residual(mass, coeffs, l_init, proj, dl, dt, ap, [EARTH], Δp)
+        sP = residual(mass, coeffs, l_init, proj, dl, dt, ap, [PULSAR], Δp)
+        s = residual(mass, coeffs, l_init, proj, dl, dt, ap, [EARTH, PULSAR], Δp)
+        @test s ≈ sP + sE
     end
 
 end

@@ -1,4 +1,4 @@
-export gw_amplitude
+export gw_amplitude, residual
 
 function gw_amplitude(mass::Mass, norb::MeanMotion, ecc::Eccentricity, dl::Distance)
     m, η = mass.m, mass.η
@@ -14,10 +14,9 @@ function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
     c2u = cu*cu - su*su
     s2ω = phase.sc2ω.sinx
     c2ω = phase.sc2ω.cosx
-    
 
     P = ((e + (-2 + e*e)*cu)*su)/(1 - e*cu)
-    Q = (OTS*(e*cu - c2u))/(1 - e*cu)
+    Q = (sqrt(1-e^2)*(e*cu - c2u))/(1 - e*cu)
     R = e*su
 
     A0 = R
@@ -33,18 +32,19 @@ function residual_a_coeffs(proj::ProjectionParams)
 end
 
 function residual_spx(mass::Mass, coeffs::EvolvCoeffs, l_init::Angle, proj::ProjectionParams, dl::Distance, dt::Time, psrterm::Bool)
-    γ_init = psrterm : Angle(proj.γp) : Angle(proj.γ0)
+    γ_init = psrterm ? Angle(proj.γp) : Angle(proj.γ0)
     
     n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, dt)
     phase = OrbitalPhase(mass, n, e, l, γ)
 
-    A0, A1, A2 = residual_A(ecc, phase)
+    A0, A1, A2 = residual_A(e, phase)
     a0, a1, a2 = residual_a_coeffs(proj)
 
     h0 = gw_amplitude(mass, n, e, dl)
+    s0 = h0 / n.n
     
-    sA = (h0/n) * (a1*A1 + a0*A0)
-    sB = (h0/n) * (a2*A2)
+    sA = s0 * (a1*A1 + a0*A0)
+    sB = s0 * (a2*A2)
     
     s2ψ, c2ψ = proj.sc2ψ.sinx, proj.sc2ψ.cosx
     
@@ -55,7 +55,8 @@ function residual_spx(mass::Mass, coeffs::EvolvCoeffs, l_init::Angle, proj::Proj
 end
 
 function residual(mass::Mass, coeffs::EvolvCoeffs, l_init::Angle, proj::ProjectionParams, dl::Distance, dt::Time, ap::AntennaPattern, terms::Vector{Term}, Δp::Time)
-    sp = sx = 0
+    sp = 0.0
+    sx = 0.0
     
     if EARTH in terms
         spE, sxE = residual_spx(mass, coeffs, l_init, proj, dl, dt, false)
