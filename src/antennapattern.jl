@@ -48,11 +48,6 @@ struct AntennaPattern
     Fx::Float64
 
     function AntennaPattern(psrpos::SkyLocation, gwpos::SkyLocation)
-        # λp = psrpos.ra
-        # βp = psrpos.dec
-        # λ = gwpos.ra
-        # β = gwpos.dec
-
         # cosµ = cos(β) * cos(βp) * cos(λ - λp) + sin(β) * sin(βp)
 
         phat = sky_direction_uvec(psrpos)
@@ -69,4 +64,11 @@ struct AntennaPattern
 
         return new(cosµ, Fp, Fx)
     end
+end
+
+function pulsar_term_delay(ap::AntennaPattern, psrdist::Distance, redshift::Redshift)::Time
+    dp = psrdist.D
+    cosµ = ap.cosµ
+    z = redshift.z
+    return -dp * (1-cosµ) / (1+z)
 end

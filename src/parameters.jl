@@ -82,22 +82,22 @@ struct SinCos
 end
 
 struct ProjectionParams
-    ψ::Float64
+    sc2ψ::SinCos
     cosι::Float64
     γ0::Float64
     γp::Float64
 
     function ProjectionParams(ψ::Float64, cosι::Float64, γ0::Float64, γp::Float64)
-        if !(ψ >= 0 && ψ <= π)
+        if !(ψ >= 0 && ψ < π)
             throw(DomainError(ψ, "ψ out of range."))
-        elseif !(cosι >= -1 && cosι < 1)
+        elseif !(cosι >= -1 && cosι <= 1)
             throw(DomainError(cosι, "cosι out of range."))
         elseif !(γ0 >= 0 && γ0 <= π)
             throw(DomainError(γ0, "γ0 out of range."))
         elseif !(γp >= 0 && γp <= π)
             throw(DomainError(γp, "γp out of range."))
         else
-            return new(ψ, cosι, γ0, γp)
+            return new(SinCos(2*ψ), cosι, γ0, γp)
         end
     end
 end
@@ -116,3 +116,15 @@ struct SkyLocation
         end
     end
 end
+
+struct Distance
+    D::Float64
+    Distance(D::Float64) = D>0 ? new(D) : throw(DomainError(D, "distance should be positive."))
+end
+
+struct Redshift
+    z::Float64
+    Redshift(z::Float64) = z>=0 ? new(z) : throw(DomainError(z, "redshift should be positive."))
+end
+
+@enum Term EARTH PULSAR
