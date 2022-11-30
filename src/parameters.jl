@@ -1,8 +1,9 @@
 export ProjectionParams, SkyLocation
-export ScaledTime, Time
+export ScaledTime, Time, Distance, Redshift
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
+export Term
 
 struct ScaledTime
     τ::Float64

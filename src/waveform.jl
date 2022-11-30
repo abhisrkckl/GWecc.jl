@@ -1,9 +1,9 @@
-
+export gw_amplitude
 
 function gw_amplitude(mass::Mass, norb::MeanMotion, ecc::Eccentricity, dl::Distance)
     m, η = mass.m, mass.η
     dgw = dl.D
-    x = pn_param_x(mass, norb, ecc)
+    x = pn_param_x(mass, norb, ecc).x
     return m*η*x/dgw;
 end
 
@@ -54,7 +54,7 @@ function residual_spx(mass::Mass, coeffs::EvolvCoeffs, l_init::Angle, proj::Proj
     return sp, sx
 end
 
-function residual(mass::Mass, coeffs::EvolvCoeffs, l_init::Angle, proj::ProjectionParams, dl::Distance, dt::Time, ap::AntennaPattern, terms::Vector{Term}, Δp:Time)
+function residual(mass::Mass, coeffs::EvolvCoeffs, l_init::Angle, proj::ProjectionParams, dl::Distance, dt::Time, ap::AntennaPattern, terms::Vector{Term}, Δp::Time)
     sp = sx = 0
     
     if EARTH in terms
@@ -66,8 +66,8 @@ function residual(mass::Mass, coeffs::EvolvCoeffs, l_init::Angle, proj::Projecti
     if PULSAR in terms
         dtp = Time(dt.t + Δp.t)
         spP, sxP = residual_spx(mass, coeffs, l_init, proj, dl, dtp, true)
-        sp = sp + spE
-        sx = sx + sxE
+        sp = sp + spP
+        sx = sx + sxP
     end
 
     return ap.Fp*sp + ap.Fx*sx

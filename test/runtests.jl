@@ -270,4 +270,14 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @test ap1.cosµ ≈ ap2.cosµ
         @test ap1.Fp^2 + ap1.Fx^2 ≈ ap2.Fp^2 + ap2.Fx^2
     end
+
+    @testset "waveform and residuals" begin
+        mass = Mass(5000.0, 0.1)
+        norb = MeanMotion(1e-8)
+        ecc = Eccentricity(0.1)
+        dl = Distance(1e16)
+        h0 = gw_amplitude(mass, norb, ecc, dl)
+        @test h0 > 0
+    end
+
 end
