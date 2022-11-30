@@ -1,5 +1,5 @@
 export ProjectionParams, SkyLocation
-export ScaledTime, Time, Distance, Redshift, apply_redshift
+export ScaledTime, Time, Distance, Redshift, redshifted_time_difference
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
@@ -136,6 +136,6 @@ struct Redshift
     Redshift(z::Float64) =
         z >= 0 ? new(z) : throw(DomainError(z, "redshift should be positive."))
 end
-apply_redshift(t::Time, tref::Time, z::Redshift)::Time = tref + (1 + z.z) * (t - tref)
+redshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time = (1 + z.z) * (t - tref)
 
 @enum Term EARTH PULSAR

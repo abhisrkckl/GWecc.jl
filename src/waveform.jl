@@ -92,18 +92,28 @@ function residual(
     return ap.Fp * sp + ap.Fx * sx
 end
 
-# function residuals(
-#     mass::Mass,
-#     n_init::MeanMotion,
-#     e_init::Eccentricity,
-#     l_init::Angle,
-#     proj::ProjectionParams,
-#     dl::Distance,
-#     dp::Distance,
-#     ap::AntennaPattern,
-#     z::Redshift,
-#     terms::Vector{Term},
-#     dt::Time,
-# )
+function residuals(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l_init::Angle,
+    proj::ProjectionParams,
+    dl::Distance,
+    dp::Distance,
+    psrpos::SkyLocation,
+    gwpos::SkyLocation,
+    z::Redshift,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time}
+)
+    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
 
-# end
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+    ap = AntennaPattern(psrpos, gwpos)
+    Δp = pulsar_term_delay(ap, dp, z)
+
+    ss = [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts] * (1+z.z)
+
+    return ss
+end
