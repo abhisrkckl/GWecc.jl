@@ -1,4 +1,4 @@
-export residual_spx, residual, residuals, waveform_and_residuals
+export residual_spx, residual, residuals, residuals_px, waveform_and_residuals
 
 function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
     e = ecc.e
@@ -80,6 +80,38 @@ function residual(
     return ap.Fp * sp + ap.Fx * sx
 end
 
+function residuals_px(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l_init::Angle,
+    proj::ProjectionParams,
+    dl::Distance,
+    dp::Distance,
+    psrpos::SkyLocation,
+    gwpos::SkyLocation,
+    z::Redshift,
+    term::Term,
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+    ap = AntennaPattern(psrpos, gwpos)
+
+    psrterm = term == PULSAR
+    delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
+
+    spxs =
+        [residual_spx(mass, coeffs, l_init, proj, dl, psrterm, dt + delay) for dt in dts]
+    sps = first.(spxs) * (1 + z.z)
+    sxs = last.(spxs) * (1 + z.z)
+
+    return sps, sxs
+end
+
+
 function residuals(
     mass::Mass,
     n_init::MeanMotion,
@@ -102,7 +134,7 @@ function residuals(
     Δp = pulsar_term_delay(ap, dp, z)
 
     ss =
-        [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts] * (1 + z.z)
+        [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) * (1 + z.z) for dt in dts]
 
     return ss
 end
