@@ -1,4 +1,4 @@
-export residual_PQR, residual_A, residual_spx, residual, residuals, residuals_px, waveform_and_residuals
+export residual_PQR, residual_A, residual_px, residual, residuals, residuals_px, waveform_and_residuals
 
 function residual_PQR(ecc::Eccentricity, scu::SinCos)
     e = ecc.e
@@ -26,7 +26,7 @@ function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
     return A0, A1, A2
 end
 
-function residual_spx(
+function residual_px(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
@@ -72,14 +72,14 @@ function residual(
     sx = 0.0
 
     if EARTH in terms
-        spE, sxE = residual_spx(mass, coeffs, l_init, proj, dl, false, dt)
+        spE, sxE = residual_px(mass, coeffs, l_init, proj, dl, false, dt)
         sp = sp - spE
         sx = sx - sxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        spP, sxP = residual_spx(mass, coeffs, l_init, proj, dl, true, dtp)
+        spP, sxP = residual_px(mass, coeffs, l_init, proj, dl, true, dtp)
         sp = sp + spP
         sx = sx + sxP
     end
@@ -111,7 +111,7 @@ function residuals_px(
     delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
 
     spxs =
-        [residual_spx(mass, coeffs, l_init, proj, dl, psrterm, dt + delay) for dt in dts]
+        [residual_px(mass, coeffs, l_init, proj, dl, psrterm, dt + delay) for dt in dts]
     sps = first.(spxs) * (1 + z.z)
     sxs = last.(spxs) * (1 + z.z)
 
