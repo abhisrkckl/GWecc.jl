@@ -1,4 +1,4 @@
-export residual_from_components
+export residual_from_components, residuals_from_components, residuals_components_𝒜
 
 function residual_components_𝒜(
     mass::Mass,
@@ -25,7 +25,7 @@ function residual_components_𝒜(
     𝒜5 = S * Fp * R
     𝒜6 = S * Fx * R
 
-    return 𝒜1, 𝒜2, 𝒜3, 𝒜4, 𝒜5, 𝒜6
+    return [𝒜1, 𝒜2, 𝒜3, 𝒜4, 𝒜5, 𝒜6]
 end
 
 function residual_component_coeffs_a(proj::ProjectionParams, term::Term)
@@ -43,7 +43,7 @@ function residual_component_coeffs_a(proj::ProjectionParams, term::Term)
     a5 = sgn * ( c2ψ*c0)
     a6 = sgn * ( s2ψ*c0)
 
-    return a1, a2, a3, a4, a5, a6
+    return [a1, a2, a3, a4, a5, a6]
 end
 
 function residual_from_components(
@@ -56,8 +56,70 @@ function residual_from_components(
     term::Term,
     dt::Time
 )
-    𝒜1, 𝒜2, 𝒜3, 𝒜4, 𝒜5, 𝒜6 = residual_components_𝒜(mass, coeffs, l_init, ap, dl, dt)
-    a1, a2, a3, a4, a5, a6 = residual_component_coeffs_a(proj, term)
+    𝒜 = residual_components_𝒜(mass, coeffs, l_init, ap, dl, dt)
+    a = residual_component_coeffs_a(proj, term)
 
-    return dot([𝒜1, 𝒜2, 𝒜3, 𝒜4, 𝒜5, 𝒜6], [a1, a2, a3, a4, a5, a6])
+    return dot(𝒜, a)
+end
+
+function residuals_from_components(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l_init::Angle,
+    proj::ProjectionParams,
+    dl::Distance,
+    dp::Distance,
+    psrpos::SkyLocation,
+    gwpos::SkyLocation,
+    z::Redshift,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time}
+)
+    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+
+    res = zeros(length(tEs))
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+    ap = AntennaPattern(psrpos, gwpos)
+    
+    if EARTH in terms
+        res = res + [residual_from_components(mass, coeffs, l_init, proj, dl, ap, EARTH, dt) * (1 + z.z) for dt in dts]
+    end
+
+    if PULSAR in terms
+        delay = pulsar_term_delay(ap, dp, z)
+        res = res + [residual_from_components(mass, coeffs, l_init, proj, dl, ap, PULSAR, dt + delay) * (1 + z.z) for dt in dts]
+    end
+
+    return res
+end
+
+function residuals_components_𝒜(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l_init::Angle,
+    dl::Distance,
+    dp::Distance,
+    psrpos::SkyLocation,
+    gwpos::SkyLocation,
+    z::Redshift,
+    term::Term,
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+    ap = AntennaPattern(psrpos, gwpos)
+
+    psrterm = term == PULSAR
+    delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
+
+    𝒜s =
+        [residual_components_𝒜(mass, coeffs, l_init, ap, dl, dt + delay) for dt in dts]
+    
+    return [[𝒜[idx] for 𝒜 in 𝒜s] for idx in 1:6]
 end
