@@ -48,7 +48,7 @@ end
 struct MeanMotion
     n::Float64
     MeanMotion(n::Float64) =
-        (n >= 6.3e-10 && n <= 6.3e-6) ? new(n) : throw(DomainError(n, "n out of range."))
+        (n >= 1e-11 && n <= 5e-6) ? new(n) : throw(DomainError(n, "n out of range."))
 end
 
 struct ScaledMeanAnomaly
