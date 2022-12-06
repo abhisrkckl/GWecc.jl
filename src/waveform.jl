@@ -1,13 +1,13 @@
-export gw_amplitude, waveform_a_coeffs, waveform_hpx, waveform
+export gw_amplitude, waveform_coeffs_c, waveform_px, waveform
 
-function gw_amplitude(mass::Mass, norb::MeanMotion, ecc::Eccentricity, dl::Distance)
+function gw_amplitude(mass::Mass, norb::MeanMotion, ecc::Eccentricity, dl::Distance)::Float64
     m, η = mass.m, mass.η
     dgw = dl.D
     x = pn_param_x(mass, norb, ecc).x
     return m * η * x / dgw
 end
 
-function waveform_a_coeffs(proj::ProjectionParams)
+function waveform_coeffs_c(proj::ProjectionParams)
     ci = proj.cosι
     return 1 - ci^2, 1 + ci^2, 2 * ci
 end
@@ -33,7 +33,7 @@ function waveform_A(ecc::Eccentricity, phase::OrbitalPhase)
     return A0, A1, A2
 end
 
-function waveform_hpx(
+function waveform_px(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
@@ -48,7 +48,7 @@ function waveform_hpx(
     phase = OrbitalPhase(mass, n, e, l, γ)
 
     A0, A1, A2 = waveform_A(e, phase)
-    a0, a1, a2 = waveform_a_coeffs(proj)
+    a0, a1, a2 = waveform_coeffs_c(proj)
 
     h0 = gw_amplitude(mass, n, e, dl)
 
@@ -78,14 +78,14 @@ function waveform(
     hx = 0.0
 
     if EARTH in terms
-        hpE, hxE = waveform_hpx(mass, coeffs, l_init, proj, dl, false, dt)
+        hpE, hxE = waveform_px(mass, coeffs, l_init, proj, dl, false, dt)
         hp = hp - hpE
         hx = hx - hxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        hpP, hxP = waveform_hpx(mass, coeffs, l_init, proj, dl, true, dtp)
+        hpP, hxP = waveform_px(mass, coeffs, l_init, proj, dl, true, dtp)
         hp = hp + hpP
         hx = hx + hxP
     end

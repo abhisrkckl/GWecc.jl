@@ -1,16 +1,23 @@
-export residual_spx, residual, residuals, residuals_px, waveform_and_residuals
+export residual_PQR, residual_A, residual_px, residual, residuals, residuals_px, waveform_and_residuals
 
-function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
+function residual_PQR(ecc::Eccentricity, scu::SinCos)
     e = ecc.e
-    su = phase.scu.sinx
-    cu = phase.scu.cosx
-    c2u = cu * cu - su * su
-    s2ω = phase.sc2ω.sinx
-    c2ω = phase.sc2ω.cosx
+    su = scu.sinx
+    cu = scu.cosx
+    c2u = cu*cu - su*su
 
     P = ((e + (-2 + e * e) * cu) * su) / (1 - e * cu)
     Q = (sqrt(1 - e^2) * (e * cu - c2u)) / (1 - e * cu)
     R = e * su
+
+    return P, Q, R
+end
+
+function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
+    s2ω = phase.sc2ω.sinx
+    c2ω = phase.sc2ω.cosx
+
+    P, Q, R = residual_PQR(ecc, phase.scu)
 
     A0 = R
     A1 = -P * s2ω + Q * c2ω
@@ -19,7 +26,7 @@ function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
     return A0, A1, A2
 end
 
-function residual_spx(
+function residual_px(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
@@ -34,7 +41,7 @@ function residual_spx(
     phase = OrbitalPhase(mass, n, e, l, γ)
 
     A0, A1, A2 = residual_A(e, phase)
-    a0, a1, a2 = waveform_a_coeffs(proj)
+    a0, a1, a2 = waveform_coeffs_c(proj)
 
     h0 = gw_amplitude(mass, n, e, dl)
     s0 = h0 / n.n
@@ -65,14 +72,14 @@ function residual(
     sx = 0.0
 
     if EARTH in terms
-        spE, sxE = residual_spx(mass, coeffs, l_init, proj, dl, false, dt)
+        spE, sxE = residual_px(mass, coeffs, l_init, proj, dl, false, dt)
         sp = sp - spE
         sx = sx - sxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        spP, sxP = residual_spx(mass, coeffs, l_init, proj, dl, true, dtp)
+        spP, sxP = residual_px(mass, coeffs, l_init, proj, dl, true, dtp)
         sp = sp + spP
         sx = sx + sxP
     end
@@ -104,7 +111,7 @@ function residuals_px(
     delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
 
     spxs =
-        [residual_spx(mass, coeffs, l_init, proj, dl, psrterm, dt + delay) for dt in dts]
+        [residual_px(mass, coeffs, l_init, proj, dl, psrterm, dt + delay) for dt in dts]
     sps = first.(spxs) * (1 + z.z)
     sxs = last.(spxs) * (1 + z.z)
 
