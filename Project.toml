@@ -4,6 +4,7 @@ authors = ["Abhimanyu Susobhanan <abhisrkckl@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 Coverage = "a2441757-f6aa-5fb2-8edb-039e3f45d037"
 DataInterpolations = "82cc6244-b520-54b8-b5a6-8a565e85f1d0"
 FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"

@@ -5,6 +5,7 @@ export EvolvCoeffs, evolve_orbit
 
 import DataInterpolations
 import JLD
+using Artifacts
 using HypergeometricFunctions
 
 include("parameters.jl")
@@ -14,7 +15,8 @@ function read_precomputed_tau_e(datafile::String)
     return data["taus"], data["es"]
 end
 
-taus, es = read_precomputed_tau_e("/home/susobhan/Work/GWecc.jl/data/tau_e.jld")
+precomputed_tau_e_file = joinpath(artifact"GWecc_data", "data", "tau_e.jld")
+taus, es = read_precomputed_tau_e(precomputed_tau_e_file)
 tau_from_e_spline = DataInterpolations.CubicSpline(taus, es)
 e_from_tau_spline = DataInterpolations.CubicSpline(es, taus)
 
