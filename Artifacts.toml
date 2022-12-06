@@ -1,6 +1,7 @@
-[gwecc_data]
-git-tree-sha1 = "c0e4b493cff1eaedc6b2a08ebf18658bce2bd431"
+[GWecc_data]
+git-tree-sha1 = "533cb931e758745c18fbfde84f02e4aca2583e93"
 
-    [[gwecc_data.download]]
-    sha256 = "981c5d09e1bd7e1c47a0c78fcbb6b04cc154524b4eaf2749adb3ce196a95cea7"
-    url = "file:/home/susobhan/Work/GWecc.jl/data.tar.gz"
+    [[GWecc_data.download]]
+    sha256 = "9e3b57df88c5d6015072fae64ecfe35d047a503a6f13d7c4863d5623122138f1"
+    url = "https://abhisrkckl.github.io/files/GWecc_data.tar.gz"
+
