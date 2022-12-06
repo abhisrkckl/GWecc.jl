@@ -7,8 +7,8 @@ parsec = 102927125.0
 MSun = 4.92703806e-6
 
 mass = Mass(1e9 * MSun, 0.25)
-n_init = MeanMotion(2 * π / (2 * year))
-e_init = Eccentricity(0.3)
+n_init = MeanMotion(2 * π / (5 * year))
+e_init = Eccentricity(0.4)
 l_init = Angle(0.0)
 tref = Time(5000.0)
 
@@ -95,10 +95,10 @@ sPs2 = residuals(
 
 subplot(221)
 for (idx, 𝒜E) in enumerate(𝒜Es)
-    plot(tyrs, 𝒜E, label="$idx")
+    plot(tyrs, 𝒜E, label="\$A_{$idx,E}\$")
 end
 legend()
-ylabel("𝒜E")
+ylabel("\$A_{i,E}\$")
 xlabel("t (year)")
 
 subplot(222)
@@ -109,10 +109,10 @@ xlabel("t (year)")
 
 subplot(223)
 for (idx, 𝒜P) in enumerate(𝒜Ps)
-    plot(tyrs, 𝒜P, label="$idx")
+    plot(tyrs, 𝒜P, label="\$A_{$idx,P}\$")
 end
 legend()
-ylabel("𝒜P")
+ylabel("\$A_{i,P}\$")
 xlabel("t (year)")
 
 subplot(224)
