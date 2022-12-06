@@ -444,10 +444,11 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         )
         @test all(isapprox.(hs1, hs)) && all(isapprox.(rs1, rs))
 
-        # sE = residual(mass, coeffs, l_init, proj, dl, ap, [EARTH], Δp, dt)
-        sEc = residual_from_components(mass, coeffs, l_init, proj, dl, ap, EARTH, dt)
-        sPc = residual_from_components(mass, coeffs, l_init, proj, dl, ap, PULSAR, dtp)
-        @test_broken sEc ≈ sE
-        @test_broken sPc ≈ sP
+        sE = residuals(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
+        sP = residuals(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
+        sEc = residuals_from_components(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
+        sPc = residuals_from_components(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
+        @test all(isapprox.(sEc, sE, atol=1e-9))
+        @test all(isapprox.(sPc, sP, atol=1e-9))
     end
 end
