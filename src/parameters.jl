@@ -1,4 +1,4 @@
-export ProjectionParams, SkyLocation
+export ProjectionParams, SkyLocation, AzimuthParam
 export ScaledTime, Time, Distance, Redshift, redshifted_time_difference
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
@@ -123,6 +123,12 @@ struct SkyLocation
             return new(ra, dec)
         end
     end
+end
+
+struct AzimuthParam
+    α::Float64
+
+    AzimuthParam(α::Float64) = α>=0 && α<=1 ? new(α) : throw(DomainError(α, "α out of range."))
 end
 
 struct Distance
