@@ -202,7 +202,7 @@ function residuals_1psr(
     dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
-    Δp = pulsar_term_delay(ap, dp, z)
+    Δp = pulsar_term_delay(α, dp, z)
 
     ss = [
         residual_1psr(mass, coeffs, l_init, proj, dl, α, terms, Δp, dt) * (1 + z.z) for

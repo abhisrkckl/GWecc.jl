@@ -288,11 +288,12 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         ra_p = 1.5
         dec_p = -0.8
         ra_gw = 0.5
-        dec_gw = 0.75
+        dec_gw = -0.8
         psrpos = SkyLocation(ra_p, dec_p)
         gwpos = SkyLocation(ra_gw, dec_gw)
         dp = Distance(1e13)
         ap = AntennaPattern(psrpos, gwpos)
+        α = AzimuthParam(ap)
         z = Redshift(0.1)
         Δp = pulsar_term_delay(ap, dp, z)
         @test Δp.t < 0
@@ -510,7 +511,40 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 tEs,
             )
             @test all(isapprox.(sEc, sE, atol = 1e-8))
-            @test all(isapprox.(sPc, sP, atol = 1e-8))
+            @test all(isapprox.(sPc, sP, atol = 1e-7))
         end
+
+        # e_init = Eccentricity(0.4)
+        # ss = residuals(
+        #     mass,
+        #     n_init,
+        #     e_init,
+        #     l_init,
+        #     proj,
+        #     dl,
+        #     dp,
+        #     psrpos,
+        #     gwpos,
+        #     z,
+        #     [EARTH, PULSAR],
+        #     tref,
+        #     tEs,
+        # )
+        # proj1 = ProjectionParams(Angle(-(ψ.θ - 1.0)), cosι, γ0, γp)
+        # ss1 = residuals_1psr(
+        #     mass,
+        #     n_init,
+        #     e_init,
+        #     l_init,
+        #     proj1,
+        #     dl,
+        #     dp,
+        #     α,
+        #     z,
+        #     [EARTH, PULSAR],
+        #     tref,
+        #     tEs
+        # )
+        # @test all(isapprox.(ss1, ss, atol=1e-9))
     end
 end

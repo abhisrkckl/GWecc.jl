@@ -29,7 +29,7 @@ function residual_components_𝒜(
 end
 
 function residual_component_coeffs_a(proj::ProjectionParams, term::Term)
-    sgn = term == EARTH ? -1 : 1
+    sgn = term == EARTH ? 1 : -1
 
     sc2γ0 = SinCos(Angle(term == EARTH ? proj.γ0 : proj.γp))
     s2γ0, c2γ0 = sc2γ0.sinx, sc2γ0.cosx
