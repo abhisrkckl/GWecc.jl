@@ -1,6 +1,11 @@
 export gw_amplitude, waveform_coeffs_c, waveform_px, waveform
 
-function gw_amplitude(mass::Mass, norb::MeanMotion, ecc::Eccentricity, dl::Distance)::Float64
+function gw_amplitude(
+    mass::Mass,
+    norb::MeanMotion,
+    ecc::Eccentricity,
+    dl::Distance,
+)::Float64
     m, η = mass.m, mass.η
     dgw = dl.D
     x = pn_param_x(mass, norb, ecc).x

@@ -1,10 +1,18 @@
-export residual_PQR, residual_A, residual_px, residual, residuals, residuals_px, waveform_and_residuals
+export residual_PQR,
+    residual_A,
+    residual_px,
+    residual,
+    residual_1psr,
+    residuals,
+    residuals_px,
+    waveform_and_residuals,
+    residuals_1psr
 
 function residual_PQR(ecc::Eccentricity, scu::SinCos)
     e = ecc.e
     su = scu.sinx
     cu = scu.cosx
-    c2u = cu*cu - su*su
+    c2u = cu * cu - su * su
 
     P = ((e + (-2 + e * e) * cu) * su) / (1 - e * cu)
     Q = (sqrt(1 - e^2) * (e * cu - c2u)) / (1 - e * cu)
@@ -140,8 +148,7 @@ function residuals_px(
     psrterm = term == PULSAR
     delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
 
-    spxs =
-        [residual_px(mass, coeffs, l_init, proj, dl, psrterm, dt + delay) for dt in dts]
+    spxs = [residual_px(mass, coeffs, l_init, proj, dl, psrterm, dt + delay) for dt in dts]
     sps = first.(spxs) * (1 + z.z)
     sxs = last.(spxs) * (1 + z.z)
 
@@ -170,8 +177,10 @@ function residuals(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp, z)
 
-    ss =
-        [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) * (1 + z.z) for dt in dts]
+    ss = [
+        residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) * (1 + z.z) for
+        dt in dts
+    ]
 
     return ss
 end
@@ -195,8 +204,10 @@ function residuals_1psr(
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     Δp = pulsar_term_delay(ap, dp, z)
 
-    ss =
-        [residual_1psr(mass, coeffs, l_init, proj, dl, α, terms, Δp, dt) * (1 + z.z) for dt in dts]
+    ss = [
+        residual_1psr(mass, coeffs, l_init, proj, dl, α, terms, Δp, dt) * (1 + z.z) for
+        dt in dts
+    ]
 
     return ss
 end
@@ -222,8 +233,7 @@ function waveform_and_residuals(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp, z)
 
-    hs =
-        [waveform(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts]
+    hs = [waveform(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts]
     ss =
         [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts] * (1 + z.z)
 
