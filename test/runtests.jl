@@ -449,8 +449,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             sP = residuals(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
             sEc = residuals_from_components(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
             sPc = residuals_from_components(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
-            @test all(isapprox.(sEc, sE, atol=1e-9))
-            @test all(isapprox.(sPc, sP, atol=1e-9))
+            @test all(isapprox.(sEc, sE, atol=1e-8))
+            @test all(isapprox.(sPc, sP, atol=1e-8))
         end
     end
 end
