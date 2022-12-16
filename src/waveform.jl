@@ -79,15 +79,15 @@ function waveform(
 
     if EARTH in terms
         hpE, hxE = waveform_px(mass, coeffs, l_init, proj, dl, false, dt)
-        hp = hp - hpE
-        hx = hx - hxE
+        hp = hp + hpE
+        hx = hx + hxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
         hpP, hxP = waveform_px(mass, coeffs, l_init, proj, dl, true, dtp)
-        hp = hp + hpP
-        hx = hx + hxP
+        hp = hp - hpP
+        hx = hx - hxP
     end
 
     return ap.Fp * hp + ap.Fx * hx

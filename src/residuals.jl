@@ -73,18 +73,48 @@ function residual(
 
     if EARTH in terms
         spE, sxE = residual_px(mass, coeffs, l_init, proj, dl, false, dt)
-        sp = sp - spE
-        sx = sx - sxE
+        sp = sp + spE
+        sx = sx + sxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
         spP, sxP = residual_px(mass, coeffs, l_init, proj, dl, true, dtp)
-        sp = sp + spP
-        sx = sx + sxP
+        sp = sp - spP
+        sx = sx - sxP
     end
 
     return ap.Fp * sp + ap.Fx * sx
+end
+
+function residual_1psr(
+    mass::Mass,
+    coeffs::EvolvCoeffs,
+    l_init::Angle,
+    proj::ProjectionParams,
+    dl::Distance,
+    α::AzimuthParam,
+    terms::Vector{Term},
+    Δp::Time,
+    dt::Time,
+)
+    sp = 0.0
+    sx = 0.0
+
+    if EARTH in terms
+        spE, sxE = residual_px(mass, coeffs, l_init, proj, dl, false, dt)
+        sp = sp + spE
+        sx = sx + sxE
+    end
+
+    if PULSAR in terms
+        dtp = dt + Δp
+        spP, sxP = residual_px(mass, coeffs, l_init, proj, dl, true, dtp)
+        sp = sp - spP
+        sx = sx - sxP
+    end
+
+    return α.α * sp
 end
 
 function residuals_px(
@@ -142,6 +172,31 @@ function residuals(
 
     ss =
         [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) * (1 + z.z) for dt in dts]
+
+    return ss
+end
+
+function residuals_1psr(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l_init::Angle,
+    proj::ProjectionParams,
+    dl::Distance,
+    dp::Distance,
+    α::AzimuthParam,
+    z::Redshift,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+    Δp = pulsar_term_delay(ap, dp, z)
+
+    ss =
+        [residual_1psr(mass, coeffs, l_init, proj, dl, α, terms, Δp, dt) * (1 + z.z) for dt in dts]
 
     return ss
 end

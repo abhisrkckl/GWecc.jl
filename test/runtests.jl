@@ -312,8 +312,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         dtp = dt + Δp
         spE, sxE = residual_px(mass, coeffs, l_init, proj, dl, false, dt)
         spP, sxP = residual_px(mass, coeffs, l_init, proj, dl, true, dtp)
-        @test sP ≈ ap.Fp * spP + ap.Fx * sxP
-        @test sE ≈ -(ap.Fp * spE + ap.Fx * sxE)
+        @test sP ≈ -(ap.Fp * spP + ap.Fx * sxP)
+        @test sE ≈  (ap.Fp * spE + ap.Fx * sxE)
 
         tEs = Time.(LinRange(0.0, 10000.0, 100))
         tref = Time(10000.0)
@@ -372,8 +372,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         hpE, hxE = waveform_px(mass, coeffs, l_init, proj, dl, false, dt)
         hpP, hxP = waveform_px(mass, coeffs, l_init, proj, dl, true, dtp)
-        @test hP ≈ ap.Fp * hpP + ap.Fx * hxP
-        @test hE ≈ -(ap.Fp * hpE + ap.Fx * hxE)
+        @test hP ≈ -(ap.Fp * hpP + ap.Fx * hxP)
+        @test hE ≈  (ap.Fp * hpE + ap.Fx * hxE)
 
         hs = waveform(
             mass,
