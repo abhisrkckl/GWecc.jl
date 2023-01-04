@@ -3,6 +3,7 @@ export sky_direction_uvec,
 
 using LinearAlgebra
 
+"Unit vector pointing to a sky location."
 function sky_direction_uvec(pos::SkyLocation)
     λ = pos.ra
     β = pos.dec
@@ -14,6 +15,7 @@ function sky_direction_uvec(pos::SkyLocation)
     return [n1, n2, n3]
 end
 
+"+/x GW polarization tensors corresponding to a sky location"
 function gw_polarization_tensors(pos::SkyLocation)
     λ = pos.ra
     β = pos.dec
@@ -43,6 +45,8 @@ function gw_polarization_tensors(pos::SkyLocation)
     return ep, ec
 end
 
+"""Antenna pattern functions Fp and Fx and the cos-angle 
+between the pulsar and source locations."""
 struct AntennaPattern
     cosµ::Float64
     Fp::Float64
@@ -67,6 +71,7 @@ struct AntennaPattern
     end
 end
 
+"Time delay between the earth and the pulsar terms."
 function pulsar_term_delay(ap::AntennaPattern, psrdist::Distance, redshift::Redshift)::Time
     dp = psrdist.D
     cosµ = ap.cosµ

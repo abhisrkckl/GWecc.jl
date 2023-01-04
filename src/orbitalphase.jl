@@ -1,5 +1,8 @@
 export mikkola, kepler, true_anomaly, true_anomaly_diff, OrbitalPhase
 
+"Mikkola's method for solving Kepler equation.
+Eccentric anomaly as a function of mean anomaly.
+Mikkola 1987"
 function mikkola(ecc::Eccentricity, ll::Angle)::Angle
     l = ll.θ
     e = ecc.e
@@ -54,12 +57,15 @@ function mikkola(ecc::Eccentricity, ll::Angle)::Angle
     return Angle(u)
 end
 
+"Kepler equation. Mean anomaly as a function of eccentric anomaly."
 function kepler(ecc::Eccentricity, uu::Angle)::Angle
     u = uu.θ
     e = ecc.e
     return Angle(u - e * sin(u))
 end
 
+"Difference between true anomaly and eccentric anomaly as a function
+of eccentric anomaly. This is a periodic function of eccentric anomaly."
 function true_anomaly_diff(ecc::Eccentricity, scu::SinCos)::Angle
     e = ecc.e
     su = scu.sinx
@@ -70,6 +76,7 @@ function true_anomaly_diff(ecc::Eccentricity, scu::SinCos)::Angle
     return Angle(v_l)
 end
 
+"True anomaly as a function of eccentric anomaly."
 function true_anomaly(ecc::Eccentricity, scu::SinCos)::Angle
     e = ecc.e
     u = scu.x.θ
@@ -113,6 +120,7 @@ function true_anomaly(ecc::Eccentricity, scu::SinCos)::Angle
     return Angle(v)
 end
 
+"Eccentric anomaly, orbital phase and argument of periastron."
 struct OrbitalPhase
     scu::SinCos
     sc2φ::SinCos
