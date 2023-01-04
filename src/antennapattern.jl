@@ -1,4 +1,5 @@
-export sky_direction_uvec, gw_polarization_tensors, AntennaPattern, pulsar_term_delay, AzimuthParam
+export sky_direction_uvec,
+    gw_polarization_tensors, AntennaPattern, pulsar_term_delay, AzimuthParam
 
 using LinearAlgebra
 
@@ -80,7 +81,7 @@ struct AzimuthParam
         α >= 0 && α <= 1 ? new(α) : throw(DomainError(α, "α out of range."))
 end
 
-AzimuthParam(ap::AntennaPattern) = AzimuthParam((1 + ap.cosµ)/2)
+AzimuthParam(ap::AntennaPattern) = AzimuthParam((1 + ap.cosµ) / 2)
 
 function pulsar_term_delay(α::AzimuthParam, psrdist::Distance, redshift::Redshift)::Time
     dp = psrdist.D

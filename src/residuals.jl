@@ -1,5 +1,12 @@
 export residual_PQR,
-    residual_A, residual_px, residual, residual_1psr, residuals, residuals_px, waveform_and_residuals, residuals_1psr
+    residual_A,
+    residual_px,
+    residual,
+    residual_1psr,
+    residuals,
+    residuals_px,
+    waveform_and_residuals,
+    residuals_1psr
 
 function residual_PQR(ecc::Eccentricity, scu::SinCos)
     e = ecc.e
@@ -192,15 +199,15 @@ function residuals_1psr(
     tEs::Vector{Time},
 )
     dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
-    
+
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     Δp = pulsar_term_delay(α, dp, z)
-    
+
     ss = [
         residual_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) * (1 + z.z) for
-            dt in dts
+        dt in dts
     ]
-    
+
     return ss
 end
 
