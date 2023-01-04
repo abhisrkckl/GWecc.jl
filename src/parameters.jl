@@ -1,5 +1,5 @@
 export ProjectionParams, SkyLocation, InitPhaseParams
-export ScaledTime, Time, Distance, Redshift, redshi,fted_time_difference
+export ScaledTime, Time, Distance, Redshift, redshi, fted_time_difference
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
@@ -85,9 +85,9 @@ struct InitPhaseParams
     l0::Angle
     lp::Angle
     function InitPhaseParams(l0::Float64, lp::Float64)
-        if l0<0 || l0>=2*π
+        if l0 < 0 || l0 >= 2 * π
             throw(DomainError(l0, "l0 out of range."))
-        elseif lp<0 || lp>=2*π
+        elseif lp < 0 || lp >= 2 * π
             throw(DomainError(lp, "lp out of range."))
         else
             return new(Angle(l0), Angle(lp))

@@ -25,67 +25,67 @@ dl = Distance(1e9 * parsec)
 z = Redshift(0.1)
 
 tEs = Time.(LinRange(0, 10 * year, 5000))
-tyrs = [t.t for t in tEs]/year
+tyrs = [t.t for t in tEs] / year
 
 for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
 
     sEs = residuals(
-        mass, 
-        n_init, 
-        e_init, 
-        l_init, 
-        proj, 
-        dl, 
-        dp, 
-        psrpos, 
+        mass,
+        n_init,
+        e_init,
+        l_init,
+        proj,
+        dl,
+        dp,
+        psrpos,
         gwpos,
         z,
         [EARTH],
         tref,
-        tEs
+        tEs,
     )
     sPs = residuals(
-        mass, 
-        n_init, 
-        e_init, 
-        l_init, 
-        proj, 
-        dl, 
-        dp, 
-        psrpos, 
+        mass,
+        n_init,
+        e_init,
+        l_init,
+        proj,
+        dl,
+        dp,
+        psrpos,
         gwpos,
         z,
         [PULSAR],
         tref,
-        tEs
+        tEs,
     )
     ss = residuals(
-        mass, 
-        n_init, 
-        e_init, 
-        l_init, 
-        proj, 
-        dl, 
-        dp, 
-        psrpos, 
+        mass,
+        n_init,
+        e_init,
+        l_init,
+        proj,
+        dl,
+        dp,
+        psrpos,
         gwpos,
         z,
         [PULSAR, EARTH],
         tref,
-        tEs
+        tEs,
     )
 
-    subplot(330 + 3*(idx-1) + 1)
+    subplot(330 + 3 * (idx - 1) + 1)
     plot(tyrs, sEs)
     ylabel("\$s_E\$")
     xlabel("t (year)")
 
-    subplot(330 + 3*(idx-1) + 2)
+    subplot(330 + 3 * (idx - 1) + 2)
     plot(tyrs, sPs)
     ylabel("\$s_P\$")
     xlabel("t (year)")
 
-    subplot(330 + 3*(idx-1) + 3)
+    subplot(330 + 3 * (idx - 1) + 3)
     plot(tyrs, ss)
     ylabel("\$s\$")
     xlabel("t (year)")
