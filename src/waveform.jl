@@ -36,13 +36,14 @@ end
 function waveform_px(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     proj::ProjectionParams,
     dl::Distance,
     psrterm::Bool,
     dt::Time,
 )
     γ_init = psrterm ? Angle(proj.γp) : Angle(proj.γ0)
+    l_init = psrterm ? l0p.lp : l0p.l0
 
     n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, dt)
     phase = OrbitalPhase(mass, n, e, l, γ)
@@ -66,7 +67,7 @@ end
 function waveform(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     proj::ProjectionParams,
     dl::Distance,
     ap::AntennaPattern,
@@ -78,14 +79,14 @@ function waveform(
     hx = 0.0
 
     if EARTH in terms
-        hpE, hxE = waveform_px(mass, coeffs, l_init, proj, dl, false, dt)
+        hpE, hxE = waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
         hp = hp - hpE
         hx = hx - hxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        hpP, hxP = waveform_px(mass, coeffs, l_init, proj, dl, true, dtp)
+        hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
         hp = hp + hpP
         hx = hx + hxP
     end
@@ -97,7 +98,7 @@ function waveform(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     proj::ProjectionParams,
     dl::Distance,
     dp::Distance,
@@ -114,7 +115,7 @@ function waveform(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp, z)
 
-    ss = [waveform(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts]
+    ss = [waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
 
     return ss
 end

@@ -3,12 +3,15 @@ export residual_from_components, residuals_from_components, residuals_components
 function residual_components_𝒜(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     ap::AntennaPattern,
     dl::Distance,
+    term::Term,
     dt::Time
 )
     Fp, Fx = ap.Fp, ap.Fx
+
+    l_init = term == EARTH ? l0p.l0 : l0p.lp
     
     n, e, l, g = evolve_orbit(coeffs, l_init, Angle(0.0), dt)
     phase = OrbitalPhase(mass, n, e, l, g)
@@ -49,14 +52,14 @@ end
 function residual_from_components(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     proj::ProjectionParams,
     dl::Distance,
     ap::AntennaPattern,
     term::Term,
     dt::Time
 )
-    𝒜 = residual_components_𝒜(mass, coeffs, l_init, ap, dl, dt)
+    𝒜 = residual_components_𝒜(mass, coeffs, l0p, ap, dl, term, dt)
     a = residual_component_coeffs_a(proj, term)
 
     return dot(𝒜, a)
@@ -66,7 +69,7 @@ function residuals_from_components(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     proj::ProjectionParams,
     dl::Distance,
     dp::Distance,
@@ -85,12 +88,12 @@ function residuals_from_components(
     ap = AntennaPattern(psrpos, gwpos)
     
     if EARTH in terms
-        res = res + [residual_from_components(mass, coeffs, l_init, proj, dl, ap, EARTH, dt) * (1 + z.z) for dt in dts]
+        res = res + [residual_from_components(mass, coeffs, l0p, proj, dl, ap, EARTH, dt) * (1 + z.z) for dt in dts]
     end
 
     if PULSAR in terms
         delay = pulsar_term_delay(ap, dp, z)
-        res = res + [residual_from_components(mass, coeffs, l_init, proj, dl, ap, PULSAR, dt + delay) * (1 + z.z) for dt in dts]
+        res = res + [residual_from_components(mass, coeffs, l0p, proj, dl, ap, PULSAR, dt + delay) * (1 + z.z) for dt in dts]
     end
 
     return res
@@ -100,7 +103,7 @@ function residuals_components_𝒜(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     dl::Distance,
     dp::Distance,
     psrpos::SkyLocation,
@@ -119,7 +122,7 @@ function residuals_components_𝒜(
     delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
 
     𝒜s =
-        [residual_components_𝒜(mass, coeffs, l_init, ap, dl, dt + delay) for dt in dts]
+        [residual_components_𝒜(mass, coeffs, l0p, ap, dl, term, dt + delay) for dt in dts]
     
     return [[𝒜[idx] for 𝒜 in 𝒜s] for idx in 1:6]
 end

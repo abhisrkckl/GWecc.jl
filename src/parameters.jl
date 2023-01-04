@@ -1,5 +1,5 @@
-export ProjectionParams, SkyLocation
-export ScaledTime, Time, Distance, Redshift, redshifted_time_difference
+export ProjectionParams, SkyLocation, InitPhaseParams
+export ScaledTime, Time, Distance, Redshift, redshi,fted_time_difference
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass

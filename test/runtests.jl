@@ -300,15 +300,17 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         γp = γ0 + 0.2
         proj = ProjectionParams(ψ, cosι, γ0, γp)
 
+        l0p = InitPhaseParams(l_init.θ, l_init.θ)
+
         dt = Time(10000.0)
-        sE = residual(mass, coeffs, l_init, proj, dl, ap, [EARTH], Δp, dt)
-        sP = residual(mass, coeffs, l_init, proj, dl, ap, [PULSAR], Δp, dt)
-        s = residual(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
+        sE = residual(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
+        sP = residual(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
+        s = residual(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
         @test s ≈ sP + sE
 
         dtp = dt + Δp
-        spE, sxE = residual_px(mass, coeffs, l_init, proj, dl, false, dt)
-        spP, sxP = residual_px(mass, coeffs, l_init, proj, dl, true, dtp)
+        spE, sxE = residual_px(mass, coeffs, l0p, proj, dl, false, dt)
+        spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
         @test sP ≈ ap.Fp * spP + ap.Fx * sxP
         @test sE ≈ -(ap.Fp * spE + ap.Fx * sxE)
 
@@ -318,7 +320,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             mass,
             n_init,
             e_init,
-            l_init,
+            l0p,
             proj,
             dl,
             dp,
@@ -333,7 +335,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             mass,
             n_init,
             e_init,
-            l_init,
+            l0p,
             proj,
             dl,
             dp,
@@ -348,7 +350,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             mass,
             n_init,
             e_init,
-            l_init,
+            l0p,
             proj,
             dl,
             dp,
@@ -362,13 +364,13 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @test all(isfinite.(rs))
         @test all(isapprox.(rs, rEs + rPs))
 
-        hE = waveform(mass, coeffs, l_init, proj, dl, ap, [EARTH], Δp, dt)
-        hP = waveform(mass, coeffs, l_init, proj, dl, ap, [PULSAR], Δp, dt)
-        h = waveform(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
+        hE = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
+        hP = waveform(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
+        h = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
         @test h ≈ hP + hE
 
-        hpE, hxE = waveform_px(mass, coeffs, l_init, proj, dl, false, dt)
-        hpP, hxP = waveform_px(mass, coeffs, l_init, proj, dl, true, dtp)
+        hpE, hxE = waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+        hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
         @test hP ≈ ap.Fp * hpP + ap.Fx * hxP
         @test hE ≈ -(ap.Fp * hpE + ap.Fx * hxE)
 
@@ -376,7 +378,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             mass,
             n_init,
             e_init,
-            l_init,
+            l0p,
             proj,
             dl,
             dp,
@@ -391,7 +393,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             mass,
             n_init,
             e_init,
-            l_init,
+            l0p,
             proj,
             dl,
             dp,
@@ -406,7 +408,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             mass,
             n_init,
             e_init,
-            l_init,
+            l0p,
             proj,
             dl,
             dp,
@@ -423,15 +425,15 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         numdiff = central_fdm(5, 1)
         s_from_t_func =
             dt_ ->
-                residual(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, Time(dt_))
-        h_anl = waveform(mass, coeffs, l_init, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
+                residual(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, Time(dt_))
+        h_anl = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
         h_num = numdiff(s_from_t_func, dt.t)
         @test h_anl ≈ h_num atol = 1e-9
 
         hs1, rs1 = waveform_and_residuals(mass,
             n_init,
             e_init,
-            l_init,
+            l0p,
             proj,
             dl,
             dp,
@@ -445,10 +447,10 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @test all(isapprox.(hs1, hs)) && all(isapprox.(rs1, rs))
 
         for e_init in Eccentricity.([0.1, 0.4, 0.8])
-            sE = residuals(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
-            sP = residuals(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
-            sEc = residuals_from_components(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
-            sPc = residuals_from_components(mass, n_init, e_init, l_init, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
+            sE = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
+            sP = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
+            sEc = residuals_from_components(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
+            sPc = residuals_from_components(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
             @test all(isapprox.(sEc, sE, atol=1e-8))
             @test all(isapprox.(sPc, sP, atol=1e-8))
         end
