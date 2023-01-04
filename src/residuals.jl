@@ -75,15 +75,15 @@ function residual(
 
     if EARTH in terms
         spE, sxE = residual_px(mass, coeffs, l0p, proj, dl, false, dt)
-        sp = sp - spE
-        sx = sx - sxE
+        sp = sp + spE
+        sx = sx + sxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
         spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
-        sp = sp + spP
-        sx = sx + sxP
+        sp = sp - spP
+        sx = sx - sxP
     end
 
     return ap.Fp * sp + ap.Fx * sx
