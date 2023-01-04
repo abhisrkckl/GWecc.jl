@@ -7,12 +7,14 @@ export Term, EARTH, PULSAR
 
 import Base.+, Base.-, Base.*
 
+"Dimensionless scaled time (Defined in Susobhanan+ 2020, Section IIC)"
 struct ScaledTime
     τ::Float64
     ScaledTime(τ::Float64) =
         isfinite(τ) && τ >= 0 ? new(τ) : throw(DomainError(τ, "τ<0 encountered."))
 end
 
+"Time in seconds"
 struct Time
     t::Float64
     Time(t::Float64) = isfinite(t) ? new(t) : throw(DomainError(t, "isnan(t) encountered."))
@@ -23,12 +25,16 @@ t1::Time - t2::Time = Time(t1.t - t2.t)
 a::Number * t1::Time = Time(a * t1.t)
 t1::Time * a::Number = a * t1
 
+"Eccentricity. Must lie in [0,1)."
 struct Eccentricity
     e::Float64
     Eccentricity(e::Float64) =
         (e > 0 && e < 1) ? new(e) : throw(DomainError(e, "e out of range."))
 end
 
+"""Total mass, symmetric mass ratio and chirp mass. 
+Masses are represented in geometric units (s).
+Symmetric mass ratio must lie in (0, 0.25]."""
 struct Mass
     m::Float64
     η::Float64
@@ -45,12 +51,14 @@ struct Mass
     end
 end
 
+"Mean motion in rad/s"
 struct MeanMotion
     n::Float64
     MeanMotion(n::Float64) =
         (n >= 1e-11 && n <= 5e-6) ? new(n) : throw(DomainError(n, "n out of range."))
 end
 
+"Dimensionless scaled mean anomaly."
 struct ScaledMeanAnomaly
     lbar::Float64
     ScaledMeanAnomaly(lbar::Float64) =
@@ -58,6 +66,7 @@ struct ScaledMeanAnomaly
         throw(DomainError(lbar, "lbar out of range."))
 end
 
+"Dimensionless scaled periastron angles at the 1PN, 2PN and 3PN orders."
 struct ScaledPeriastronAngle
     γbar1::Float64
     γbar2::Float64
@@ -75,12 +84,14 @@ struct ScaledPeriastronAngle
     end
 end
 
+"Angle in rad"
 struct Angle
     θ::Float64
     Angle(θ::Float64) =
         isfinite(θ) ? new(θ) : throw(DomainError(θ, "isnan(θ) encountered."))
 end
 
+"Initial mean anomalies for the earth and the pulsar terms."
 struct InitPhaseParams
     l0::Angle
     lp::Angle
@@ -95,6 +106,7 @@ struct InitPhaseParams
     end
 end
 
+"sin and cos of an angle."
 struct SinCos
     x::Angle
     sinx::Float64
@@ -103,6 +115,9 @@ struct SinCos
     SinCos(x::Angle) = new(x, sin(x.θ), cos(x.θ))
 end
 
+"""Projection parameters including polarization angle, 
+inclination, and the initial periastron angles of the 
+earth and the pulsar terms."""
 struct ProjectionParams
     sc2ψ::SinCos
     cosι::Float64
@@ -124,6 +139,7 @@ struct ProjectionParams
     end
 end
 
+"Sky location represented by RA and DEC in rad"
 struct SkyLocation
     ra::Float64
     dec::Float64
@@ -139,17 +155,21 @@ struct SkyLocation
     end
 end
 
+"Distance in geometric units (s)"
 struct Distance
     D::Float64
     Distance(D::Float64) =
         D > 0 ? new(D) : throw(DomainError(D, "distance should be positive."))
 end
 
+"Cosmological redshift. Must be positive."
 struct Redshift
     z::Float64
     Redshift(z::Float64) =
         z >= 0 ? new(z) : throw(DomainError(z, "redshift should be positive."))
 end
+
+"Apply redshift to a time difference"
 redshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time = (1 + z.z) * (t - tref)
 
 @enum Term EARTH PULSAR

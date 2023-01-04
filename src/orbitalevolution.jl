@@ -10,6 +10,8 @@ using HypergeometricFunctions
 
 include("parameters.jl")
 
+"""Read precomputed τ(e) from a file. This was computed by 
+numerically solving Eq. 21 of Susobhanan+ 2020."""
 function read_precomputed_tau_e(datafile::String)
     data = JLD.load(datafile)
     return data["taus"], data["es"]
@@ -28,6 +30,7 @@ taumax = ScaledTime(maximum(taus))
 a::Float64 = 2 * sqrt(2) / 5 / 5^(63 / 2299) / 17^(1181 / 2299)
 b::Float64 = 2 / sqrt(1 - eccmax.e) - a * taumax.τ
 
+"Eccentricity as a function of scaled time (spline approximant)."
 function e_from_τ(tau::ScaledTime)::Eccentricity
     τ = tau.τ
     τmin = taumin.τ
@@ -46,6 +49,8 @@ function e_from_τ(tau::ScaledTime)::Eccentricity
 end
 e_from_τ(τ::Float64)::Float64 = e_from_τ(ScaledTime(τ)).e
 
+"""Scaled time as a function of eccentricity (spline approximant). 
+Exact expression is Eq. 22 of Susobhanan+ 2020."""
 function τ_from_e(ecc::Eccentricity)::ScaledTime
     e = ecc.e
     emin = eccmin.e
@@ -64,6 +69,7 @@ function τ_from_e(ecc::Eccentricity)::ScaledTime
 end
 τ_from_e(e::Float64)::Float64 = τ_from_e(Eccentricity(e)).τ
 
+"Coefficient for scaling time. Eq. 20b of Susobhanan+ 2020."
 function evolv_coeff_κ(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::Float64
     Mch = mass.Mch
     n0 = n_init.n
@@ -76,6 +82,7 @@ function evolv_coeff_κ(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::F
            (304 + 121 * e0^2)^(3480 / 2299) / (1 - e0^2)^4
 end
 
+"Coefficient for scaling mean anomaly. Eq. 26a of Susobhanan+ 2020."
 function evolv_coeff_α(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::Float64
     Mch = mass.Mch
     n0 = n_init.n
@@ -85,6 +92,8 @@ function evolv_coeff_α(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::F
            (1 - e0^2)^2.5
 end
 
+"""Coefficient for scaling the periastron angle at 1PN order. 
+Eq. 26b of Susobhanan+ 2020."""
 function evolv_coeff_β(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::Float64
     Mch = mass.Mch
     M = mass.m
@@ -95,6 +104,8 @@ function evolv_coeff_β(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::F
            (304 + 121 * e0^2)^(1305 / 2299) * (1 - e0^2)^1.5
 end
 
+"""Coefficient for scaling the periastron angle at 2PN order.
+Eq. A7 of Susobhanan+ 2020"""
 function evolv_coeff_β2(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::Float64
     Mch = mass.Mch
     M = mass.m
@@ -105,6 +116,8 @@ function evolv_coeff_β2(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::
            (304 + 121 * e0^2)^(435 / 2299) * sqrt(1 - e0^2)
 end
 
+"""Coefficient for scaling the periastron angle at 3PN order.
+Eq. A13 of Susobhanan+ 2020"""
 function evolv_coeff_β3(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::Float64
     Mch = mass.Mch
     M = mass.m
@@ -118,6 +131,8 @@ function evolv_coeff_β3(mass::Mass, n_init::MeanMotion, e_init::Eccentricity)::
            (304 + 121 * e0^2)^(435 / 2299) / sqrt(1 - e0^2)
 end
 
+"Scaled mean anomaly as a function of eccentricity.
+Eq. 30a of Susobhanan+ 2020"
 function lbar_from_e(ecc::Eccentricity)::ScaledMeanAnomaly
     e = ecc.e
 
@@ -127,6 +142,8 @@ function lbar_from_e(ecc::Eccentricity)::ScaledMeanAnomaly
 end
 lbar_from_e(e::Float64)::Float64 = lbar_from_e(Eccentricity(e)).lbar
 
+"Scaled periastron angle (1PN) as a function of eccentricity.
+Eq. 30b of Susobhanan+ 2020."
 function γbar_from_e(ecc::Eccentricity)::Float64
     e = ecc.e
     coeff::Float64 = 19^(1305 / 2299) / 36 / 2^(1677 / 2299)
@@ -135,6 +152,8 @@ function γbar_from_e(ecc::Eccentricity)::Float64
 end
 γbar_from_e(e::Float64)::Float64 = γbar_from_e(Eccentricity(e))
 
+"Scaled periastron angle (2PN) as a function of eccentricity
+Eq. A10 of Susobhanan+ 2020"
 function γbar2_from_e(ecc::Eccentricity, mass::Mass)::Float64
     e = ecc.e
     η = mass.η
@@ -147,12 +166,14 @@ function γbar2_from_e(ecc::Eccentricity, mass::Mass)::Float64
     return γbar2
 end
 
+"Scaled periastron angle (3PN) as a function of eccentricity.
+Eq. A14 of Susobhanan+ 2020 (Padé approximant)."
 function γbar3_from_e(ecc::Eccentricity, mass::Mass)::Float64
     #=
     γbar3(e) = (γbar3_0 + η*γbar3_1(e) + (η^2)*γbar3_2(e)) / e^(6/19)
 
     The functions gbar30 and gbar31 contain Appell F1 functions that are
-    hard to compute. So I am using Pade approximants here. Since this is a
+    hard to compute. So I am using Padé approximants here. Since this is a
     3PN correction the error due to this approximation should be negligible.
     This probably won't work if e == 0.
     =#
@@ -182,6 +203,7 @@ function γbar3_from_e(ecc::Eccentricity, mass::Mass)::Float64
     return γbar3
 end
 
+"Scaled periastron angles up to 3PN as a function of eccentricity."
 function γbar123_from_e(ecc::Eccentricity, mass::Mass)::ScaledPeriastronAngle
     γbar1 = γbar_from_e(ecc)
     γbar2 = γbar2_from_e(ecc, mass)
@@ -189,6 +211,8 @@ function γbar123_from_e(ecc::Eccentricity, mass::Mass)::ScaledPeriastronAngle
     return ScaledPeriastronAngle(γbar1, γbar2, γbar3)
 end
 
+"Orbital evolution coefficients that only depend on
+system parameters and initial conditions."
 struct EvolvCoeffs
     mass::Mass
 
@@ -227,6 +251,8 @@ struct EvolvCoeffs
     end
 end
 
+"Mean motion as a function of eccentricity.
+Eq. 19 of Susobhanan+ 2020."
 function n_from_e(coeffs::EvolvCoeffs, e_now::Eccentricity)::MeanMotion
     n0 = coeffs.n_init.n
     e0 = coeffs.e_init.e
@@ -240,6 +266,8 @@ function n_from_e(coeffs::EvolvCoeffs, e_now::Eccentricity)::MeanMotion
     return MeanMotion(n)
 end
 
+"Scaled time as a function of time.
+Un-numbered equation above Eq. 21 of Susobhanan+ 2020."
 function τ_from_t(delay::Time, coeffs::EvolvCoeffs)::ScaledTime
     τ0 = coeffs.τ0.τ
     κ = coeffs.κ
@@ -247,6 +275,8 @@ function τ_from_t(delay::Time, coeffs::EvolvCoeffs)::ScaledTime
     return ScaledTime(τ0 - κ * dt)
 end
 
+"Mean anomaly as a function of scaled mean anomaly.
+Un-numbered equation above Eq. 27a of Susobhanan+ 2020."
 function l_from_lbar(coeffs::EvolvCoeffs, l_init::Angle, lbar_now::ScaledMeanAnomaly)::Angle
     l0 = l_init.θ
     lbar = lbar_now.lbar
@@ -256,6 +286,8 @@ function l_from_lbar(coeffs::EvolvCoeffs, l_init::Angle, lbar_now::ScaledMeanAno
     return Angle(l)
 end
 
+"Periastron angle as a function of scaled periastron angles.
+Eq. A15 of Susobhanan+ 2020."
 function γ_from_γbar(
     coeffs::EvolvCoeffs,
     γ_init::Angle,
@@ -278,6 +310,9 @@ function γ_from_γbar(
     return Angle(γ)
 end
 
+"Mean motion, eccentricity, mean anomaly and periastron angle as 
+functions of time. Accurate up to 3PN conservative order and 2.5PN
+reactive order."
 function evolve_orbit(coeffs::EvolvCoeffs, l_init::Angle, γ_init::Angle, delay::Time)
     τ::ScaledTime = τ_from_t(delay, coeffs)
     e::Eccentricity = e_from_τ(τ)

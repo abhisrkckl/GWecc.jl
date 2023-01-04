@@ -1,11 +1,13 @@
 export derivative_dτ_de, derivative_de_dt, derivative_dn_dt
 export derivative_dlbar_de, derivative_dγbar_de, derivative_dγbar2_de, derivative_dγbar3_de
 
+"Eq. 21 of Susobhanan+ 2020"
 function derivative_dτ_de(ecc::Eccentricity)::Float64
     e = ecc.e
     return e^(29 / 19) * (121 * e^2 + 304)^(1181 / 2299) / (1 - e^2)^(3 / 2)
 end
 
+"Eq. 17b of Susobhanan+ 2020"
 function derivative_de_dt(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::Float64
     Mch = mass.Mch
     n = norb.n
@@ -13,6 +15,7 @@ function derivative_de_dt(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::Floa
     return (-1 / 15) * (Mch * n)^(5 / 3) * n * e * (304 + 121 * e^2) / (1 - e^2)^2.5
 end
 
+"Eq. 17a of Susobhanan+ 2020"
 function derivative_dn_dt(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::Float64
     Mch = mass.Mch
     n = norb.n
@@ -20,16 +23,19 @@ function derivative_dn_dt(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::Floa
     return (1 / 5) * (Mch * n)^(5 / 3) * n^2 * (96 + 292 * e^2 + 37 * e^4) / (1 - e^2)^3.5
 end
 
+"Eq. 29a of Susobhanan+ 2020"
 function derivative_dlbar_de(ecc::Eccentricity)::Float64
     e = ecc.e
     return e^(11 / 19) / (304 + 121 * e^2)^(124 / 2299)
 end
 
+"Eq. 29b of Susobhanan+ 2020"
 function derivative_dγbar_de(ecc::Eccentricity)::Float64
     e = ecc.e
     return e^(-1 / 19) / (304 + 121 * e^2)^(994 / 2299)
 end
 
+"Eq. A9 of Susobhanan+ 2020"
 function derivative_dγbar2_de(ecc::Eccentricity, mass::Mass)::Float64
     e = ecc.e
     η = mass.η
@@ -37,6 +43,7 @@ function derivative_dγbar2_de(ecc::Eccentricity, mass::Mass)::Float64
            (304 + 121 * e^2)^(1864 / 2299)
 end
 
+"Eq. A12 of Susobhanan+ 2020."
 function derivative_dγbar3_de(ecc::Eccentricity, mass::Mass)::Float64
     e = ecc.e
     η = mass.η
