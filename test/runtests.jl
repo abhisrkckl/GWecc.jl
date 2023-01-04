@@ -530,7 +530,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     tref,
                     tEs,
                 )
-                dψ = acos(dot([ap.Fp,ap.Fx], [α.α, 0]) / α.α^2) / 2
+                dψ = acos(dot([ap.Fp, ap.Fx], [α.α, 0]) / α.α^2) / 2
                 proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
                 ss1 = residuals_1psr(
                     mass,
@@ -544,9 +544,9 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     z,
                     [EARTH, PULSAR],
                     tref,
-                    tEs
+                    tEs,
                 )
-                @test all(isapprox.(ss1, ss, atol=1e-9))
+                @test all(isapprox.(ss1, ss, atol = 1e-9))
             end
         end
     end
