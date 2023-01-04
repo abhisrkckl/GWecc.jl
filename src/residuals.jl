@@ -1,10 +1,11 @@
-export residual_PQR, residual_A, residual_px, residual, residuals, residuals_px, waveform_and_residuals
+export residual_PQR,
+    residual_A, residual_px, residual, residuals, residuals_px, waveform_and_residuals
 
 function residual_PQR(ecc::Eccentricity, scu::SinCos)
     e = ecc.e
     su = scu.sinx
     cu = scu.cosx
-    c2u = cu*cu - su*su
+    c2u = cu * cu - su * su
 
     P = ((e + (-2 + e * e) * cu) * su) / (1 - e * cu)
     Q = (sqrt(1 - e^2) * (e * cu - c2u)) / (1 - e * cu)
@@ -37,7 +38,7 @@ function residual_px(
 )
     γ_init = psrterm ? Angle(proj.γp) : Angle(proj.γ0)
     l_init = psrterm ? l0p.lp : l0p.l0
- 
+
     n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, dt)
     phase = OrbitalPhase(mass, n, e, l, γ)
 
@@ -111,8 +112,7 @@ function residuals_px(
     psrterm = term == PULSAR
     delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
 
-    spxs =
-        [residual_px(mass, coeffs, l0p, proj, dl, psrterm, dt + delay) for dt in dts]
+    spxs = [residual_px(mass, coeffs, l0p, proj, dl, psrterm, dt + delay) for dt in dts]
     sps = first.(spxs) * (1 + z.z)
     sxs = last.(spxs) * (1 + z.z)
 
@@ -168,8 +168,7 @@ function waveform_and_residuals(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp, z)
 
-    hs =
-        [waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
+    hs = [waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
     ss =
         [residual(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts] * (1 + z.z)
 

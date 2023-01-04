@@ -25,89 +25,89 @@ dl = Distance(1e9 * parsec)
 z = Redshift(0.1)
 
 tEs = Time.(LinRange(0, 10 * year, 5000))
-tyrs = [t.t for t in tEs]/year
+tyrs = [t.t for t in tEs] / year
 
 for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
 
     spEs, sxEs = residuals_px(
-        mass, 
-        n_init, 
-        e_init, 
-        l_init, 
-        proj, 
-        dl, 
-        dp, 
-        psrpos, 
+        mass,
+        n_init,
+        e_init,
+        l_init,
+        proj,
+        dl,
+        dp,
+        psrpos,
         gwpos,
         z,
         EARTH,
         tref,
-        tEs
+        tEs,
     )
     sEs = residuals(
-        mass, 
-        n_init, 
-        e_init, 
-        l_init, 
-        proj, 
-        dl, 
-        dp, 
-        psrpos, 
+        mass,
+        n_init,
+        e_init,
+        l_init,
+        proj,
+        dl,
+        dp,
+        psrpos,
         gwpos,
         z,
         [EARTH],
         tref,
-        tEs
+        tEs,
     )
     spPs, sxPs = residuals_px(
-        mass, 
-        n_init, 
-        e_init, 
-        l_init, 
-        proj, 
-        dl, 
-        dp, 
-        psrpos, 
+        mass,
+        n_init,
+        e_init,
+        l_init,
+        proj,
+        dl,
+        dp,
+        psrpos,
         gwpos,
         z,
         PULSAR,
         tref,
-        tEs
+        tEs,
     )
     sPs = residuals(
-        mass, 
-        n_init, 
-        e_init, 
-        l_init, 
-        proj, 
-        dl, 
-        dp, 
-        psrpos, 
+        mass,
+        n_init,
+        e_init,
+        l_init,
+        proj,
+        dl,
+        dp,
+        psrpos,
         gwpos,
         z,
         [PULSAR],
         tref,
-        tEs
+        tEs,
     )
 
-    subplot(3, 4, 4*(idx-1) + 1)
+    subplot(3, 4, 4 * (idx - 1) + 1)
     plot(tyrs, spEs)
     plot(tyrs, sxEs)
     ylabel("\$s_{E(+/x)}\$")
     xlabel("t (year)")
 
-    subplot(3, 4, 4*(idx-1) + 2)
+    subplot(3, 4, 4 * (idx - 1) + 2)
     plot(tyrs, sEs)
     ylabel("\$s_E\$")
     xlabel("t (year)")
 
-    subplot(3, 4, 4*(idx-1) + 3)
+    subplot(3, 4, 4 * (idx - 1) + 3)
     plot(tyrs, spPs)
     plot(tyrs, sxPs)
     ylabel("\$s_{P(+/x)}\$")
     xlabel("t (year)")
 
-    subplot(3, 4, 4*(idx-1) + 4)
+    subplot(3, 4, 4 * (idx - 1) + 4)
     plot(tyrs, sPs)
     ylabel("\$s_P\$")
     xlabel("t (year)")

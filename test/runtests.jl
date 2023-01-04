@@ -424,13 +424,13 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         numdiff = central_fdm(5, 1)
         s_from_t_func =
-            dt_ ->
-                residual(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, Time(dt_))
+            dt_ -> residual(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, Time(dt_))
         h_anl = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
         h_num = numdiff(s_from_t_func, dt.t)
         @test h_anl ≈ h_num atol = 1e-9
 
-        hs1, rs1 = waveform_and_residuals(mass,
+        hs1, rs1 = waveform_and_residuals(
+            mass,
             n_init,
             e_init,
             l0p,
@@ -442,17 +442,73 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             z,
             [EARTH, PULSAR],
             tref,
-            tEs
+            tEs,
         )
         @test all(isapprox.(hs1, hs)) && all(isapprox.(rs1, rs))
 
         for e_init in Eccentricity.([0.1, 0.4, 0.8])
-            sE = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
-            sP = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
-            sEc = residuals_from_components(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
-            sPc = residuals_from_components(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [PULSAR], tref, tEs)
-            @test all(isapprox.(sEc, sE, atol=1e-8))
-            @test all(isapprox.(sPc, sP, atol=1e-8))
+            sE = residuals(
+                mass,
+                n_init,
+                e_init,
+                l0p,
+                proj,
+                dl,
+                dp,
+                psrpos,
+                gwpos,
+                z,
+                [EARTH],
+                tref,
+                tEs,
+            )
+            sP = residuals(
+                mass,
+                n_init,
+                e_init,
+                l0p,
+                proj,
+                dl,
+                dp,
+                psrpos,
+                gwpos,
+                z,
+                [PULSAR],
+                tref,
+                tEs,
+            )
+            sEc = residuals_from_components(
+                mass,
+                n_init,
+                e_init,
+                l0p,
+                proj,
+                dl,
+                dp,
+                psrpos,
+                gwpos,
+                z,
+                [EARTH],
+                tref,
+                tEs,
+            )
+            sPc = residuals_from_components(
+                mass,
+                n_init,
+                e_init,
+                l0p,
+                proj,
+                dl,
+                dp,
+                psrpos,
+                gwpos,
+                z,
+                [PULSAR],
+                tref,
+                tEs,
+            )
+            @test all(isapprox.(sEc, sE, atol = 1e-8))
+            @test all(isapprox.(sPc, sP, atol = 1e-8))
         end
     end
 end

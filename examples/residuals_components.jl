@@ -26,76 +26,102 @@ dl = Distance(1e9 * parsec)
 z = Redshift(0.1)
 
 tEs = Time.(LinRange(0, 10 * year, 5000))
-tyrs = [t.t for t in tEs]/year
+tyrs = [t.t for t in tEs] / year
 
-𝒜Es = residuals_components_𝒜(mass, n_init, e_init, l_init, dl, dp, psrpos, gwpos, z, EARTH, tref, tEs)
-𝒜Ps = residuals_components_𝒜(mass, n_init, e_init, l_init, dl, dp, psrpos, gwpos, z, PULSAR, tref, tEs)
-    
+𝒜Es = residuals_components_𝒜(
+    mass,
+    n_init,
+    e_init,
+    l_init,
+    dl,
+    dp,
+    psrpos,
+    gwpos,
+    z,
+    EARTH,
+    tref,
+    tEs,
+)
+𝒜Ps = residuals_components_𝒜(
+    mass,
+    n_init,
+    e_init,
+    l_init,
+    dl,
+    dp,
+    psrpos,
+    gwpos,
+    z,
+    PULSAR,
+    tref,
+    tEs,
+)
+
 sEs1 = residuals(
-    mass, 
-    n_init, 
-    e_init, 
-    l_init, 
-    proj, 
-    dl, 
-    dp, 
-    psrpos, 
+    mass,
+    n_init,
+    e_init,
+    l_init,
+    proj,
+    dl,
+    dp,
+    psrpos,
     gwpos,
     z,
     [EARTH],
     tref,
-    tEs
+    tEs,
 )
 sPs1 = residuals(
-    mass, 
-    n_init, 
-    e_init, 
-    l_init, 
-    proj, 
-    dl, 
-    dp, 
-    psrpos, 
+    mass,
+    n_init,
+    e_init,
+    l_init,
+    proj,
+    dl,
+    dp,
+    psrpos,
     gwpos,
     z,
     [PULSAR],
     tref,
-    tEs
+    tEs,
 )
 
 sEs2 = residuals(
-    mass, 
-    n_init, 
-    e_init, 
-    l_init, 
-    proj, 
-    dl, 
-    dp, 
-    psrpos, 
+    mass,
+    n_init,
+    e_init,
+    l_init,
+    proj,
+    dl,
+    dp,
+    psrpos,
     gwpos,
     z,
     [EARTH],
     tref,
-    tEs
+    tEs,
 )
 sPs2 = residuals(
-    mass, 
-    n_init, 
-    e_init, 
-    l_init, 
-    proj, 
-    dl, 
-    dp, 
-    psrpos, 
+    mass,
+    n_init,
+    e_init,
+    l_init,
+    proj,
+    dl,
+    dp,
+    psrpos,
     gwpos,
     z,
     [PULSAR],
     tref,
-    tEs
+    tEs,
 )
 
 subplot(221)
 for (idx, 𝒜E) in enumerate(𝒜Es)
-    plot(tyrs, 𝒜E, label="\$A_{$idx,E}\$")
+    plot(tyrs, 𝒜E, label = "\$A_{$idx,E}\$")
 end
 legend()
 ylabel("\$A_{i,E}\$")
@@ -109,7 +135,7 @@ xlabel("t (year)")
 
 subplot(223)
 for (idx, 𝒜P) in enumerate(𝒜Ps)
-    plot(tyrs, 𝒜P, label="\$A_{$idx,P}\$")
+    plot(tyrs, 𝒜P, label = "\$A_{$idx,P}\$")
 end
 legend()
 ylabel("\$A_{i,P}\$")
