@@ -72,3 +72,10 @@ function pulsar_term_delay(ap::AntennaPattern, psrdist::Distance, redshift::Reds
     z = redshift.z
     return Time(-dp * (1 - cosµ) / (1 + z))
 end
+
+struct AzimuthParam
+    α::Float64
+
+    AzimuthParam(α::Float64) =
+        α >= 0 && α <= 1 ? new(α) : throw(DomainError(α, "α out of range."))
+end
