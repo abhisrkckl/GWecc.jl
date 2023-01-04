@@ -79,3 +79,11 @@ struct AzimuthParam
     AzimuthParam(α::Float64) =
         α >= 0 && α <= 1 ? new(α) : throw(DomainError(α, "α out of range."))
 end
+
+AzimuthParam(ap::AntennaPattern) = AzimuthParam((1 + ap.cosµ)/2)
+
+function pulsar_term_delay(α::AzimuthParam, psrdist::Distance, redshift::Redshift)::Time
+    dp = psrdist.D
+    z = redshift.z
+    return Time(-2 * dp * (1 - α.α) / (1 + z))
+end
