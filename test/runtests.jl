@@ -268,6 +268,9 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @test ap1.Fp^2 + ap1.Fx^2 ≈ ap2.Fp^2 + ap2.Fx^2
 
         @test_throws DomainError AntennaPattern(gwpos, gwpos)
+
+        @test AzimuthParam(0.5).α == 0.5
+        @test_throws DomainError AzimuthParam(1.1)
     end
 
     @testset "waveform and residuals" begin
@@ -290,6 +293,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         gwpos = SkyLocation(ra_gw, dec_gw)
         dp = Distance(1e13)
         ap = AntennaPattern(psrpos, gwpos)
+        α = AzimuthParam(ap)
         z = Redshift(0.1)
         Δp = pulsar_term_delay(ap, dp, z)
         @test Δp.t < 0
@@ -509,6 +513,41 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             )
             @test all(isapprox.(sEc, sE, atol = 1e-8))
             @test all(isapprox.(sPc, sP, atol = 1e-8))
+
+            for e_init in Eccentricity.([0.1, 0.4, 0.7])
+                ss = residuals(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [EARTH, PULSAR],
+                    tref,
+                    tEs,
+                )
+                dψ = acos(dot([ap.Fp,ap.Fx], [α.α, 0]) / α.α^2) / 2
+                proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
+                ss1 = residuals_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj1,
+                    dl,
+                    dp,
+                    α,
+                    z,
+                    [EARTH, PULSAR],
+                    tref,
+                    tEs
+                )
+                @test all(isapprox.(ss1, ss, atol=1e-9))
+            end
         end
     end
 end

@@ -1,5 +1,12 @@
 export residual_PQR,
-    residual_A, residual_px, residual, residuals, residuals_px, waveform_and_residuals
+    residual_A,
+    residual_px,
+    residual,
+    residual_1psr,
+    residuals,
+    residuals_px,
+    waveform_and_residuals,
+    residuals_1psr
 
 function residual_PQR(ecc::Eccentricity, scu::SinCos)
     e = ecc.e
@@ -89,6 +96,36 @@ function residual(
     return ap.Fp * sp + ap.Fx * sx
 end
 
+function residual_1psr(
+    mass::Mass,
+    coeffs::EvolvCoeffs,
+    l0p::InitPhaseParams,
+    proj::ProjectionParams,
+    dl::Distance,
+    α::AzimuthParam,
+    terms::Vector{Term},
+    Δp::Time,
+    dt::Time,
+)
+    sp = 0.0
+    # sx = 0.0
+
+    if EARTH in terms
+        spE, sxE = residual_px(mass, coeffs, l0p, proj, dl, false, dt)
+        sp = sp + spE
+        # sx = sx + sxE
+    end
+
+    if PULSAR in terms
+        dtp = dt + Δp
+        spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
+        sp = sp - spP
+        # sx = sx - sxP
+    end
+
+    return α.α * sp
+end
+
 function residuals_px(
     mass::Mass,
     n_init::MeanMotion,
@@ -143,6 +180,33 @@ function residuals(
 
     ss =
         [residual(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) * (1 + z.z) for dt in dts]
+
+    return ss
+end
+
+function residuals_1psr(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l0p::InitPhaseParams,
+    proj::ProjectionParams,
+    dl::Distance,
+    dp::Distance,
+    α::AzimuthParam,
+    z::Redshift,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+    Δp = pulsar_term_delay(α, dp, z)
+
+    ss = [
+        residual_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) * (1 + z.z) for
+        dt in dts
+    ]
 
     return ss
 end
