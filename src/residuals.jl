@@ -29,14 +29,15 @@ end
 function residual_px(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     proj::ProjectionParams,
     dl::Distance,
     psrterm::Bool,
     dt::Time,
 )
     γ_init = psrterm ? Angle(proj.γp) : Angle(proj.γ0)
-
+    l_init = psrterm ? l0p.lp : l0p.l0
+ 
     n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, dt)
     phase = OrbitalPhase(mass, n, e, l, γ)
 
@@ -60,7 +61,7 @@ end
 function residual(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     proj::ProjectionParams,
     dl::Distance,
     ap::AntennaPattern,
@@ -72,14 +73,14 @@ function residual(
     sx = 0.0
 
     if EARTH in terms
-        spE, sxE = residual_px(mass, coeffs, l_init, proj, dl, false, dt)
+        spE, sxE = residual_px(mass, coeffs, l0p, proj, dl, false, dt)
         sp = sp - spE
         sx = sx - sxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        spP, sxP = residual_px(mass, coeffs, l_init, proj, dl, true, dtp)
+        spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
         sp = sp + spP
         sx = sx + sxP
     end
@@ -91,7 +92,7 @@ function residuals_px(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     proj::ProjectionParams,
     dl::Distance,
     dp::Distance,
@@ -111,7 +112,7 @@ function residuals_px(
     delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
 
     spxs =
-        [residual_px(mass, coeffs, l_init, proj, dl, psrterm, dt + delay) for dt in dts]
+        [residual_px(mass, coeffs, l0p, proj, dl, psrterm, dt + delay) for dt in dts]
     sps = first.(spxs) * (1 + z.z)
     sxs = last.(spxs) * (1 + z.z)
 
@@ -123,7 +124,7 @@ function residuals(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     proj::ProjectionParams,
     dl::Distance,
     dp::Distance,
@@ -141,7 +142,7 @@ function residuals(
     Δp = pulsar_term_delay(ap, dp, z)
 
     ss =
-        [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) * (1 + z.z) for dt in dts]
+        [residual(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) * (1 + z.z) for dt in dts]
 
     return ss
 end
@@ -150,7 +151,7 @@ function waveform_and_residuals(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l_init::Angle,
+    l0p::InitPhaseParams,
     proj::ProjectionParams,
     dl::Distance,
     dp::Distance,
@@ -168,9 +169,9 @@ function waveform_and_residuals(
     Δp = pulsar_term_delay(ap, dp, z)
 
     hs =
-        [waveform(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts]
+        [waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
     ss =
-        [residual(mass, coeffs, l_init, proj, dl, ap, terms, Δp, dt) for dt in dts] * (1 + z.z)
+        [residual(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts] * (1 + z.z)
 
     return hs, ss
 end
