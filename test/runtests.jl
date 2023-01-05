@@ -6,7 +6,7 @@ using UnPack
 
 e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))).e
 
-@testset "GWecc" begin
+@testset verbose = true "GWecc" begin
     @testset "parameters" begin
         @testset "mass" begin
             @test_throws DomainError Mass(4e-2, 0.2)

@@ -8,8 +8,6 @@ import JLD
 using Artifacts
 using HypergeometricFunctions
 
-include("parameters.jl")
-
 """Read precomputed τ(e) from a file. This was computed by 
 numerically solving Eq. 21 of Susobhanan+ 2020."""
 function read_precomputed_tau_e(datafile::String)

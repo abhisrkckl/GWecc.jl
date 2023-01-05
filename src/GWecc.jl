@@ -1,5 +1,6 @@
 module GWecc
 
+include("parameters.jl")
 include("orbitalevolution.jl")
 include("derivatives.jl")
 include("quasikeplerian.jl")
