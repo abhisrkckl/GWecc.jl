@@ -1,5 +1,6 @@
 export gw_amplitude, waveform_coeffs_c, waveform_px, waveform
 
+"GW amplitude"
 function gw_amplitude(
     mass::Mass,
     norb::MeanMotion,
@@ -12,11 +13,13 @@ function gw_amplitude(
     return m * η * x / dgw
 end
 
+"Waveform coefficients that depend on the inclination"
 function waveform_coeffs_c(proj::ProjectionParams)
     ci = proj.cosι
     return 1 - ci^2, 1 + ci^2, 2 * ci
 end
 
+"Waveform component functions"
 function waveform_A(ecc::Eccentricity, phase::OrbitalPhase)
     e = ecc.e
     su = phase.scu.sinx
@@ -38,6 +41,7 @@ function waveform_A(ecc::Eccentricity, phase::OrbitalPhase)
     return A0, A1, A2
 end
 
+"+/x polarizations of the waveform."
 function waveform_px(
     mass::Mass,
     coeffs::EvolvCoeffs,
@@ -69,6 +73,7 @@ function waveform_px(
     return hp, hx
 end
 
+"PTA waveform."
 function waveform(
     mass::Mass,
     coeffs::EvolvCoeffs,
@@ -99,6 +104,8 @@ function waveform(
     return ap.Fp * hp + ap.Fx * hx
 end
 
+
+"PTA waveform"
 function waveform(
     mass::Mass,
     n_init::MeanMotion,

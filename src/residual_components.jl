@@ -1,5 +1,6 @@
 export residual_from_components, residuals_from_components, residuals_components_𝒜
 
+"PTA signal component functions for fast likelihood."
 function residual_components_𝒜(
     mass::Mass,
     coeffs::EvolvCoeffs,
@@ -31,6 +32,7 @@ function residual_components_𝒜(
     return [𝒜1, 𝒜2, 𝒜3, 𝒜4, 𝒜5, 𝒜6]
 end
 
+"PTA signal coefficients as functions of projection parameters."
 function residual_component_coeffs_a(proj::ProjectionParams, term::Term)
     sgn = term == EARTH ? 1 : -1
 
@@ -49,6 +51,7 @@ function residual_component_coeffs_a(proj::ProjectionParams, term::Term)
     return [a1, a2, a3, a4, a5, a6]
 end
 
+"PTA signal computed from components"
 function residual_from_components(
     mass::Mass,
     coeffs::EvolvCoeffs,
@@ -65,6 +68,7 @@ function residual_from_components(
     return dot(𝒜, a)
 end
 
+"PTA signal computed from components"
 function residuals_from_components(
     mass::Mass,
     n_init::MeanMotion,
@@ -115,6 +119,7 @@ function residuals_from_components(
     return res
 end
 
+"PTA signal components for the fast likelihood"
 function residuals_components_𝒜(
     mass::Mass,
     n_init::MeanMotion,
