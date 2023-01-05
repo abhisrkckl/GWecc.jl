@@ -19,7 +19,7 @@ planck18 = cosmology(
 )
 
 function mass_from_log10_mass(log10_M::Float64, eta::Float64)::Mass
-    M = uconvert(u"s", (10.0^log10_M * GMsun) / c_0^3).val
+    M::Float64 = uconvert(u"s", (10.0^log10_M * GMsun) / c_0^3).val
     return Mass(M, eta)
 end
 

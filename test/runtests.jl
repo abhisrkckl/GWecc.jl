@@ -3,9 +3,6 @@ using Test
 using FiniteDifferences
 using LinearAlgebra
 using UnPack
-using PyCall
-
-np = pyimport("numpy")
 
 e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))).e
 
@@ -555,7 +552,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
     end
 
     @testset "enterprise functions" begin
-        toas = np.linspace(0, 1000000, 100)
+        toas = LinRange(0, 1000000, 100)
         pdist = 400.0 # kpc
         alpha = 0.3
         psi = 1.1

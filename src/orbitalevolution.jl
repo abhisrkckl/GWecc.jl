@@ -313,7 +313,13 @@ end
 "Mean motion, eccentricity, mean anomaly and periastron angle as 
 functions of time. Accurate up to 3PN conservative order and 2.5PN
 reactive order."
-function evolve_orbit(coeffs::EvolvCoeffs, l_init::Angle, γ_init::Angle, delay::Time)
+function evolve_orbit(
+    coeffs::EvolvCoeffs, 
+    l_init::Angle, 
+    γ_init::Angle, 
+    delay::Time
+)::Tuple{MeanMotion, Eccentricity, Angle, Angle}
+    
     τ::ScaledTime = τ_from_t(delay, coeffs)
     e::Eccentricity = e_from_τ(τ)
     n::MeanMotion = n_from_e(coeffs, e)
