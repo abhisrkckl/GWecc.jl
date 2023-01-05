@@ -7,18 +7,21 @@ export PNParam,
     advance_of_periastron_3PN,
     angular_eccentricity
 
+"PN expansion parameter"
 struct PNParam
     x::Float64
     PNParam(x::Float64) =
         (x > 0 && x < 0.25) ? new(x) : throw(DomainError(x, "x out of range."))
 end
 
+"Periastron advance per orbit"
 struct PeriastronAdvance
     k::Float64
     PeriastronAdvance(k::Float64) =
         abs(k) < 0.25 ? new(k) : throw(DomainError(k, "k out of range."))
 end
 
+"PN expansion parameter"
 function pn_param_x(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::PNParam
     m = mass.m
     n = norb.n
@@ -29,6 +32,7 @@ function pn_param_x(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::PNParam
     return PNParam(x)
 end
 
+"Advance of periastron at 1PN order"
 function advance_of_periastron_1PN(
     mass::Mass,
     norb::MeanMotion,
@@ -42,6 +46,7 @@ function advance_of_periastron_1PN(
     return PeriastronAdvance(k)
 end
 
+"Advance of periastron at 2PN order"
 function advance_of_periastron_2PN(
     mass::Mass,
     norb::MeanMotion,
@@ -56,6 +61,7 @@ function advance_of_periastron_2PN(
     return PeriastronAdvance(k2)
 end
 
+"Advance of periastron at 3PN order"
 function advance_of_periastron_3PN(
     mass::Mass,
     norb::MeanMotion,
@@ -80,6 +86,7 @@ function advance_of_periastron_3PN(
     return PeriastronAdvance(k3)
 end
 
+"Advance of periastron accurate up to 3PN order"
 function advance_of_periastron(mass::Mass, n::MeanMotion, ecc::Eccentricity)
     k1 = advance_of_periastron_1PN(mass, n, ecc).k
     k2 = advance_of_periastron_2PN(mass, n, ecc).k
@@ -87,6 +94,7 @@ function advance_of_periastron(mass::Mass, n::MeanMotion, ecc::Eccentricity)
     return PeriastronAdvance(k1 + k2 + k3)
 end
 
+"Angular eccentricity accurate up to 2PN order"
 function angular_eccentricity(mass::Mass, n::MeanMotion, ecc::Eccentricity)
     x = pn_param_x(mass, n, ecc).x
     e = ecc.e
