@@ -8,6 +8,7 @@ export residual_PQR,
     waveform_and_residuals,
     residuals_1psr
 
+"PTA signal component functions."
 function residual_PQR(ecc::Eccentricity, scu::SinCos)
     e = ecc.e
     su = scu.sinx
@@ -21,6 +22,7 @@ function residual_PQR(ecc::Eccentricity, scu::SinCos)
     return P, Q, R
 end
 
+"PTA signal component functions."
 function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
     s2ω = phase.sc2ω.sinx
     c2ω = phase.sc2ω.cosx
@@ -34,6 +36,7 @@ function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
     return A0, A1, A2
 end
 
+"+/x polarizations of the PTA signal."
 function residual_px(
     mass::Mass,
     coeffs::EvolvCoeffs,
@@ -66,6 +69,7 @@ function residual_px(
     return sp, sx
 end
 
+"PTA signal."
 function residual(
     mass::Mass,
     coeffs::EvolvCoeffs,
@@ -96,6 +100,7 @@ function residual(
     return ap.Fp * sp + ap.Fx * sx
 end
 
+"PTA signal for the single-pulsar case."
 function residual_1psr(
     mass::Mass,
     coeffs::EvolvCoeffs,
@@ -126,6 +131,7 @@ function residual_1psr(
     return α.α * sp
 end
 
+"+/x polarizations of the PTA signal"
 function residuals_px(
     mass::Mass,
     n_init::MeanMotion,
@@ -156,7 +162,7 @@ function residuals_px(
     return sps, sxs
 end
 
-
+"PTA signal"
 function residuals(
     mass::Mass,
     n_init::MeanMotion,
@@ -184,6 +190,7 @@ function residuals(
     return ss
 end
 
+"PTA signal for the single-pulsar case"
 function residuals_1psr(
     mass::Mass,
     n_init::MeanMotion,
@@ -211,6 +218,7 @@ function residuals_1psr(
     return ss
 end
 
+"PTA waveform and PTA signal"
 function waveform_and_residuals(
     mass::Mass,
     n_init::MeanMotion,
