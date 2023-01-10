@@ -1,4 +1,4 @@
-export eccentric_pta_signal_planck18_1psr
+export eccentric_pta_signal_planck18, eccentric_pta_signal_planck18_1psr
 
 "ENTERPRISE-compatible interface for the residuals function. This function
 computes the eccentric PTA signal for a single pulsar given a collection of 

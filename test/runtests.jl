@@ -587,7 +587,35 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 log10_zc,
                 psrTerm,
             )
+            @test all(isfinite.(res))
+        end
 
+        ra_p = 1.5
+        dec_p = -0.8
+        ra_gw = 0.5
+        dec_gw = 0.75
+        for psrTerm in [true, false]
+            res = eccentric_pta_signal_planck18(
+                toas,
+                π - dec_p,
+                ra_p,
+                pdist,
+                sin(dec_gw),
+                ra_gw,
+                psi,
+                cos_inc,
+                log10_M,
+                eta,
+                log10_F,
+                e0,
+                gamma0,
+                gammap,
+                l0,
+                lp,
+                tref,
+                log10_zc,
+                psrTerm,
+            )
             @test all(isfinite.(res))
         end
     end
