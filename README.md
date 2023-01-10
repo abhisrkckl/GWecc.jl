@@ -17,3 +17,7 @@ Installation
 import Pkg
 Pkg.add(url="https://github.com/abhisrkckl/GWecc.jl.git")
 ```
+
+Usage
+-----
+`GWecc.jl` is intended to be used used together with [`ENTERPRISE`](https://github.com/nanograv/enterprise/) package to search for eccentric supermassive binary sources and with [libstempo](https://github.com/vallis/libstempo/) to simulate such sources. Examples of such usage is given in the `examples/` directory.
