@@ -1,5 +1,26 @@
 export eccentric_pta_signal_planck18_1psr
 
+"ENTERPRISE-compatible interface for GWecc. This function computes the 
+eccentric PTA signal given a collection of TOAs and source parameters.
+
+Parameters:
+    toas : Collection of TOAs (s)
+    pdist : Pulsar distance (kpc)
+    alpha : GW source azimuth parameter
+    psi : GW polarization angle (rad)
+    cos_inc : Cos inclination
+    log10_M : Log10 of the total mass (Msun)
+    eta : Symmetric mass ratio
+    log10_F : Log10 GW frequency (Hz)
+    e0 : Eccentricity
+    gamma0 : Initial periastron angle for the Earth term (rad)
+    gammap : Initial periastron angle for the Pulsar term (rad)
+    l0 : Initial mean anomaly for the Earth term (rad)
+    lp : Initial mean anomaly for the Pulsar term (rad)
+    tref : Fiducial time (s)
+    log10_z : Log10 of the cosmological redshift
+    psrTerm : Whether to include the pulsar term
+"
 function eccentric_pta_signal_planck18_1psr(
     toas,
     pdist::Float64,
