@@ -29,3 +29,4 @@ Manifest.toml
 build/
 dist/
 src/*.egg-info/*
+examples/gwecc_sims
