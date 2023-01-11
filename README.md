@@ -18,12 +18,12 @@ Installation
 > Pkg.add(url="https://github.com/abhisrkckl/GWecc.jl.git")
 ```
 
-The `juliacall` package is also required to call `GWecc.jl` from Python. It can be installed by typing
+The Python wrapper can be installed by typing
 
 ```
-$ pip install juliacall
+$ pip install git+https://github.com/abhisrkckl/GWecc.jl.git
 ```
 
 Usage
 -----
-`GWecc.jl` is intended to be used used together with [`ENTERPRISE`](https://github.com/nanograv/enterprise/) package to search for eccentric supermassive binary sources and with [`libstempo`](https://github.com/vallis/libstempo/) to simulate such sources. Examples of such usage is given in the `examples/` directory (Work in progress). 
+`GWecc.jl` is intended to be used used together with [`ENTERPRISE`](https://github.com/nanograv/enterprise/) package to search for eccentric supermassive binary sources and with [`libstempo`](https://github.com/vallis/libstempo/) to simulate such sources. Examples of such usage is given in the `examples/` directory (work in progress...). 
