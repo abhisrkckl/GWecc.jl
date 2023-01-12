@@ -37,7 +37,7 @@ def eccentric_pta_signal_planck18_1psr(
 ):
     return jl.eccentric_pta_signal_planck18_1psr(
         toas,
-        pdist,
+        pdist[0],
         alpha,
         psi,
         cos_inc,
