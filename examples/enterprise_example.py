@@ -2,10 +2,10 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from enterprise.pulsar import Pulsar
 from enterprise.signals.gp_signals import MarginalizingTimingModel
 from enterprise.signals.signal_base import PTA
+
 from enterprise_gwecc import eccentric_pta_signal_planck18_1psr, gwecc_1psr_block
 
 # Calling eccentric_pta_signal_planck18_1psr
