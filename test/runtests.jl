@@ -18,6 +18,21 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test Mass(1.0, 0.25).η == 0.25
             @test Mass(1.0, 0.1).m > Mass(1.0, 0.1).Mch
         end
+
+        @testset "time" begin
+            @test (-Time(-1.0)).t == (-1.0*Time(-1.0)).t
+        end
+
+        @testset "gammabar" begin
+            @test_throws DomainError ScaledPeriastronAngle(0.01, 0.01, -43.0)
+            @test_throws DomainError ScaledPeriastronAngle(0.01, 2.50, -44.0)
+            @test_throws DomainError ScaledPeriastronAngle(0.10, 0.24, -44.0)
+        end
+
+        @testset "init phase params" begin
+            @test_throws DomainError InitPhaseParams(-1.0, 1.0)
+            @test_throws DomainError InitPhaseParams(1.0, 7.0)
+        end
     end
 
     @testset "orbital evlution" begin
