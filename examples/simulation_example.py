@@ -1,12 +1,14 @@
-import libstempo as lst
-import libstempo.toasim as toasim
-import libstempo.plot as lstplot
-import matplotlib.pyplot as plt
-import os
-import enterprise_gwecc as gwecc
 import json
+import os
+
 import enterprise
+import libstempo as lst
+import libstempo.plot as lstplot
+import libstempo.toasim as toasim
+import matplotlib.pyplot as plt
 import numpy as np
+
+import enterprise_gwecc as gwecc
 
 data_dir = "data"
 parfile = f"{data_dir}/JPSR00_sim.par"
@@ -18,6 +20,7 @@ if not os.path.exists(output_dir):
 
 psr = lst.tempopulsar(parfile=parfile, timfile=timfile)
 print(psr.name)
+
 
 def save_psr_sim(psr, savedir):
     print("Writing simulated data for", psr.name)
@@ -43,8 +46,9 @@ gwecc_params = {
     "tref": tref,
     "log10_zc": -4.0,
 }
-with open(f"{output_dir}/true_gwecc_params.dat", 'w') as outfile:
+with open(f"{output_dir}/true_gwecc_params.dat", "w") as outfile:
     json.dump(gwecc_params, outfile, indent=4)
+
 
 def get_pdist(jname):
     dfile = f"{enterprise.__path__[0]}/datafiles/pulsar_distances.json"
@@ -52,19 +56,26 @@ def get_pdist(jname):
         pdict = json.load(fl)
         return pdict[jname][0]
 
+
 def add_gwecc_1psr(psr, gwecc_params, psrTerm=False):
     toas = (psr.toas() * day_to_s).astype(float)
-    
-    signal = np.array(gwecc.eccentric_pta_signal_planck18_1psr(
-        toas=toas, 
-        pdist=1.0,  #get_pdist(psr.name),
-        psrTerm=psrTerm, 
-        **gwecc_params
-    )) / day_to_s
-    
-    psr.stoas[:] += signal 
-    
+
+    signal = (
+        np.array(
+            gwecc.eccentric_pta_signal_planck18_1psr(
+                toas=toas,
+                pdist=1.0,  # get_pdist(psr.name),
+                psrTerm=psrTerm,
+                **gwecc_params,
+            )
+        )
+        / day_to_s
+    )
+
+    psr.stoas[:] += signal
+
     return signal
+
 
 toasim.make_ideal(psr)
 toasim.add_efac(psr, 1)

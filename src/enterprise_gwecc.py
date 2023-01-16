@@ -4,12 +4,10 @@ as an ENTERPRISE Signal object."""
 
 __version__ = "0.1.0"
 
-from enterprise.signals.signal_base import function as enterprise_function
+import numpy as np
 from enterprise.signals.deterministic_signals import Deterministic
 from enterprise.signals.parameter import Uniform
-
-import numpy as np
-
+from enterprise.signals.signal_base import function as enterprise_function
 from juliacall import Main as jl
 
 jl.seval("using GWecc")
