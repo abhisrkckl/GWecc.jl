@@ -1,7 +1,7 @@
-# Figure 3 of Susobhanan+ 2020
+"""Scaled mean anomaly and scaled periastron angle as functions of eccentricity.
+Figure 3 of Susobhanan+ 2020"""
 
-include("../src/GWecc.jl")
-using .GWecc
+using GWecc
 using PyPlot
 
 es = Eccentricity.(LinRange(0.01, 0.99, 1000))
