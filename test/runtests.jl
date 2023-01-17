@@ -407,7 +407,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             psrpos,
             gwpos,
             z,
-            term,
+            EARTH,
             tref,
             tEs
         )
