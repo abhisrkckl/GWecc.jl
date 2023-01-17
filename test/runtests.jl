@@ -18,6 +18,34 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test Mass(1.0, 0.25).η == 0.25
             @test Mass(1.0, 0.1).m > Mass(1.0, 0.1).Mch
         end
+
+        @testset "time" begin
+            @test (-Time(-1.0)).t == (-1.0 * Time(-1.0)).t
+            @test (Time(-1.0) * -1).t == (-1.0 * Time(-1.0)).t
+        end
+
+        @testset "gammabar" begin
+            @test_throws DomainError ScaledPeriastronAngle(0.01, 0.01, -43.0)
+            @test_throws DomainError ScaledPeriastronAngle(0.01, 2.50, -44.0)
+            @test_throws DomainError ScaledPeriastronAngle(0.10, 0.24, -44.0)
+        end
+
+        @testset "init phase params" begin
+            @test_throws DomainError InitPhaseParams(-1.0, 1.0)
+            @test_throws DomainError InitPhaseParams(1.0, 7.0)
+        end
+
+        @testset "projection params" begin
+            @test_throws DomainError ProjectionParams(4.0, 0.3, 1.0, 1.0)
+            @test_throws DomainError ProjectionParams(1.0, 1.1, 1.0, 1.0)
+            @test_throws DomainError ProjectionParams(1.0, 0.3, 4.0, 1.0)
+            @test_throws DomainError ProjectionParams(1.0, 0.3, 1.0, 4.0)
+        end
+
+        @testset "sky location params" begin
+            @test_throws DomainError SkyLocation(-1.0, 1.0)
+            @test_throws DomainError SkyLocation(1.0, 4.1)
+        end
     end
 
     @testset "orbital evlution" begin
@@ -207,7 +235,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @testset "true anomaly" begin
             for e in [0.1, 0.5, 0.9]
                 ecc = Eccentricity(e)
-                for _l in LinRange(-4 * π, 4 * π, 10)
+                for _l in LinRange(-4 * π, 4 * π, 16)
                     l = Angle(_l)
                     u = mikkola(ecc, l)
                     scu = SinCos(u)
@@ -367,6 +395,23 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         )
         @test all(isfinite.(rs))
         @test all(isapprox.(rs, rEs + rPs))
+
+        sps, sxs = residuals_px(
+            mass,
+            n_init,
+            e_init,
+            l0p,
+            proj,
+            dl,
+            dp,
+            psrpos,
+            gwpos,
+            z,
+            EARTH,
+            tref,
+            tEs,
+        )
+        @test all(isfinite.(sps)) && all(isfinite.(sxs))
 
         hE = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
         hP = waveform(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
@@ -567,26 +612,56 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         lp = 0.0
         tref = maximum(toas)
         log10_zc = -2.0
-        psrTerm = false
-        res = eccentric_pta_signal_planck18_1psr(
-            toas,
-            pdist,
-            alpha,
-            psi,
-            cos_inc,
-            log10_M,
-            eta,
-            log10_F,
-            e0,
-            gamma0,
-            gammap,
-            l0,
-            lp,
-            tref,
-            log10_zc,
-            psrTerm,
-        )
 
-        @test all(isfinite.(res))
+        for psrTerm in [true, false]
+            res = eccentric_pta_signal_planck18_1psr(
+                toas,
+                pdist,
+                alpha,
+                psi,
+                cos_inc,
+                log10_M,
+                eta,
+                log10_F,
+                e0,
+                gamma0,
+                gammap,
+                l0,
+                lp,
+                tref,
+                log10_zc,
+                psrTerm,
+            )
+            @test all(isfinite.(res))
+        end
+
+        ra_p = 1.5
+        dec_p = -0.8
+        ra_gw = 0.5
+        dec_gw = 0.75
+        for psrTerm in [true, false]
+            res = eccentric_pta_signal_planck18(
+                toas,
+                π - dec_p,
+                ra_p,
+                pdist,
+                sin(dec_gw),
+                ra_gw,
+                psi,
+                cos_inc,
+                log10_M,
+                eta,
+                log10_F,
+                e0,
+                gamma0,
+                gammap,
+                l0,
+                lp,
+                tref,
+                log10_zc,
+                psrTerm,
+            )
+            @test all(isfinite.(res))
+        end
     end
 end

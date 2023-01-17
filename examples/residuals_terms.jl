@@ -1,5 +1,6 @@
-include("../src/GWecc.jl")
-using .GWecc
+"""PTA signals - Earth and Pulsar terms"""
+
+using GWecc
 using PyPlot
 
 year = 365.25 * 24 * 3600
@@ -8,7 +9,7 @@ MSun = 4.92703806e-6
 
 mass = Mass(1e9 * MSun, 0.25)
 n_init = MeanMotion(2 * π / (2 * year))
-l_init = Angle(0.0)
+l0p = InitPhaseParams(0.0, 0.0)
 tref = Time(5000.0)
 
 proj = ProjectionParams(0.0, 1.0, 0.0, 0.0)
@@ -33,7 +34,7 @@ for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
         mass,
         n_init,
         e_init,
-        l_init,
+        l0p,
         proj,
         dl,
         dp,
@@ -48,7 +49,7 @@ for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
         mass,
         n_init,
         e_init,
-        l_init,
+        l0p,
         proj,
         dl,
         dp,
@@ -63,7 +64,7 @@ for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
         mass,
         n_init,
         e_init,
-        l_init,
+        l0p,
         proj,
         dl,
         dp,

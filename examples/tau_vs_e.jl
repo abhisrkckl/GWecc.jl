@@ -1,7 +1,7 @@
-# Figure 2 of Susobhanan+ 2020
+"""Scaled time as a function of eccentricity.
+Figure 2 of Susobhanan+ 2020"""
 
-include("../src/GWecc.jl")
-using .GWecc
+using GWecc
 using PyPlot
 
 es = Eccentricity.(LinRange(0.01, 0.99, 1000))

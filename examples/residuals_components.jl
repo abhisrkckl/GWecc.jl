@@ -1,5 +1,6 @@
-include("../src/GWecc.jl")
-using .GWecc
+"""PTA signal components for fast likelihood"""
+
+using GWecc
 using PyPlot
 
 year = 365.25 * 24 * 3600
@@ -9,7 +10,7 @@ MSun = 4.92703806e-6
 mass = Mass(1e9 * MSun, 0.25)
 n_init = MeanMotion(2 * π / (5 * year))
 e_init = Eccentricity(0.4)
-l_init = Angle(0.0)
+l0p = InitPhaseParams(0.0, 0.0)
 tref = Time(5000.0)
 
 proj = ProjectionParams(0.0, 1.0, 0.0, 0.0)
@@ -32,7 +33,7 @@ tyrs = [t.t for t in tEs] / year
     mass,
     n_init,
     e_init,
-    l_init,
+    l0p,
     dl,
     dp,
     psrpos,
@@ -46,7 +47,7 @@ tyrs = [t.t for t in tEs] / year
     mass,
     n_init,
     e_init,
-    l_init,
+    l0p,
     dl,
     dp,
     psrpos,
@@ -57,26 +58,13 @@ tyrs = [t.t for t in tEs] / year
     tEs,
 )
 
-sEs1 = residuals(
-    mass,
-    n_init,
-    e_init,
-    l_init,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    z,
-    [EARTH],
-    tref,
-    tEs,
-)
+sEs1 =
+    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
 sPs1 = residuals(
     mass,
     n_init,
     e_init,
-    l_init,
+    l0p,
     proj,
     dl,
     dp,
@@ -88,26 +76,13 @@ sPs1 = residuals(
     tEs,
 )
 
-sEs2 = residuals(
-    mass,
-    n_init,
-    e_init,
-    l_init,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    z,
-    [EARTH],
-    tref,
-    tEs,
-)
+sEs2 =
+    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
 sPs2 = residuals(
     mass,
     n_init,
     e_init,
-    l_init,
+    l0p,
     proj,
     dl,
     dp,
