@@ -94,7 +94,7 @@ function advance_of_periastron(mass::Mass, n::MeanMotion, ecc::Eccentricity)
     return PeriastronAdvance(k1 + k2 + k3)
 end
 
-"Angular eccentricity accurate up to 2PN order"
+"Angular eccentricity accurate up to 3PN order"
 function angular_eccentricity(mass::Mass, n::MeanMotion, ecc::Eccentricity)
     x = pn_param_x(mass, n, ecc).x
     e = ecc.e
@@ -107,7 +107,28 @@ function angular_eccentricity(mass::Mass, n::MeanMotion, ecc::Eccentricity)
             (x^2) * (
                 4 * (-12 * (26 + 15 * ots) + η * (17 + 72 * ots + η)) +
                 (e^2) * (1152 + η * (-659 + 41 * η))
-            ) / (96 * (-1 + e^2))
+            ) / (96 * (-1 + e^2)) +
+            (x^3) * ((
+                -70 * e^4 * (-12288 + η * (11233 + 5 * η * (-383 + 3 * η))) +
+                20 * (
+                    1344 * (54 + 65 * ots) +
+                    η * (
+                        861 * (1 + ots) * π^2 +
+                        4 * (-33431 - 29960 * ots - 3458 * η + 3360 * ots * η)
+                    )
+                ) +
+                3 *
+                e^2 *
+                (
+                    -8960 * (76 + 35 * ots) +
+                    η * (
+                        -1435 * π^2 +
+                        4 *
+                        (8 * (12983 + 5040 * ots) + 35 * η * (-1319 + 32 * ots + 45 * η))
+                    )
+                )
+            )) / (26880 * (-1 + e^2)^2)
         )
+
     return Eccentricity(eφ)
 end
