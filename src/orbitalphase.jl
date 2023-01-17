@@ -107,10 +107,10 @@ function true_anomaly(ecc::Eccentricity, scu::SinCos)::Angle
     ncycles = floor(u / (2 * π))
     u = u - 2 * π * ncycles # 0<=l<2*pi
 
-    flag = u > π
-    if flag
-        u = 2 * π - u # 0<=l<=pi
-    end
+    # flag = u > π
+    # if flag
+    #    u = 2 * π - u # 0<=l<=pi
+    # end
 
     v = 2 * atan(sqrt((1 + e) / (1 - e)) * tan(u / 2))
 
