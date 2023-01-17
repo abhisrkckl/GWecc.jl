@@ -20,8 +20,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         end
 
         @testset "time" begin
-            @test (-Time(-1.0)).t == (-1.0*Time(-1.0)).t
-            @test (Time(-1.0)*-1).t == (-1.0*Time(-1.0)).t
+            @test (-Time(-1.0)).t == (-1.0 * Time(-1.0)).t
+            @test (Time(-1.0) * -1).t == (-1.0 * Time(-1.0)).t
         end
 
         @testset "gammabar" begin
@@ -409,9 +409,9 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             z,
             EARTH,
             tref,
-            tEs
+            tEs,
         )
-        @test all(isfinite.(sps)) && all(isfinite.(sxs)) 
+        @test all(isfinite.(sps)) && all(isfinite.(sxs))
 
         hE = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
         hP = waveform(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
