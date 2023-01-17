@@ -1,3 +1,5 @@
+"""Injecting the eccentric SMBHB signal into TOAs using libstempo."""
+
 import json
 import os
 
