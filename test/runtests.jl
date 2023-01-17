@@ -222,7 +222,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @testset "true anomaly" begin
             for e in [0.1, 0.5, 0.9]
                 ecc = Eccentricity(e)
-                for _l in LinRange(-4 * π, 4 * π, 10)
+                for _l in LinRange(-4 * π, 4 * π, 16)
                     l = Angle(_l)
                     u = mikkola(ecc, l)
                     scu = SinCos(u)
