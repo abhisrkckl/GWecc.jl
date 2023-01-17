@@ -1,4 +1,5 @@
-# Figure 2 of Susobhanan+ 2020
+"""Scaled time as a function of eccentricity.
+Figure 2 of Susobhanan+ 2020"""
 
 using GWecc
 using PyPlot

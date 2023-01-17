@@ -1,5 +1,4 @@
-"""Comparison of eccentric waveforms and residuals (+/x polarizations) for different eccentricities.
-"""
+"""Comparison of eccentric waveforms and residuals (+/x polarizations) for different eccentricities."""
 
 using GWecc
 using PyPlot

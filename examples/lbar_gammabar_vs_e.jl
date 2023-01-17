@@ -1,4 +1,5 @@
-# Figure 3 of Susobhanan+ 2020
+"""Scaled mean anomaly and scaled periastron angle as functions of eccentricity.
+Figure 3 of Susobhanan+ 2020"""
 
 using GWecc
 using PyPlot
