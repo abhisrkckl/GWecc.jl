@@ -4,7 +4,8 @@ GWecc.jl
 [![CI](https://github.com/abhisrkckl/GWecc.jl/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/abhisrkckl/GWecc.jl/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/abhisrkckl/GWecc.jl/branch/main/graph/badge.svg?token=ZLIW2MYZ7L)](https://codecov.io/gh/abhisrkckl/GWecc.jl)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-
+[![arXiv](https://img.shields.io/badge/arXiv-2002.03285-b31b1b.svg)](https://arxiv.org/abs/2002.03285)
+[![arXiv](https://img.shields.io/badge/arXiv-2210.11454-b31b1b.svg)](https://arxiv.org/abs/2210.11454)
 
 `GWecc.jl` computes pulsar TOA delays due to gravitational waves from eccentric supermassive binary sources.
 This is a partial Julia rewrite of the C++ package [`GWecc`](https://github.com/abhisrkckl/GWecc).
