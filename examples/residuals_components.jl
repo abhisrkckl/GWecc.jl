@@ -58,21 +58,8 @@ tyrs = [t.t for t in tEs] / year
     tEs,
 )
 
-sEs1 = residuals(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    z,
-    [EARTH],
-    tref,
-    tEs,
-)
+sEs1 =
+    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
 sPs1 = residuals(
     mass,
     n_init,
@@ -89,21 +76,8 @@ sPs1 = residuals(
     tEs,
 )
 
-sEs2 = residuals(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    z,
-    [EARTH],
-    tref,
-    tEs,
-)
+sEs2 =
+    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
 sPs2 = residuals(
     mass,
     n_init,
