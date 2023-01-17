@@ -21,6 +21,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         @testset "time" begin
             @test (-Time(-1.0)).t == (-1.0*Time(-1.0)).t
+            @test (Time(-1.0)*-1).t == (-1.0*Time(-1.0)).t
         end
 
         @testset "gammabar" begin
@@ -32,6 +33,13 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @testset "init phase params" begin
             @test_throws DomainError InitPhaseParams(-1.0, 1.0)
             @test_throws DomainError InitPhaseParams(1.0, 7.0)
+        end
+
+        @testset "projection params" begin
+            @test_throws DomainError ProjectionParams(4.0, 0.3, 1.0, 1.0)
+            @test_throws DomainError ProjectionParams(1.0, 1.1, 1.0, 1.0)
+            @test_throws DomainError ProjectionParams(1.0, 0.3, 4.0, 1.0)
+            @test_throws DomainError ProjectionParams(1.0, 0.3, 1.0, 4.0)
         end
     end
 
