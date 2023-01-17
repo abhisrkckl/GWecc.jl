@@ -396,6 +396,23 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @test all(isfinite.(rs))
         @test all(isapprox.(rs, rEs + rPs))
 
+        sps, sxs = residuals_px(
+            mass,
+            n_init,
+            e_init,
+            l0p,
+            proj,
+            dl,
+            dp,
+            psrpos,
+            gwpos,
+            z,
+            term,
+            tref,
+            tEs
+        )
+        @test all(isfinite.(sps)) && all(isfinite.(sxs)) 
+
         hE = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
         hP = waveform(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
         h = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
