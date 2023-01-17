@@ -114,7 +114,7 @@ function true_anomaly(ecc::Eccentricity, scu::SinCos)::Angle
 
     v = 2 * atan(sqrt((1 + e) / (1 - e)) * tan(u / 2))
 
-    v = flag ? (2 * π - v) : v
+    # v = flag ? (2 * π - v) : v
     u = sgn * (v + 2 * π * ncycles)
 
     return Angle(v)
