@@ -104,6 +104,36 @@ function waveform(
     return ap.Fp * hp + ap.Fx * hx
 end
 
+"PTA waveform for single pulsar case."
+function waveform_1psr(
+    mass::Mass,
+    coeffs::EvolvCoeffs,
+    l0p::InitPhaseParams,
+    proj::ProjectionParams,
+    dl::Distance,
+    α::AzimuthParam,
+    terms::Vector{Term},
+    Δp::Time,
+    dt::Time,
+)
+    hp = 0.0
+    # hx = 0.0
+
+    if EARTH in terms
+        hpE, hxE = waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+        hp = hp + hpE
+        # hx = hx + hxE
+    end
+
+    if PULSAR in terms
+        dtp = dt + Δp
+        hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+        hp = hp - hpP
+        # hx = hx - hxP
+    end
+
+    return α.α * hp
+end
 
 "PTA waveform"
 function waveform(
@@ -128,6 +158,31 @@ function waveform(
     Δp = pulsar_term_delay(ap, dp, z)
 
     ss = [waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
+
+    return ss
+end
+
+"PTA waveform for single pulsar case"
+function waveform_1psr(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l0p::InitPhaseParams,
+    proj::ProjectionParams,
+    dl::Distance,
+    dp::Distance,
+    α::AzimuthParam,
+    z::Redshift,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+    Δp = pulsar_term_delay(α, dp, z)
+
+    ss = [waveform_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) for dt in dts]
 
     return ss
 end
