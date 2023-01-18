@@ -6,7 +6,7 @@ using UnPack
 
 e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))).e
 
-@testset verbose=true "GWecc" begin
+@testset verbose = true "GWecc" begin
     @testset "parameters" begin
         @testset "mass" begin
             @test_throws DomainError Mass(4e-2, 0.2)
@@ -341,7 +341,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         tref = Time(10000.0)
 
         @testset "single point functions" begin
-            
+
             sE = residual(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
             sP = residual(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
             s = residual(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
@@ -353,7 +353,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test sE ≈ (ap.Fp * spE + ap.Fx * sxE)
         end
 
-        @testset "terms and polarizations" begin        
+        @testset "terms and polarizations" begin
             rs = residuals(
                 mass,
                 n_init,
@@ -648,15 +648,35 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         @testset "h = ds/dt" begin
             numdiff = central_fdm(5, 1)
-            
+
             s_from_t_func =
-                dt_ -> residual(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, Time(dt_))
+                dt_ -> residual(
+                    mass,
+                    coeffs,
+                    l0p,
+                    proj,
+                    dl,
+                    ap,
+                    [EARTH, PULSAR],
+                    Δp,
+                    Time(dt_),
+                )
             h_anl = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
             h_num = numdiff(s_from_t_func, dt.t)
             @test h_anl ≈ h_num atol = 1e-9
 
             s_from_t_1psr_func =
-                dt_ -> residual_1psr(mass, coeffs, l0p, proj, dl, α, [EARTH, PULSAR], Δp, Time(dt_))
+                dt_ -> residual_1psr(
+                    mass,
+                    coeffs,
+                    l0p,
+                    proj,
+                    dl,
+                    α,
+                    [EARTH, PULSAR],
+                    Δp,
+                    Time(dt_),
+                )
             h_anl = waveform_1psr(mass, coeffs, l0p, proj, dl, α, [EARTH, PULSAR], Δp, dt)
             h_num = numdiff(s_from_t_func, dt.t)
             @test h_anl ≈ h_num atol = 1e-9
