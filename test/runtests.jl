@@ -351,6 +351,16 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
             @test sP ≈ -(ap.Fp * spP + ap.Fx * sxP)
             @test sE ≈ (ap.Fp * spE + ap.Fx * sxE)
+
+            hE = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
+            hP = waveform(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
+            h = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
+            @test h ≈ hP + hE
+
+            hpE, hxE = waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+            hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+            @test hP ≈ -(ap.Fp * hpP + ap.Fx * hxP)
+            @test hE ≈ (ap.Fp * hpE + ap.Fx * hxE)
         end
 
         @testset "terms and polarizations" begin
@@ -419,16 +429,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             )
             @test all(isfinite.(sps)) && all(isfinite.(sxs))
 
-            hE = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
-            hP = waveform(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
-            h = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
-            @test h ≈ hP + hE
-
-            hpE, hxE = waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
-            hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
-            @test hP ≈ -(ap.Fp * hpP + ap.Fx * hxP)
-            @test hE ≈ (ap.Fp * hpE + ap.Fx * hxE)
-
             hs = waveform(
                 mass,
                 n_init,
@@ -477,7 +477,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test all(isfinite.(hs))
             @test all(isapprox.(hs, hEs + hPs))
 
-            hs1, rs1 = waveform_and_residuals(
+            rs1, hs1 = residuals_and_waveform(
                 mass,
                 n_init,
                 e_init,
@@ -492,7 +492,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 tref,
                 tEs,
             )
-            @test all(isapprox.(hs1, hs)) && all(isapprox.(rs1, rs))
+            @test all(isapprox.(hs1, hs)) 
+            @test all(isapprox.(rs1, rs))
         end
 
         @testset "component functions" begin
@@ -643,6 +644,23 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     tEs,
                 )
                 @test all(isapprox.(hs1, hs, atol = 1e-9))
+
+                ss2, hs2 = residuals_and_waveform_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj1,
+                    dl,
+                    dp,
+                    α,
+                    z,
+                    [EARTH, PULSAR],
+                    tref,
+                    tEs,
+                )
+                @test all(isapprox.(hs1, hs2)) 
+                @test all(isapprox.(ss1, ss2))
             end
         end
 
