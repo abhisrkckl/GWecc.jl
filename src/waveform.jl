@@ -30,8 +30,8 @@ function waveform_A(ecc::Eccentricity, phase::OrbitalPhase)
     χ = e * cu
     ξ = e * su
 
-    P = (2 * e^2 - χ^2 + χ - 2) / (1 - χ)^2
-    Q = (2 * sqrt(1 - e^2) * ξ) / (1 - χ)^2
+    Q = (2 * e^2 - χ^2 + χ - 2) / (1 - χ)^2
+    P = (2 * sqrt(1 - e^2) * ξ) / (1 - χ)^2
     R = χ / (1 - χ)
 
     A0 = R
