@@ -1,5 +1,5 @@
 export ProjectionParams, SkyLocation, InitPhaseParams
-export ScaledTime, Time, Distance, Redshift, redshi, fted_time_difference
+export ScaledTime, Time, Distance, Redshift, unredshifted_time_difference
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
@@ -170,6 +170,6 @@ struct Redshift
 end
 
 "Apply redshift to a time difference"
-redshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time = (1 + z.z) * (t - tref)
+unredshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time = (t - tref) / (1 + z.z)
 
 @enum Term EARTH PULSAR
