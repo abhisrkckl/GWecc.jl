@@ -16,8 +16,8 @@ function residual_PQR(ecc::Eccentricity, scu::SinCos)
     cu = scu.cosx
     c2u = cu * cu - su * su
 
-    P = ((e + (-2 + e * e) * cu) * su) / (1 - e * cu)
-    Q = (sqrt(1 - e^2) * (e * cu - c2u)) / (1 - e * cu)
+    P = (sqrt(1 - e^2) * (c2u - e * cu)) / (1 - e * cu)
+    Q = (((e^2 - 2) * cu + e) * su) / (1 - e * cu) 
     R = e * su
 
     return P, Q, R
