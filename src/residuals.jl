@@ -30,11 +30,11 @@ function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
 
     P, Q, R = residual_PQR(ecc, phase.scu)
 
-    A0 = R
-    A1 = -P * s2ω + Q * c2ω
-    A2 = P * c2ω + Q * s2ω
+    sA0 = R
+    sA1 = -P * s2ω + Q * c2ω
+    sA2 = P * c2ω + Q * s2ω
 
-    return A0, A1, A2
+    return sA0, sA1, sA2
 end
 
 "+/x polarizations of the PTA signal."
@@ -53,14 +53,14 @@ function residual_px(
     n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, dt)
     phase = OrbitalPhase(mass, n, e, l, γ)
 
-    A0, A1, A2 = residual_A(e, phase)
+    sA0, sA1, sA2 = residual_A(e, phase)
     a0, a1, a2 = waveform_coeffs_c(proj)
 
     h0 = gw_amplitude(mass, n, e, dl)
     s0 = h0 / n.n
 
-    sA = s0 * (a1 * A1 + a0 * A0)
-    sB = s0 * (a2 * A2)
+    sA = s0 * (a1 * sA1 + a0 * sA0)
+    sB = s0 * (a2 * sA2)
 
     s2ψ, c2ψ = proj.sc2ψ.sinx, proj.sc2ψ.cosx
 

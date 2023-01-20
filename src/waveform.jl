@@ -30,15 +30,15 @@ function waveform_A(ecc::Eccentricity, phase::OrbitalPhase)
     χ = e * cu
     ξ = e * su
 
-    Q = (2 * e^2 - χ^2 + χ - 2) / (1 - χ)^2
-    P = (2 * sqrt(1 - e^2) * ξ) / (1 - χ)^2
+    P = (2 * e^2 - χ^2 + χ - 2) / (1 - χ)^2
+    Q = (2 * sqrt(1 - e^2) * ξ) / (1 - χ)^2
     R = χ / (1 - χ)
 
-    A0 = R
-    A1 = -Q * s2φ + P * c2φ
-    A2 = Q * c2φ + P * s2φ
+    hA0 = R
+    hA1 = -Q * s2φ + P * c2φ
+    hA2 = Q * c2φ + P * s2φ
 
-    return A0, A1, A2
+    return hA0, hA1, hA2
 end
 
 "+/x polarizations of the waveform."
@@ -57,13 +57,13 @@ function waveform_px(
     n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, dt)
     phase = OrbitalPhase(mass, n, e, l, γ)
 
-    A0, A1, A2 = waveform_A(e, phase)
+    hA0, hA1, hA2 = waveform_A(e, phase)
     a0, a1, a2 = waveform_coeffs_c(proj)
 
     h0 = gw_amplitude(mass, n, e, dl)
 
-    hA = h0 * (a1 * A1 + a0 * A0)
-    hB = h0 * (a2 * A2)
+    hA = h0 * (a1 * hA1 + a0 * hA0)
+    hB = h0 * (a2 * hA2)
 
     s2ψ, c2ψ = proj.sc2ψ.sinx, proj.sc2ψ.cosx
 
