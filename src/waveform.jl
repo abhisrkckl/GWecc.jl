@@ -135,6 +135,37 @@ function waveform_1psr(
     return α.α * hp
 end
 
+"+/x polarizations of the PTA signal"
+function waveform_px(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l0p::InitPhaseParams,
+    proj::ProjectionParams,
+    dl::Distance,
+    dp::Distance,
+    psrpos::SkyLocation,
+    gwpos::SkyLocation,
+    z::Redshift,
+    term::Term,
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+    ap = AntennaPattern(psrpos, gwpos)
+
+    psrterm = term == PULSAR
+    delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
+
+    hpxs = [waveform_px(mass, coeffs, l0p, proj, dl, psrterm, dt + delay) for dt in dts]
+    hps = first.(hpxs)
+    hxs = last.(hpxs)
+
+    return hps, hxs
+end
+
 "PTA waveform"
 function waveform(
     mass::Mass,
