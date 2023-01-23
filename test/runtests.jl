@@ -13,7 +13,7 @@ function naive_mismatch(a, b)
     aa = dot(a, a)
     bb = dot(b, b)
     ab = dot(a, b)
-    match = ab / sqrt(aa*bb)
+    match = ab / sqrt(aa * bb)
     return 1 - match
 end
 
@@ -503,7 +503,7 @@ end
                 tref,
                 tEs,
             )
-            @test all(isapprox.(hs1, hs)) 
+            @test all(isapprox.(hs1, hs))
             @test all(isapprox.(rs1, rs))
         end
 
@@ -670,14 +670,14 @@ end
                     tref,
                     tEs,
                 )
-                @test all(isapprox.(hs1, hs2)) 
+                @test all(isapprox.(hs1, hs2))
                 @test all(isapprox.(ss1, ss2))
             end
         end
 
         @testset "h = ds/dt" begin
-            year = 365.25*24*3600
-            _ts = LinRange(0, 10*year, 10000)
+            year = 365.25 * 24 * 3600
+            _ts = LinRange(0, 10 * year, 10000)
             tEs = Time.(_ts)
             tref = Time(maximum(_ts))
 
@@ -718,7 +718,7 @@ end
 
                 rps_n = rps_n .+ (mean(rps) - mean(rps_n))
                 rxs_n = rxs_n .+ (mean(rxs) - mean(rxs_n))
-                
+
                 @test naive_mismatch(rps, rps_n) < 1e-3
                 @test naive_mismatch(rxs, rxs_n) < 1e-3
 
@@ -755,7 +755,7 @@ end
 
                 rs_n = cumul_integrate(_ts, hs)
                 rs_n = rs_n .+ (mean(rs) - mean(rs_n))
-                
+
                 @test naive_mismatch(rs, rs_n) < 1e-3
             end
         end

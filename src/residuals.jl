@@ -17,7 +17,7 @@ function residual_PQR(ecc::Eccentricity, scu::SinCos)
     c2u = cu * cu - su * su
 
     P = (sqrt(1 - e^2) * (c2u - e * cu)) / (1 - e * cu)
-    Q = (((e^2 - 2) * cu + e) * su) / (1 - e * cu) 
+    Q = (((e^2 - 2) * cu + e) * su) / (1 - e * cu)
     R = e * su
 
     return P, Q, R
@@ -157,7 +157,8 @@ function residual_and_waveform(
     hx = 0.0
 
     if EARTH in terms
-        spE, sxE, hpE, hxE = residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+        spE, sxE, hpE, hxE =
+            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
         sp = sp + spE
         sx = sx + sxE
         hp = hp + hpE
@@ -166,7 +167,8 @@ function residual_and_waveform(
 
     if PULSAR in terms
         dtp = dt + Δp
-        spP, sxP, hpP, hxP = residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+        spP, sxP, hpP, hxP =
+            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
         sp = sp - spP
         sx = sx - sxP
         hp = hp - hpP
@@ -226,7 +228,8 @@ function residual_and_waveform_1psr(
     hp = 0.0
 
     if EARTH in terms
-        spE, sxE, hpE, hxE = residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+        spE, sxE, hpE, hxE =
+            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
         sp = sp + spE
         hp = hp + hpE
     end
@@ -234,7 +237,8 @@ function residual_and_waveform_1psr(
     if PULSAR in terms
         dtp = dt + Δp
 
-        spP, sxP, hpP, hxP = residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+        spP, sxP, hpP, hxP =
+            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
         sp = sp - spP
         hp = hp - hpP
     end
@@ -326,7 +330,9 @@ function residuals_and_waveform(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp, z)
 
-    shs = [residual_and_waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
+    shs = [
+        residual_and_waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts
+    ]
 
     ss = [sh[1] * (1 + z.z) for sh in shs]
     hs = [sh[2] for sh in shs]
@@ -392,4 +398,3 @@ function residuals_and_waveform_1psr(
 
     return ss, hs
 end
-
