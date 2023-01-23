@@ -3,8 +3,19 @@ using Test
 using FiniteDifferences
 using LinearAlgebra
 using UnPack
+using NumericalIntegration
+using Statistics
+
 
 e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))).e
+
+function naive_mismatch(a, b)
+    aa = dot(a, a)
+    bb = dot(b, b)
+    ab = dot(a, b)
+    match = ab / sqrt(aa * bb)
+    return 1 - match
+end
 
 @testset verbose = true "GWecc" begin
     @testset "parameters" begin
@@ -492,7 +503,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 tref,
                 tEs,
             )
-            @test all(isapprox.(hs1, hs)) 
+            @test all(isapprox.(hs1, hs))
             @test all(isapprox.(rs1, rs))
         end
 
@@ -659,50 +670,95 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     tref,
                     tEs,
                 )
-                @test all(isapprox.(hs1, hs2)) 
+                @test all(isapprox.(hs1, hs2))
                 @test all(isapprox.(ss1, ss2))
             end
         end
 
-        # @testset "h = ds/dt" begin
-        #     numdiff = central_fdm(5, 1)
+        @testset "h = ds/dt" begin
+            year = 365.25 * 24 * 3600
+            _ts = LinRange(0, 10 * year, 10000)
+            tEs = Time.(_ts)
+            tref = Time(maximum(_ts))
 
-        #     s_from_t_func =
-        #         dt_ -> residual(
-        #             mass,
-        #             coeffs,
-        #             l0p,
-        #             proj,
-        #             dl,
-        #             ap,
-        #             [EARTH, PULSAR],
-        #             Δp,
-        #             Time(dt_),
-        #         )
-        #     h_anl = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
-        #     h_num = numdiff(s_from_t_func, dt.t)
-        #     @test_broken h_anl ≈ h_num
+            for term in [EARTH, PULSAR]
+                hps, hxs = waveform_px(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    term,
+                    tref,
+                    tEs,
+                )
+                rps, rxs = residuals_px(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    term,
+                    tref,
+                    tEs,
+                )
 
-        #     s_from_t_1psr_func =
-        #         dt_ -> residual_1psr(
-        #             mass,
-        #             coeffs,
-        #             l0p,
-        #             proj,
-        #             dl,
-        #             α,
-        #             [EARTH, PULSAR],
-        #             Δp,
-        #             Time(dt_),
-        #         )
-        #     h_anl = waveform_1psr(mass, coeffs, l0p, proj, dl, α, [EARTH, PULSAR], Δp, dt)
-        #     h_num = numdiff(s_from_t_func, dt.t)
-        #     @test_broken h_anl ≈ h_num
-        # end
-    end
+                rps_n = cumul_integrate(_ts, hps)
+                rxs_n = cumul_integrate(_ts, hxs)
 
-    @testset "spline functions" begin
-        
+                rps_n = rps_n .+ (mean(rps) - mean(rps_n))
+                rxs_n = rxs_n .+ (mean(rxs) - mean(rxs_n))
+
+                @test naive_mismatch(rps, rps_n) < 1e-3
+                @test naive_mismatch(rxs, rxs_n) < 1e-3
+
+                hs = waveform(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+                rs = residuals(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+
+                rs_n = cumul_integrate(_ts, hs)
+                rs_n = rs_n .+ (mean(rs) - mean(rs_n))
+
+                @test naive_mismatch(rs, rs_n) < 1e-3
+            end
+        end
     end
 
     @testset "enterprise functions" begin
