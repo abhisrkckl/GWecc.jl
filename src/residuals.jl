@@ -16,8 +16,8 @@ function residual_PQR(ecc::Eccentricity, scu::SinCos)
     cu = scu.cosx
     c2u = cu * cu - su * su
 
-    P = ((e + (-2 + e * e) * cu) * su) / (1 - e * cu)
-    Q = (sqrt(1 - e^2) * (e * cu - c2u)) / (1 - e * cu)
+    P = (sqrt(1 - e^2) * (c2u - e * cu)) / (1 - e * cu)
+    Q = (((e^2 - 2) * cu + e) * su) / (1 - e * cu)
     R = e * su
 
     return P, Q, R
@@ -30,11 +30,11 @@ function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
 
     P, Q, R = residual_PQR(ecc, phase.scu)
 
-    A0 = R
-    A1 = -P * s2ω + Q * c2ω
-    A2 = P * c2ω + Q * s2ω
+    sA0 = R
+    sA1 = -P * s2ω + Q * c2ω
+    sA2 = P * c2ω + Q * s2ω
 
-    return A0, A1, A2
+    return sA0, sA1, sA2
 end
 
 "+/x polarizations of the PTA signal."
@@ -53,14 +53,14 @@ function residual_px(
     n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, dt)
     phase = OrbitalPhase(mass, n, e, l, γ)
 
-    A0, A1, A2 = residual_A(e, phase)
+    sA0, sA1, sA2 = residual_A(e, phase)
     a0, a1, a2 = waveform_coeffs_c(proj)
 
     h0 = gw_amplitude(mass, n, e, dl)
     s0 = h0 / n.n
 
-    sA = s0 * (a1 * A1 + a0 * A0)
-    sB = s0 * (a2 * A2)
+    sA = s0 * (a1 * sA1 + a0 * sA0)
+    sB = s0 * (a2 * sA2)
 
     s2ψ, c2ψ = proj.sc2ψ.sinx, proj.sc2ψ.cosx
 
@@ -157,7 +157,8 @@ function residual_and_waveform(
     hx = 0.0
 
     if EARTH in terms
-        spE, sxE, hpE, hxE = residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+        spE, sxE, hpE, hxE =
+            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
         sp = sp + spE
         sx = sx + sxE
         hp = hp + hpE
@@ -166,7 +167,8 @@ function residual_and_waveform(
 
     if PULSAR in terms
         dtp = dt + Δp
-        spP, sxP, hpP, hxP = residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+        spP, sxP, hpP, hxP =
+            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
         sp = sp - spP
         sx = sx - sxP
         hp = hp - hpP
@@ -226,7 +228,8 @@ function residual_and_waveform_1psr(
     hp = 0.0
 
     if EARTH in terms
-        spE, sxE, hpE, hxE = residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+        spE, sxE, hpE, hxE =
+            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
         sp = sp + spE
         hp = hp + hpE
     end
@@ -234,7 +237,8 @@ function residual_and_waveform_1psr(
     if PULSAR in terms
         dtp = dt + Δp
 
-        spP, sxP, hpP, hxP = residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+        spP, sxP, hpP, hxP =
+            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
         sp = sp - spP
         hp = hp - hpP
     end
@@ -261,7 +265,7 @@ function residuals_px(
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
@@ -292,7 +296,7 @@ function residuals(
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
@@ -320,13 +324,15 @@ function residuals_and_waveform(
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp, z)
 
-    shs = [residual_and_waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
+    shs = [
+        residual_and_waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts
+    ]
 
     ss = [sh[1] * (1 + z.z) for sh in shs]
     hs = [sh[2] for sh in shs]
@@ -349,7 +355,7 @@ function residuals_1psr(
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     Δp = pulsar_term_delay(α, dp, z)
@@ -377,7 +383,7 @@ function residuals_and_waveform_1psr(
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     Δp = pulsar_term_delay(α, dp, z)
@@ -392,4 +398,3 @@ function residuals_and_waveform_1psr(
 
     return ss, hs
 end
-
