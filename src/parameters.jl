@@ -170,6 +170,6 @@ struct Redshift
 end
 
 "Apply redshift to a time difference"
-unredshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time = (t - tref) / (1 + z.z)
+unredshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time = Time((t - tref).t / (1 + z.z))
 
 @enum Term EARTH PULSAR

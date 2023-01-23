@@ -84,7 +84,7 @@ function residuals_from_components(
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
 
     res = zeros(length(tEs))
 
@@ -134,7 +134,7 @@ function residuals_components_𝒜(
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [redshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
