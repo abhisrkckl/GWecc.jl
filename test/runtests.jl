@@ -721,6 +721,42 @@ end
                 
                 @test naive_mismatch(rps, rps_n) < 1e-3
                 @test naive_mismatch(rxs, rxs_n) < 1e-3
+
+                hs = waveform(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+                rs = residuals(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+
+                rs_n = cumul_integrate(_ts, hs)
+                rs_n = rs_n .+ (mean(rs) - mean(rs_n))
+                
+                @test naive_mismatch(rs, rs_n) < 1e-3
             end
         end
     end
