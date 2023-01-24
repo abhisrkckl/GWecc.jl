@@ -24,7 +24,7 @@ function residual_spline(
     tspl::Vector{Time},
     tEs::Vector{Time},
 )
-    hs, ss = residuals_and_waveform(
+    ss, hs = residuals_and_waveform(
         mass,
         n_init,
         e_init,
@@ -39,10 +39,42 @@ function residual_spline(
         tref,
         tspl,
     )
-
     spl = CubicHermiteSplineInterpolation([t.t for t in tspl], ss, hs)
-
     return interp(spl, [t.t for t in tEs])
+end
+
+function residual_spline(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l0p::InitPhaseParams,
+    proj::ProjectionParams,
+    dl::Distance,
+    dp::Distance,
+    psrpos::SkyLocation,
+    gwpos::SkyLocation,
+    z::Redshift,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time},
+)
+    tspl = spline_time_samples(tEs)
+    return residual_spline(
+        mass,
+        n_init,
+        e_init,
+        l0p,
+        proj,
+        dl,
+        dp,
+        psrpos,
+        gwpos,
+        z,
+        terms,
+        tref,
+        tspl,
+        tEs,
+    )
 end
 
 function residual_1psr_spline(
@@ -60,7 +92,7 @@ function residual_1psr_spline(
     tspl::Vector{Time},
     tEs::Vector{Time},
 )
-    hs, ss = residuals_and_waveform_1psr(
+    ss, hs = residuals_and_waveform_1psr(
         mass,
         n_init,
         e_init,
@@ -75,8 +107,37 @@ function residual_1psr_spline(
         tspl,
     )
     spl = CubicHermiteSplineInterpolation([t.t for t in tspl], ss, hs)
-
     return interp(spl, [t.t for t in tEs])
 end
 
-
+function residual_1psr_spline(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l0p::InitPhaseParams,
+    proj::ProjectionParams,
+    dl::Distance,
+    dp::Distance,
+    α::AzimuthParam,
+    z::Redshift,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time},
+)
+    tspl = spline_time_samples(tEs)
+    return residual_1psr_spline(
+        mass,
+        n_init,
+        e_init,
+        l0p,
+        proj,
+        dl,
+        dp,
+        α,
+        z,
+        terms,
+        tref,
+        tspl,
+        tEs,
+    )
+end
