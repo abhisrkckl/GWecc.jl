@@ -3,10 +3,13 @@ using Test
 using FiniteDifferences
 using LinearAlgebra
 using UnPack
+using NumericalIntegration
+using Statistics
+
 
 e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))).e
 
-@testset "GWecc" begin
+@testset verbose = true "GWecc" begin
     @testset "parameters" begin
         @testset "mass" begin
             @test_throws DomainError Mass(4e-2, 0.2)
@@ -301,6 +304,19 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @test_throws DomainError AzimuthParam(1.1)
     end
 
+    @testset "mismatch" begin
+        a = [1, 2, 3]
+        b = [2, -1, 0]
+        K = [1 0 0; 0 1 0; 0 0 0]
+        
+        @test mismatch(a, a) ≈ 0.0
+        @test mismatch(K, a, a) ≈ 0.0
+        @test mismatch(a, -a) ≈ 2.0
+        @test mismatch(K, a, -a) ≈ 2.0
+        @test mismatch(a, b) ≈ 1.0
+        @test mismatch(K, a, b) ≈ 1.0
+    end
+
     @testset "waveform and residuals" begin
         mass = Mass(5000.0, 0.1)
         n_init = MeanMotion(1e-8)
@@ -335,231 +351,36 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         l0p = InitPhaseParams(l_init.θ, l_init.θ)
 
         dt = Time(10000.0)
-        sE = residual(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
-        sP = residual(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
-        s = residual(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
-        @test s ≈ sP + sE
-
         dtp = dt + Δp
-        spE, sxE = residual_px(mass, coeffs, l0p, proj, dl, false, dt)
-        spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
-        @test sP ≈ -(ap.Fp * spP + ap.Fx * sxP)
-        @test sE ≈ (ap.Fp * spE + ap.Fx * sxE)
 
         tEs = Time.(LinRange(0.0, 10000.0, 100))
         tref = Time(10000.0)
-        rs = residuals(
-            mass,
-            n_init,
-            e_init,
-            l0p,
-            proj,
-            dl,
-            dp,
-            psrpos,
-            gwpos,
-            z,
-            [EARTH, PULSAR],
-            tref,
-            tEs,
-        )
-        rEs = residuals(
-            mass,
-            n_init,
-            e_init,
-            l0p,
-            proj,
-            dl,
-            dp,
-            psrpos,
-            gwpos,
-            z,
-            [EARTH],
-            tref,
-            tEs,
-        )
-        rPs = residuals(
-            mass,
-            n_init,
-            e_init,
-            l0p,
-            proj,
-            dl,
-            dp,
-            psrpos,
-            gwpos,
-            z,
-            [PULSAR],
-            tref,
-            tEs,
-        )
-        @test all(isfinite.(rs))
-        @test all(isapprox.(rs, rEs + rPs))
 
-        sps, sxs = residuals_px(
-            mass,
-            n_init,
-            e_init,
-            l0p,
-            proj,
-            dl,
-            dp,
-            psrpos,
-            gwpos,
-            z,
-            EARTH,
-            tref,
-            tEs,
-        )
-        @test all(isfinite.(sps)) && all(isfinite.(sxs))
+        @testset "single point functions" begin
 
-        hE = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
-        hP = waveform(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
-        h = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
-        @test h ≈ hP + hE
+            sE = residual(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
+            sP = residual(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
+            s = residual(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
+            @test s ≈ sP + sE
 
-        hpE, hxE = waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
-        hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
-        @test hP ≈ -(ap.Fp * hpP + ap.Fx * hxP)
-        @test hE ≈ (ap.Fp * hpE + ap.Fx * hxE)
+            spE, sxE = residual_px(mass, coeffs, l0p, proj, dl, false, dt)
+            spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
+            @test sP ≈ -(ap.Fp * spP + ap.Fx * sxP)
+            @test sE ≈ (ap.Fp * spE + ap.Fx * sxE)
 
-        hs = waveform(
-            mass,
-            n_init,
-            e_init,
-            l0p,
-            proj,
-            dl,
-            dp,
-            psrpos,
-            gwpos,
-            z,
-            [EARTH, PULSAR],
-            tref,
-            tEs,
-        )
-        hEs = waveform(
-            mass,
-            n_init,
-            e_init,
-            l0p,
-            proj,
-            dl,
-            dp,
-            psrpos,
-            gwpos,
-            z,
-            [EARTH],
-            tref,
-            tEs,
-        )
-        hPs = waveform(
-            mass,
-            n_init,
-            e_init,
-            l0p,
-            proj,
-            dl,
-            dp,
-            psrpos,
-            gwpos,
-            z,
-            [PULSAR],
-            tref,
-            tEs,
-        )
-        @test all(isfinite.(hs))
-        @test all(isapprox.(hs, hEs + hPs))
+            hE = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
+            hP = waveform(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
+            h = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
+            @test h ≈ hP + hE
 
-        numdiff = central_fdm(5, 1)
-        s_from_t_func =
-            dt_ -> residual(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, Time(dt_))
-        h_anl = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
-        h_num = numdiff(s_from_t_func, dt.t)
-        @test h_anl ≈ h_num atol = 1e-9
+            hpE, hxE = waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+            hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+            @test hP ≈ -(ap.Fp * hpP + ap.Fx * hxP)
+            @test hE ≈ (ap.Fp * hpE + ap.Fx * hxE)
+        end
 
-        hs1, rs1 = waveform_and_residuals(
-            mass,
-            n_init,
-            e_init,
-            l0p,
-            proj,
-            dl,
-            dp,
-            psrpos,
-            gwpos,
-            z,
-            [EARTH, PULSAR],
-            tref,
-            tEs,
-        )
-        @test all(isapprox.(hs1, hs)) && all(isapprox.(rs1, rs))
-
-        for e_init in Eccentricity.([0.1, 0.4, 0.8])
-            sE = residuals(
-                mass,
-                n_init,
-                e_init,
-                l0p,
-                proj,
-                dl,
-                dp,
-                psrpos,
-                gwpos,
-                z,
-                [EARTH],
-                tref,
-                tEs,
-            )
-            sP = residuals(
-                mass,
-                n_init,
-                e_init,
-                l0p,
-                proj,
-                dl,
-                dp,
-                psrpos,
-                gwpos,
-                z,
-                [PULSAR],
-                tref,
-                tEs,
-            )
-            sEc = residuals_from_components(
-                mass,
-                n_init,
-                e_init,
-                l0p,
-                proj,
-                dl,
-                dp,
-                psrpos,
-                gwpos,
-                z,
-                [EARTH],
-                tref,
-                tEs,
-            )
-            sPc = residuals_from_components(
-                mass,
-                n_init,
-                e_init,
-                l0p,
-                proj,
-                dl,
-                dp,
-                psrpos,
-                gwpos,
-                z,
-                [PULSAR],
-                tref,
-                tEs,
-            )
-            @test all(isapprox.(sEc, sE, atol = 1e-8))
-            @test all(isapprox.(sPc, sP, atol = 1e-8))
-            
-            ss = residuals(
+        @testset "terms and polarizations" begin
+            rs = residuals(
                 mass,
                 n_init,
                 e_init,
@@ -574,29 +395,45 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 tref,
                 tEs,
             )
-            dψ = acos(dot([ap.Fp, ap.Fx], [α.α, 0]) / α.α^2) / 2
-            proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
-            ss1 = residuals_1psr(
+            rEs = residuals(
                 mass,
                 n_init,
                 e_init,
                 l0p,
-                proj1,
+                proj,
                 dl,
                 dp,
-                α,
+                psrpos,
+                gwpos,
                 z,
-                [EARTH, PULSAR],
+                [EARTH],
                 tref,
                 tEs,
             )
-            @test all(isapprox.(ss1, ss, atol = 1e-9))
-
-            𝒜s = residuals_components_𝒜(
+            rPs = residuals(
                 mass,
                 n_init,
                 e_init,
                 l0p,
+                proj,
+                dl,
+                dp,
+                psrpos,
+                gwpos,
+                z,
+                [PULSAR],
+                tref,
+                tEs,
+            )
+            @test all(isfinite.(rs))
+            @test all(isapprox.(rs, rEs + rPs))
+
+            sps, sxs = residuals_px(
+                mass,
+                n_init,
+                e_init,
+                l0p,
+                proj,
                 dl,
                 dp,
                 psrpos,
@@ -606,7 +443,397 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 tref,
                 tEs,
             )
-            @test all([all(isfinite.(𝒜)) for 𝒜 in 𝒜s])
+            @test all(isfinite.(sps)) && all(isfinite.(sxs))
+
+            hs = waveform(
+                mass,
+                n_init,
+                e_init,
+                l0p,
+                proj,
+                dl,
+                dp,
+                psrpos,
+                gwpos,
+                z,
+                [EARTH, PULSAR],
+                tref,
+                tEs,
+            )
+            hEs = waveform(
+                mass,
+                n_init,
+                e_init,
+                l0p,
+                proj,
+                dl,
+                dp,
+                psrpos,
+                gwpos,
+                z,
+                [EARTH],
+                tref,
+                tEs,
+            )
+            hPs = waveform(
+                mass,
+                n_init,
+                e_init,
+                l0p,
+                proj,
+                dl,
+                dp,
+                psrpos,
+                gwpos,
+                z,
+                [PULSAR],
+                tref,
+                tEs,
+            )
+            @test all(isfinite.(hs))
+            @test all(isapprox.(hs, hEs + hPs))
+
+            rs1, hs1 = residuals_and_waveform(
+                mass,
+                n_init,
+                e_init,
+                l0p,
+                proj,
+                dl,
+                dp,
+                psrpos,
+                gwpos,
+                z,
+                [EARTH, PULSAR],
+                tref,
+                tEs,
+            )
+            @test all(isapprox.(hs1, hs))
+            @test all(isapprox.(rs1, rs))
+        end
+
+        @testset "component functions" begin
+            for e_init in Eccentricity.([0.1, 0.4, 0.8])
+                sE = residuals(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [EARTH],
+                    tref,
+                    tEs,
+                )
+                sP = residuals(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [PULSAR],
+                    tref,
+                    tEs,
+                )
+                sEc = residuals_from_components(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [EARTH],
+                    tref,
+                    tEs,
+                )
+                sPc = residuals_from_components(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [PULSAR],
+                    tref,
+                    tEs,
+                )
+                @test all(isapprox.(sEc, sE, atol = 1e-8))
+                @test all(isapprox.(sPc, sP, atol = 1e-8))
+
+                𝒜s = residuals_components_𝒜(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    EARTH,
+                    tref,
+                    tEs,
+                )
+                @test all([all(isfinite.(𝒜)) for 𝒜 in 𝒜s])
+            end
+        end
+
+        @testset "1psr functions" begin
+            for e_init in Eccentricity.([0.1, 0.4, 0.8])
+                dψ = acos(dot([ap.Fp, ap.Fx], [α.α, 0]) / α.α^2) / 2
+                proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
+                ss = residuals(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [EARTH, PULSAR],
+                    tref,
+                    tEs,
+                )
+                ss1 = residuals_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj1,
+                    dl,
+                    dp,
+                    α,
+                    z,
+                    [EARTH, PULSAR],
+                    tref,
+                    tEs,
+                )
+                @test all(isapprox.(ss1, ss, atol = 1e-9))
+
+                hs = waveform(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [EARTH, PULSAR],
+                    tref,
+                    tEs,
+                )
+                hs1 = waveform_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj1,
+                    dl,
+                    dp,
+                    α,
+                    z,
+                    [EARTH, PULSAR],
+                    tref,
+                    tEs,
+                )
+                @test all(isapprox.(hs1, hs, atol = 1e-9))
+
+                ss2, hs2 = residuals_and_waveform_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj1,
+                    dl,
+                    dp,
+                    α,
+                    z,
+                    [EARTH, PULSAR],
+                    tref,
+                    tEs,
+                )
+                @test all(isapprox.(hs1, hs2))
+                @test all(isapprox.(ss1, ss2))
+            end
+        end
+
+        @testset "h = ds/dt" begin
+            year = 365.25 * 24 * 3600
+            _ts = LinRange(0, 10 * year, 10000)
+            tEs = Time.(_ts)
+            tref = Time(maximum(_ts))
+
+            for term in [EARTH, PULSAR]
+                hps, hxs = waveform_px(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    term,
+                    tref,
+                    tEs,
+                )
+                rps, rxs = residuals_px(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    term,
+                    tref,
+                    tEs,
+                )
+
+                rps_n = cumul_integrate(_ts, hps)
+                rxs_n = cumul_integrate(_ts, hxs)
+
+                rps_n = rps_n .+ (mean(rps) - mean(rps_n))
+                rxs_n = rxs_n .+ (mean(rxs) - mean(rxs_n))
+
+                @test mismatch(rps, rps_n) < 1e-3
+                @test mismatch(rxs, rxs_n) < 1e-3
+
+                hs = waveform(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+                rs = residuals(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+
+                rs_n = cumul_integrate(_ts, hs)
+                rs_n = rs_n .+ (mean(rs) - mean(rs_n))
+
+                @test mismatch(rs, rs_n) < 1e-3
+            end
+        end
+
+        @testset "spline functions" begin
+            year = 365.25 * 24 * 3600
+            _ts = LinRange(0, 10 * year, 10000)
+            tEs = Time.(_ts)
+            tref = Time(maximum(_ts))
+
+            for term in [EARTH, PULSAR]
+                rs = residuals(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+                rs_spl = residuals_spline(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+                @test mismatch(rs, rs_spl) < 1e-3
+
+                rs = residuals_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    α,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+                rs_spl = residuals_1psr_spline(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    α,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+                @test mismatch(rs, rs_spl) < 1e-3
+            end
         end
     end
 

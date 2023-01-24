@@ -1,11 +1,11 @@
 export ProjectionParams, SkyLocation, InitPhaseParams
-export ScaledTime, Time, Distance, Redshift, redshi, fted_time_difference
+export ScaledTime, Time, Distance, Redshift, unredshifted_time_difference
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
 export Term, EARTH, PULSAR
 
-import Base.+, Base.-, Base.*
+import Base.+, Base.-, Base.* # , Base./
 
 "Dimensionless scaled time (Defined in Susobhanan+ 2020, Section IIC)"
 struct ScaledTime
@@ -24,6 +24,7 @@ t1::Time - t2::Time = Time(t1.t - t2.t)
 -t1::Time = Time(-t1.t)
 a::Number * t1::Time = Time(a * t1.t)
 t1::Time * a::Number = a * t1
+# t1::Time / a::Number = Time(t1.t / a)
 
 "Eccentricity. Must lie in [0,1)."
 struct Eccentricity
@@ -170,6 +171,7 @@ struct Redshift
 end
 
 "Apply redshift to a time difference"
-redshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time = (1 + z.z) * (t - tref)
+unredshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time =
+    Time((t - tref).t / (1 + z.z))
 
 @enum Term EARTH PULSAR
