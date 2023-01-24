@@ -41,7 +41,8 @@ tEs = Time.(_tEs)
 term = EARTH
 
 hs = waveform(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tspl)
-rs = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tspl)
+rs =
+    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tspl)
 rs, hs = residuals_and_waveform(
     mass,
     n_init,
@@ -59,10 +60,38 @@ rs, hs = residuals_and_waveform(
 )
 
 print("waveform :: ")
-@btime waveform(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tspl)
+@btime waveform(
+    mass,
+    n_init,
+    e_init,
+    l0p,
+    proj,
+    dl,
+    dp,
+    psrpos,
+    gwpos,
+    z,
+    [term],
+    tref,
+    tspl,
+)
 
 print("residuals :: ")
-@btime residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tspl)
+@btime residuals(
+    mass,
+    n_init,
+    e_init,
+    l0p,
+    proj,
+    dl,
+    dp,
+    psrpos,
+    gwpos,
+    z,
+    [term],
+    tref,
+    tspl,
+)
 
 print("residuals_and_waveform :: ")
 @btime residuals_and_waveform(
