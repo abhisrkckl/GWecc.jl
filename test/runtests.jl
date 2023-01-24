@@ -9,14 +9,6 @@ using Statistics
 
 e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))).e
 
-function naive_mismatch(a, b)
-    aa = dot(a, a)
-    bb = dot(b, b)
-    ab = dot(a, b)
-    match = ab / sqrt(aa * bb)
-    return 1 - match
-end
-
 @testset verbose = true "GWecc" begin
     @testset "parameters" begin
         @testset "mass" begin
@@ -310,6 +302,19 @@ end
 
         @test AzimuthParam(0.5).α == 0.5
         @test_throws DomainError AzimuthParam(1.1)
+    end
+
+    @testset "mismatch" begin
+        a = [1, 2, 3]
+        b = [2, -1, 0]
+        K = [1 0 0; 0 1 0; 0 0 0]
+        
+        @test mismatch(a, a) ≈ 0.0
+        @test mismatch(K, a, a) ≈ 0.0
+        @test mismatch(a, -a) ≈ 2.0
+        @test mismatch(K, a, -a) ≈ 2.0
+        @test mismatch(a, b) ≈ 1.0
+        @test mismatch(K, a, b) ≈ 1.0
     end
 
     @testset "waveform and residuals" begin
@@ -719,8 +724,8 @@ end
                 rps_n = rps_n .+ (mean(rps) - mean(rps_n))
                 rxs_n = rxs_n .+ (mean(rxs) - mean(rxs_n))
 
-                @test naive_mismatch(rps, rps_n) < 1e-3
-                @test naive_mismatch(rxs, rxs_n) < 1e-3
+                @test mismatch(rps, rps_n) < 1e-3
+                @test mismatch(rxs, rxs_n) < 1e-3
 
                 hs = waveform(
                     mass,
@@ -756,7 +761,7 @@ end
                 rs_n = cumul_integrate(_ts, hs)
                 rs_n = rs_n .+ (mean(rs) - mean(rs_n))
 
-                @test naive_mismatch(rs, rs_n) < 1e-3
+                @test mismatch(rs, rs_n) < 1e-3
             end
         end
 
@@ -797,7 +802,7 @@ end
                     tref,
                     tEs,
                 )
-                @test naive_mismatch(rs, rs_spl) < 1e-3
+                @test mismatch(rs, rs_spl) < 1e-3
 
                 rs = residuals_1psr(
                     mass,
@@ -827,7 +832,7 @@ end
                     tref,
                     tEs,
                 )
-                @test naive_mismatch(rs, rs_spl) < 1e-3
+                @test mismatch(rs, rs_spl) < 1e-3
             end
         end
     end
