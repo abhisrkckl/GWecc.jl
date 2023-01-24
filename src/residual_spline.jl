@@ -1,11 +1,12 @@
-export residual_spline, residual_1psr_spline
+export spline_time_samples, residual_spline, residual_1psr_spline
 
 using CubicHermiteSpline
 
 function spline_time_samples(tEs::Vector{Time})
-    day = 24 * 3600
-    tEs_day = tEs / day
-    return unique(round.(tEs_day)) * day
+    day = 24.0 * 3600.0
+    tEs_day = [t.t / day for t in tEs]
+    append!(tEs_day, [minimum(tEs_day)-1, maximum(tEs_day)+1])
+    return Time.(sort(unique(round.(tEs_day))) * day)
 end
 
 function residual_spline(

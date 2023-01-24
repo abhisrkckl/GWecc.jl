@@ -759,6 +759,47 @@ end
                 @test naive_mismatch(rs, rs_n) < 1e-3
             end
         end
+
+        @testset "spline functions" begin
+            year = 365.25 * 24 * 3600
+            _ts = LinRange(0, 10 * year, 10000)
+            tEs = Time.(_ts)
+            tref = Time(maximum(_ts))
+
+            for term in [EARTH, PULSAR]
+                rs = residuals(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+                rs_spl = residual_spline(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+                @test naive_mismatch(rs, rs_spl) < 1e-3
+            end
+        end
     end
 
     @testset "enterprise functions" begin
