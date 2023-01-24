@@ -782,7 +782,7 @@ end
                     tref,
                     tEs,
                 )
-                rs_spl = residual_spline(
+                rs_spl = residuals_spline(
                     mass,
                     n_init,
                     e_init,
@@ -813,7 +813,7 @@ end
                     tref,
                     tEs,
                 )
-                rs_spl = residual_1psr_spline(
+                rs_spl = residuals_1psr_spline(
                     mass,
                     n_init,
                     e_init,

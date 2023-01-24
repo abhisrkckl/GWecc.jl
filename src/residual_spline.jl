@@ -1,4 +1,4 @@
-export spline_time_samples, residual_spline, residual_1psr_spline
+export spline_time_samples, residuals_spline, residuals_1psr_spline
 
 using CubicHermiteSpline
 
@@ -9,7 +9,7 @@ function spline_time_samples(tEs::Vector{Time})
     return Time.(sort(unique(round.(tEs_day))) * day)
 end
 
-function residual_spline(
+function residuals_spline(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
@@ -44,7 +44,7 @@ function residual_spline(
     return interp(spl, [t.t for t in tEs])
 end
 
-function residual_spline(
+function residuals_spline(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
@@ -60,7 +60,7 @@ function residual_spline(
     tEs::Vector{Time},
 )
     tspl = spline_time_samples(tEs)
-    return residual_spline(
+    return residuals_spline(
         mass,
         n_init,
         e_init,
@@ -78,7 +78,7 @@ function residual_spline(
     )
 end
 
-function residual_1psr_spline(
+function residuals_1psr_spline(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
@@ -111,7 +111,7 @@ function residual_1psr_spline(
     return interp(spl, [t.t for t in tEs])
 end
 
-function residual_1psr_spline(
+function residuals_1psr_spline(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
@@ -126,7 +126,7 @@ function residual_1psr_spline(
     tEs::Vector{Time},
 )
     tspl = spline_time_samples(tEs)
-    return residual_1psr_spline(
+    return residuals_1psr_spline(
         mass,
         n_init,
         e_init,
