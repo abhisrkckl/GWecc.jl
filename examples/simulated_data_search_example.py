@@ -1,5 +1,6 @@
 import numpy as np
 import dynesty
+import pickle
 
 from enterprise.pulsar import Pulsar
 from enterprise.signals.parameter  import Uniform
@@ -7,6 +8,7 @@ from enterprise.signals.gp_signals import MarginalizingTimingModel
 from enterprise.signals.white_signals import MeasurementNoise
 from enterprise.signals.signal_base import PTA
 from enterprise_gwecc import gwecc_1psr_block
+from dynesty import plotting as dyplot
 
 parfile = "data/JPSR00_simulate.par"
 timfile = "data/JPSR00_simulate.tim"
@@ -58,3 +60,9 @@ sampler = dynesty.DynamicNestedSampler(
     prior_transform,
     ndim
 )
+sampler.run_nested()
+results = sampler.results
+with open("JPSR00_simulate_result.pkl", "wb") as pkl:
+    pickle.dump(results, pkl)
+
+dyplot.cornerplot(results)
