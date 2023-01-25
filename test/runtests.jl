@@ -308,7 +308,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         a = [1, 2, 3]
         b = [2, -1, 0]
         K = [1 0 0; 0 1 0; 0 0 0]
-        
+
         @test mismatch(a, a) ≈ 0.0
         @test mismatch(K, a, a) ≈ 0.0
         @test mismatch(a, -a) ≈ 2.0

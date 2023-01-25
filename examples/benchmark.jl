@@ -33,15 +33,15 @@ tref = Time(10000.0)
 year = 365.25 * 24 * 3600
 _tref = 10 * year
 tref = Time(_tref)
-_tspl = LinRange(0, _tref, 1024)
-tspl = Time.(_tspl)
-_tEs = LinRange(0, _tref, 101)
+_tEs = LinRange(0, _tref, 100)
+_tEs = reduce(vcat, [t .+ LinRange(0,2,16) for t in _tEs])
 tEs = Time.(_tEs)
 
 term = EARTH
 
-hs = waveform(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tspl)
-rs = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tspl)
+hs = waveform(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tEs)
+rs =
+    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tEs)
 rs, hs = residuals_and_waveform(
     mass,
     n_init,
@@ -55,14 +55,57 @@ rs, hs = residuals_and_waveform(
     z,
     [term],
     tref,
-    tspl,
+    tEs,
+)
+rs_spl = residuals_spline(
+    mass,
+    n_init,
+    e_init,
+    l0p,
+    proj,
+    dl,
+    dp,
+    psrpos,
+    gwpos,
+    z,
+    [term],
+    tref,
+    tEs,
 )
 
 print("waveform :: ")
-@btime waveform(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tspl)
+@btime waveform(
+    mass,
+    n_init,
+    e_init,
+    l0p,
+    proj,
+    dl,
+    dp,
+    psrpos,
+    gwpos,
+    z,
+    [term],
+    tref,
+    tEs,
+)
 
 print("residuals :: ")
-@btime residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tspl)
+@btime residuals(
+    mass,
+    n_init,
+    e_init,
+    l0p,
+    proj,
+    dl,
+    dp,
+    psrpos,
+    gwpos,
+    z,
+    [term],
+    tref,
+    tEs,
+)
 
 print("residuals_and_waveform :: ")
 @btime residuals_and_waveform(
@@ -78,5 +121,22 @@ print("residuals_and_waveform :: ")
     z,
     [term],
     tref,
-    tspl,
+    tEs,
+)
+
+print("residuals_spline :: ")
+@btime residuals_spline(
+    mass,
+    n_init,
+    e_init,
+    l0p,
+    proj,
+    dl,
+    dp,
+    psrpos,
+    gwpos,
+    z,
+    [term],
+    tref,
+    tEs,
 )

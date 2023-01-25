@@ -17,18 +17,18 @@ function read_precomputed_tau_e(datafile::String)
     return data["taus"], data["es"]
 end
 
-precomputed_tau_e_file = joinpath(artifact"GWecc_data", "data", "tau_e.jld")
-taus, es = read_precomputed_tau_e(precomputed_tau_e_file)
-tau_from_e_spline = DataInterpolations.CubicSpline(taus, es)
-e_from_tau_spline = DataInterpolations.CubicSpline(es, taus)
+const precomputed_tau_e_file = joinpath(artifact"GWecc_data", "data", "tau_e.jld")
+const taus, es = read_precomputed_tau_e(precomputed_tau_e_file)
+const tau_from_e_spline = DataInterpolations.CubicSpline(taus, es)
+const e_from_tau_spline = DataInterpolations.CubicSpline(es, taus)
 
-eccmin = Eccentricity(minimum(es))
-eccmax = Eccentricity(maximum(es))
-taumin = ScaledTime(minimum(taus))
-taumax = ScaledTime(maximum(taus))
+const eccmin = Eccentricity(minimum(es))
+const eccmax = Eccentricity(maximum(es))
+const taumin = ScaledTime(minimum(taus))
+const taumax = ScaledTime(maximum(taus))
 
-a::Float64 = 2 * sqrt(2) / 5 / 5^(63 / 2299) / 17^(1181 / 2299)
-b::Float64 = 2 / sqrt(1 - eccmax.e) - a * taumax.τ
+const a::Float64 = 2 * sqrt(2) / 5 / 5^(63 / 2299) / 17^(1181 / 2299)
+const b::Float64 = 2 / sqrt(1 - eccmax.e) - a * taumax.τ
 
 "Eccentricity as a function of scaled time (spline approximant)."
 function e_from_τ(tau::ScaledTime)::Eccentricity
