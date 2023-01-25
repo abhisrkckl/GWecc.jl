@@ -34,14 +34,13 @@ year = 365.25 * 24 * 3600
 _tref = 10 * year
 tref = Time(_tref)
 _tEs = LinRange(0, _tref, 100)
-_tEs = reduce(vcat, [t .+ LinRange(0,2,16) for t in _tEs])
+_tEs = reduce(vcat, [t .+ LinRange(0, 2, 16) for t in _tEs])
 tEs = Time.(_tEs)
 
 term = EARTH
 
 hs = waveform(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tEs)
-rs =
-    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tEs)
+rs = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tEs)
 rs, hs = residuals_and_waveform(
     mass,
     n_init,

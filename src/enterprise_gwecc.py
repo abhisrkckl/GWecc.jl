@@ -32,6 +32,7 @@ def eccentric_pta_signal_planck18_1psr(
     tref,
     log10_zc,
     psrTerm=False,
+    spline=False,
 ):
     return jl.eccentric_pta_signal_planck18_1psr(
         toas,
@@ -50,6 +51,7 @@ def eccentric_pta_signal_planck18_1psr(
         tref,
         log10_zc,
         psrTerm,
+        spline,
     )
 
 
@@ -76,6 +78,7 @@ def eccentric_pta_signal_planck18(
     tref,
     log10_zc,
     psrTerm=False,
+    spline=False,
 ):
     return jl.eccentric_pta_signal_planck18(
         toas,
@@ -97,6 +100,7 @@ def eccentric_pta_signal_planck18(
         tref,
         log10_zc,
         psrTerm,
+        spline,
     )
 
 
@@ -115,6 +119,7 @@ def gwecc_1psr_block(
     lp=Uniform(0, 2 * np.pi),
     log10_zc=Uniform(-4, -3)("gwecc_log10_zc"),
     psrTerm=False,
+    spline=False,
     name="gwecc",
 ):
     """Returns deterministic, eccentric orbit continuous GW model for a single pulsar."""
@@ -135,6 +140,7 @@ def gwecc_1psr_block(
             tref=tref,
             log10_zc=log10_zc,
             psrTerm=psrTerm,
+            spline=spline,
         ),
         name=name,
     )
@@ -156,6 +162,7 @@ def gwecc_block(
     lp=Uniform(0, 2 * np.pi),
     log10_zc=Uniform(-4, -3)("gwecc_log10_zc"),
     psrTerm=False,
+    spline=False,
     name="gwecc",
 ):
     """Returns deterministic, eccentric orbit continuous GW model"""
@@ -177,6 +184,7 @@ def gwecc_block(
             tref=tref,
             log10_zc=log10_zc,
             psrTerm=psrTerm,
+            spline=spline,
         ),
         name=name,
     )
