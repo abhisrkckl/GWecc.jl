@@ -34,7 +34,7 @@ year = 365.25 * 24 * 3600
 _tref = 10 * year
 tref = Time(_tref)
 _tEs = LinRange(0, _tref, 100)
-_tEs = reduce(vcat, [t .+ LinRange(0,2,8) for t in _tEs])
+_tEs = reduce(vcat, [t .+ LinRange(0,2,16) for t in _tEs])
 tEs = Time.(_tEs)
 
 term = EARTH
