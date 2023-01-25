@@ -81,7 +81,7 @@ def eccentric_pta_signal_planck18(
         toas,
         theta,
         phi,
-        pdist,
+        pdist[0],
         cos_gwtheta,
         gwphi,
         psi,
