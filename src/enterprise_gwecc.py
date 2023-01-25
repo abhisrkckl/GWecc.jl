@@ -117,7 +117,9 @@ def gwecc_1psr_block(
     psrTerm=False,
     name="gwecc",
 ):
-    """Returns deterministic, eccentric orbit continuous GW model for a single pulsar."""
+    """Returns deterministic eccentric orbit continuous GW model for a single pulsar."""
+
+    gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
 
     return Deterministic(
         eccentric_pta_signal_planck18_1psr(
@@ -158,7 +160,9 @@ def gwecc_block(
     psrTerm=False,
     name="gwecc",
 ):
-    """Returns deterministic, eccentric orbit continuous GW model"""
+    """Returns deterministic eccentric orbit continuous GW model"""
+
+    gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
 
     return Deterministic(
         eccentric_pta_signal_planck18_1psr(
