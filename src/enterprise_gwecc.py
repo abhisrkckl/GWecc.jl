@@ -35,20 +35,20 @@ def eccentric_pta_signal_planck18_1psr(
 ):
     return jl.eccentric_pta_signal_planck18_1psr(
         toas,
-        pdist[0],
-        alpha,
-        psi,
-        cos_inc,
-        log10_M,
-        eta,
-        log10_F,
-        e0,
-        gamma0,
-        gammap,
-        l0,
-        lp,
-        tref,
-        log10_zc,
+        float(pdist[0] if isinstance(pdist, tuple) else pdist),
+        float(alpha),
+        float(psi),
+        float(cos_inc),
+        float(log10_M),
+        float(eta),
+        float(log10_F),
+        float(e0),
+        float(gamma0),
+        float(gammap),
+        float(l0),
+        float(lp),
+        float(tref),
+        float(log10_zc),
         psrTerm,
     )
 
@@ -79,23 +79,23 @@ def eccentric_pta_signal_planck18(
 ):
     return jl.eccentric_pta_signal_planck18(
         toas,
-        theta,
-        phi,
-        pdist,
-        cos_gwtheta,
-        gwphi,
-        psi,
-        cos_inc,
-        log10_M,
-        eta,
-        log10_F,
-        e0,
-        gamma0,
-        gammap,
-        l0,
-        lp,
-        tref,
-        log10_zc,
+        float(theta),
+        float(phi),
+        float(pdist[0] if isinstance(pdist, tuple) else pdist),
+        float(cos_gwtheta),
+        float(gwphi),
+        float(psi),
+        float(cos_inc),
+        float(log10_M),
+        float(eta),
+        float(log10_F),
+        float(e0),
+        float(gamma0),
+        float(gammap),
+        float(l0),
+        float(lp),
+        float(tref),
+        float(log10_zc),
         psrTerm,
     )
 
@@ -117,7 +117,9 @@ def gwecc_1psr_block(
     psrTerm=False,
     name="gwecc",
 ):
-    """Returns deterministic, eccentric orbit continuous GW model for a single pulsar."""
+    """Returns deterministic eccentric orbit continuous GW model for a single pulsar."""
+
+    gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
 
     return Deterministic(
         eccentric_pta_signal_planck18_1psr(
@@ -158,7 +160,9 @@ def gwecc_block(
     psrTerm=False,
     name="gwecc",
 ):
-    """Returns deterministic, eccentric orbit continuous GW model"""
+    """Returns deterministic eccentric orbit continuous GW model"""
+
+    gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
 
     return Deterministic(
         eccentric_pta_signal_planck18_1psr(
