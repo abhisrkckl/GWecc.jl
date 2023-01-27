@@ -26,8 +26,8 @@ tref = max(toas)
 log10_zc = -2.0
 
 
-@pytest.mark.parametrize("psrTerm", [True, False])
-def test_eccentric_pta_signal_planck18_1psr(psrTerm):
+@pytest.mark.parametrize("psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)])
+def test_eccentric_pta_signal_planck18_1psr(psrTerm, spline):
     res = eccentric_pta_signal_planck18_1psr(
         toas,
         pdist,
@@ -45,12 +45,13 @@ def test_eccentric_pta_signal_planck18_1psr(psrTerm):
         tref,
         log10_zc,
         psrTerm=psrTerm,
+        spline=spline,
     )
     assert np.all(np.isfinite(res))
 
 
-@pytest.mark.parametrize("psrTerm", [True, False])
-def test_eccentric_pta_signal_planck18(psrTerm):
+@pytest.mark.parametrize("psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)])
+def test_eccentric_pta_signal_planck18(psrTerm, spline):
     res = eccentric_pta_signal_planck18(
         toas,
         theta,
@@ -71,5 +72,6 @@ def test_eccentric_pta_signal_planck18(psrTerm):
         tref,
         log10_zc,
         psrTerm=psrTerm,
+        spline=spline,
     )
     assert np.all(np.isfinite(res))
