@@ -27,7 +27,7 @@ log10_zc = -2.0
 
 
 @pytest.mark.parametrize("psrTerm", [True, False])
-def test_eccentric_pta_signal_planck18(psrTerm):
+def test_eccentric_pta_signal_planck18_1psr(psrTerm):
     res = eccentric_pta_signal_planck18_1psr(
         toas,
         pdist,
@@ -48,25 +48,28 @@ def test_eccentric_pta_signal_planck18(psrTerm):
     )
     assert np.all(np.isfinite(res))
 
-    # res = eccentric_pta_signal_planck18(
-    #     toas,
-    #     theta,
-    #     phi,
-    #     pdist,
-    #     cos_gwtheta,
-    #     gwphi,
-    #     psi,
-    #     cos_inc,
-    #     log10_M,
-    #     eta,
-    #     log10_F,
-    #     e0,
-    #     gamma0,
-    #     gammap,
-    #     l0,
-    #     lp,
-    #     tref,
-    #     log10_zc,
-    #     psrTerm=psrTerm,
-    # )
-    # assert np.all(np.isfinite(res))
+
+@pytest.mark.parametrize("psrTerm", [True, False])
+def test_eccentric_pta_signal_planck18(psrTerm):
+    res = eccentric_pta_signal_planck18(
+        toas,
+        theta,
+        phi,
+        pdist,
+        cos_gwtheta,
+        gwphi,
+        psi,
+        cos_inc,
+        log10_M,
+        eta,
+        log10_F,
+        e0,
+        gamma0,
+        gammap,
+        l0,
+        lp,
+        tref,
+        log10_zc,
+        psrTerm=psrTerm,
+    )
+    assert np.all(np.isfinite(res))

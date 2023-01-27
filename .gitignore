@@ -32,3 +32,6 @@ src/*.egg-info/*
 examples/gwecc_sims
 
 *.pkl
+
+.coverage
+coverage.xml
