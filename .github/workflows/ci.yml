@@ -69,4 +69,4 @@ jobs:
         run: |
           pytest --full-trace --cov-report html --cov-report xml
       - name: Codecov
-          uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v3
