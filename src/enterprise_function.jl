@@ -59,7 +59,7 @@ function eccentric_pta_signal_planck18(
     dp = psrdist_from_pdist(pdist)
 
     ra_psr = phi
-    dec_psr = π - theta
+    dec_psr = π/2 - theta
     psrpos = SkyLocation(ra_psr, dec_psr)
 
     ra_gw = gwphi
