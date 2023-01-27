@@ -1,5 +1,5 @@
 numpy
 matplotlib
-# libstempo
-# enterprise-pulsar
+libstempo
+enterprise-pulsar
 juliacall
