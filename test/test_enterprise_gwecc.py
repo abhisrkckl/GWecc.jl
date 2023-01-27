@@ -1,6 +1,10 @@
-import pytest 
 import numpy as np
-from enterprise_gwecc import eccentric_pta_signal_planck18, eccentric_pta_signal_planck18_1psr
+import pytest
+
+from enterprise_gwecc import (
+    eccentric_pta_signal_planck18,
+    eccentric_pta_signal_planck18_1psr,
+)
 
 year = 365.25 * 24 * 3600
 toas = np.linspace(0, 5 * year, 100)
@@ -20,6 +24,7 @@ gamma0 = gammap = 0.0
 l0 = lp = 0.0
 tref = max(toas)
 log10_zc = -2.0
+
 
 @pytest.mark.parametrize("psrTerm", [True, False])
 def test_eccentric_pta_signal_planck18(psrTerm):
