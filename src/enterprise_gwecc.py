@@ -172,7 +172,7 @@ def gwecc_block(
     gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
 
     return Deterministic(
-        eccentric_pta_signal_planck18_1psr(
+        eccentric_pta_signal_planck18(
             cos_gwtheta=cos_gwtheta,
             gwphi=gwphi,
             psi=psi,
