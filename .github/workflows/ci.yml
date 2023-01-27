@@ -63,6 +63,7 @@ jobs:
           curl -sSL https://raw.githubusercontent.com/vallis/libstempo/master/install_tempo2.sh | sh
           python -m pip install --upgrade pip setuptools wheel pytest pytest-cov
           pip install -r requirements.txt
+          julia -e 'import Pkg; Pkg.add(path=".")'
           pip install .
       - name: Test with pytest
         run: |
