@@ -67,6 +67,6 @@ jobs:
           pip install .
       - name: Test with pytest
         run: |
-          pytest --full-trace --cov-report html --cov-report xml
+          pytest --full-trace --cov-report xml --cov GWecc
       - name: Codecov
         uses: codecov/codecov-action@v3
