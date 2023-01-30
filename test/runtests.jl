@@ -883,7 +883,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         for psrTerm in [true, false]
             res = eccentric_pta_signal_planck18(
                 toas,
-                π - dec_p,
+                π / 2 - dec_p,
                 ra_p,
                 pdist,
                 sin(dec_gw),

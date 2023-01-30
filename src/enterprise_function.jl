@@ -45,6 +45,7 @@ function eccentric_pta_signal_planck18(
     tref::Float64,
     log10_zc::Float64,
     psrTerm::Bool = false,
+    spline::Bool = false,
 )
     mass = mass_from_log10_mass(log10_M, eta)
 
@@ -58,7 +59,7 @@ function eccentric_pta_signal_planck18(
     dp = psrdist_from_pdist(pdist)
 
     ra_psr = phi
-    dec_psr = π - theta
+    dec_psr = π / 2 - theta
     psrpos = SkyLocation(ra_psr, dec_psr)
 
     ra_gw = gwphi
@@ -69,21 +70,9 @@ function eccentric_pta_signal_planck18(
     tref = Time(tref)
     tEs = Time.(toas)
 
-    return residuals(
-        mass,
-        n_init,
-        e_init,
-        l0p,
-        proj,
-        dl,
-        dp,
-        psrpos,
-        gwpos,
-        z,
-        terms,
-        tref,
-        tEs,
-    )
+    res = spline ? residuals_spline : residuals
+
+    return res(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, terms, tref, tEs)
 end
 
 "ENTERPRISE-compatible interface for the residuals_1psr function. This 
@@ -125,6 +114,7 @@ function eccentric_pta_signal_planck18_1psr(
     tref::Float64,
     log10_zc::Float64,
     psrTerm::Bool = false,
+    spline::Bool = false,
 )
     mass = mass_from_log10_mass(log10_M, eta)
     n_init = mean_motion_from_log10_freq(log10_F)
@@ -138,5 +128,7 @@ function eccentric_pta_signal_planck18_1psr(
     tref = Time(tref)
     tEs = Time.(toas)
 
-    return residuals_1psr(mass, n_init, e_init, l0p, proj, dl, dp, α, z, terms, tref, tEs)
+    res = spline ? residuals_1psr_spline : residuals_1psr
+
+    return res(mass, n_init, e_init, l0p, proj, dl, dp, α, z, terms, tref, tEs)
 end
