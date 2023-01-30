@@ -35,3 +35,5 @@ examples/gwecc_sims
 
 .coverage
 coverage.xml
+
+*.pdf
