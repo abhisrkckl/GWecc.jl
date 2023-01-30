@@ -88,42 +88,50 @@ def test_eccentric_pta_signal_planck18(psrTerm, spline):
     )
     assert np.all(np.isfinite(res))
 
+
 testdatadir = pathlib.Path(__file__).resolve().parent / "testdata"
 par = str(testdatadir / "J1909-3744_NANOGrav_12yv4.gls.par")
 tim = str(testdatadir / "J1909-3744_NANOGrav_12yv4.tim")
 
-def test_gwecc_block():
+
+@pytest.mark.parametrize(
+    "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
+)
+def test_gwecc_block(psrTerm, spline):
     psr = Pulsar(par, tim)
 
     tref = max(psr.toas)
 
     tm = MarginalizingTimingModel()
     wn = MeasurementNoise(efac=1.0)
-    wf = gwecc_block(tref=tref)
+    wf = gwecc_block(tref=tref, psrTerm=psrTerm, spline=spline)
     model = tm + wn + wf
 
     pta = PTA([model(psr)])
 
-    assert(len(pta.param_names) == 11)
+    assert len(pta.param_names) == (13 if psrTerm else 11)
 
     x0 = [param.sample() for param in pta.params]
     assert np.all(np.isfinite(x0))
     assert np.isfinite(pta.get_lnlikelihood(x0))
 
 
-def test_gwecc_1psr_block():
+@pytest.mark.parametrize(
+    "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
+)
+def test_gwecc_1psr_block(psrTerm, spline):
     psr = Pulsar(par, tim)
 
     tref = max(psr.toas)
 
     tm = MarginalizingTimingModel()
     wn = MeasurementNoise(efac=1.0)
-    wf = gwecc_1psr_block(tref=tref)
+    wf = gwecc_1psr_block(tref=tref, psrTerm=psrTerm, spline=spline)
     model = tm + wn + wf
 
     pta = PTA([model(psr)])
 
-    assert(len(pta.param_names) == 10)
+    assert len(pta.param_names) == (12 if psrTerm else 10)
 
     x0 = [param.sample() for param in pta.params]
     assert np.all(np.isfinite(x0))
