@@ -84,8 +84,10 @@ toasim.add_efac(psr, 1)
 signal = add_gwecc_1psr(psr, gwecc_params)
 print("Simulated TOAs for", psr.name)
 
-lstplot.plotres(psr)
+lstplot.plotres(psr, label="Residuals")
+plt.plot(psr.toas(), signal * day_to_s * 1e6, c="k", label="Injected signal")
 plt.title(psr.name)
+plt.legend()
 plt.show()
 
 psr.fit()
