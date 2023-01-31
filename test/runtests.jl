@@ -34,7 +34,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         end
 
         @testset "init phase params" begin
-            @test_throws DomainError InitPhaseParams(-1.0, 1.0)
+            @test_throws DomainError InitPhaseParams(-7.0, 1.0)
             @test_throws DomainError InitPhaseParams(1.0, 7.0)
         end
 
