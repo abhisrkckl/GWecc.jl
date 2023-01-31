@@ -134,9 +134,9 @@ struct ProjectionParams
             throw(DomainError(ψ, "ψ out of range."))
         elseif !(cosι >= -1 && cosι <= 1)
             throw(DomainError(cosι, "cosι out of range."))
-        elseif !(γ0 >= 0 && γ0 <= π)
+        elseif !(γ0 >= -π && γ0 <= π)
             throw(DomainError(γ0, "γ0 out of range."))
-        elseif !(γp >= 0 && γp <= π)
+        elseif !(γp >= -π && γp <= π)
             throw(DomainError(γp, "γp out of range."))
         else
             return new(SinCos(Angle(2 * ψ)), cosι, γ0, γp)

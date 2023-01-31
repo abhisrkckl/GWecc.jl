@@ -23,12 +23,12 @@ tref = max(psr.toas)
 priors = {
     "alpha": true_params["alpha"], #Uniform(0, 1)(f"{name}_alpha"),
     "psi": Uniform(-np.pi/2, np.pi/2)(f"{name}_psi"),  # true_params["psi"],
-    "cos_inc": true_params["cos_inc"],  # Uniform(-1, 1)(f"{name}_cos_inc"),
+    "cos_inc": Uniform(-1, 1)(f"{name}_cos_inc"),  # true_params["cos_inc"],
     "log10_M": true_params["log10_M"],  # Uniform(6, 9)(f"{name}_log10_M"),
     "eta": true_params["eta"],  # Uniform(0, 0.25)(f"{name}_eta"),
     "log10_F": true_params["log10_F"],  # Uniform(-9, -7)(f"{name}_log10_F"),
     "e0": true_params["e0"],  # Uniform(0.01, 0.8)(f"{name}_e0"),
-    "gamma0": true_params["gamma0"],  # Uniform(0, np.pi)(f"{name}_gamma0"),
+    "gamma0": Uniform(0, np.pi)(f"{name}_gamma0"), # true_params["gamma0"], 
     "gammap": 0.0,  # Uniform(0, np.pi),
     "l0": true_params["l0"],  # Uniform(0, 2 * np.pi)(f"{name}_l0"),
     "lp": 0.0,  # Uniform(0, 2 * np.pi),
@@ -49,16 +49,17 @@ print("Log-likelihoood at", x0, "is", pta.get_lnlikelihood(x0))
 
 ndim = len(x0)
 cov = np.diag(np.ones(ndim) * 0.01**2)
-Nsteps = 100000
+Nsteps = 200000
 x0 = np.hstack(x0)
 sampler = ptmcmc(
-    ndim, pta.get_lnlikelihood, pta.get_lnprior, cov, outDir="gwecc_sims/chains/"
+    ndim, pta.get_lnlikelihood, pta.get_lnprior, cov, 
+    outDir="gwecc_sims/chains/", resume=True
 )
 sampler.sample(x0, Nsteps)
 
 chain_file = "gwecc_sims/chains/chain_1.txt"
 chain = np.loadtxt(chain_file)
-burn = 1000
+burn = 20000
 burned_chain = chain[burn:, :-4]
 
 for i in range(ndim):
