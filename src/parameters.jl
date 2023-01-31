@@ -130,7 +130,7 @@ struct ProjectionParams
     γp::Float64
 
     function ProjectionParams(ψ::Float64, cosι::Float64, γ0::Float64, γp::Float64)
-        if !(ψ >= 0 && ψ < π)
+        if !(ψ >= -π && ψ < π)
             throw(DomainError(ψ, "ψ out of range."))
         elseif !(cosι >= -1 && cosι <= 1)
             throw(DomainError(cosι, "cosι out of range."))
