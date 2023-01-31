@@ -1,5 +1,5 @@
 export ProjectionParams, SkyLocation, InitPhaseParams
-export ScaledTime, Time, Distance, Redshift, unredshifted_time_difference
+export ScaledTime, Time, Distance, Redshift, unredshifted_time_difference, extract
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
@@ -25,6 +25,10 @@ t1::Time - t2::Time = Time(t1.t - t2.t)
 a::Number * t1::Time = Time(a * t1.t)
 t1::Time * a::Number = a * t1
 # t1::Time / a::Number = Time(t1.t / a)
+
+function extract(ts::Vector{Time})::Vector{Float64}
+    return [t.t for t in ts]
+end
 
 "Eccentricity. Must lie in [0,1)."
 struct Eccentricity
