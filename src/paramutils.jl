@@ -3,11 +3,11 @@ using Unitful
 using UnitfulAstro
 using PhysicalConstants.CODATA2018
 
-GMsun = UnitfulAstro.GMsun
-c_0 = CODATA2018.c_0
+const GMsun = UnitfulAstro.GMsun
+const c_0 = CODATA2018.c_0
 
 # Based on astropy.cosmology.Planck18
-planck18 = cosmology(
+const planck18 = cosmology(
     h = 0.6766,
     Neff = 3.046,
     OmegaK = 0.0,
