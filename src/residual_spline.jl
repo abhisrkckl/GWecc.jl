@@ -15,7 +15,7 @@ struct SimpleHermiteSpline
     end
 end
 
-function find_interval(spl::SimpleHermiteSpline, ti::Float64)::Tuple{Int64, Float64, Float64}
+function find_interval(spl::SimpleHermiteSpline, ti::Float64)::Tuple{Int64,Float64,Float64}
     @assert ti >= spl.tmin && ti <= spl.tmax
     for (j, tsplj) in enumerate(spl.ts)
         if ti == tsplj
@@ -27,20 +27,20 @@ function find_interval(spl::SimpleHermiteSpline, ti::Float64)::Tuple{Int64, Floa
 end
 
 function hermite_spline_basis(u)
-    h00 = (1+2*u) * (1-u)^2
-    h10 = u*(1-u)^2
-    h01 = u^2*(3-2*u)
-    h11 = u^2 * (u-1)
+    h00 = (1 + 2 * u) * (1 - u)^2
+    h10 = u * (1 - u)^2
+    h01 = u^2 * (3 - 2 * u)
+    h11 = u^2 * (u - 1)
     return h00, h10, h01, h11
 end
 
 function interp(spl::SimpleHermiteSpline, ti::Float64)::Float64
     j, t1, t2 = find_interval(spl, ti)
-   
+
     if t1 == t2
         return spl.xs[j]
     end
-    
+
     x1 = spl.xs[j-1]
     x2 = spl.xs[j]
     v1 = spl.vs[j-1]
@@ -51,7 +51,7 @@ function interp(spl::SimpleHermiteSpline, ti::Float64)::Float64
 
     dt = t2 - t1
 
-    return h00*x1 + h10*dt*v1 + h01*x2 + h11*dt*v2
+    return h00 * x1 + h10 * dt * v1 + h01 * x2 + h11 * dt * v2
 end
 
 function interp(spl::SimpleHermiteSpline, tis::Vector{Float64})::Vector{Float64}
@@ -82,21 +82,22 @@ function residuals_spline(
     tspl::Vector{Time},
     tEs::Vector{Time},
 )
-    res_wav = _ts -> residuals_and_waveform(
-        mass,
-        n_init,
-        e_init,
-        l0p,
-        proj,
-        dl,
-        dp,
-        psrpos,
-        gwpos,
-        z,
-        terms,
-        tref,
-        Time.(_ts),
-    )
+    res_wav =
+        _ts -> residuals_and_waveform(
+            mass,
+            n_init,
+            e_init,
+            l0p,
+            proj,
+            dl,
+            dp,
+            psrpos,
+            gwpos,
+            z,
+            terms,
+            tref,
+            Time.(_ts),
+        )
     spl = SimpleHermiteSpline(extract(tspl), res_wav)
     return interp(spl, extract(tEs))
 end
@@ -150,20 +151,21 @@ function residuals_1psr_spline(
     tspl::Vector{Time},
     tEs::Vector{Time},
 )
-    res_wav = _ts -> residuals_and_waveform_1psr(
-        mass,
-        n_init,
-        e_init,
-        l0p,
-        proj,
-        dl,
-        dp,
-        α,
-        z,
-        terms,
-        tref,
-        Time.(_ts),
-    )
+    res_wav =
+        _ts -> residuals_and_waveform_1psr(
+            mass,
+            n_init,
+            e_init,
+            l0p,
+            proj,
+            dl,
+            dp,
+            α,
+            z,
+            terms,
+            tref,
+            Time.(_ts),
+        )
     spl = SimpleHermiteSpline(extract(tspl), res_wav)
     return interp(spl, extract(tEs))
 end
