@@ -28,7 +28,7 @@ priors = {
     "eta": true_params["eta"],  # Uniform(0, 0.25)(f"{name}_eta"),
     "log10_F": true_params["log10_F"],  # Uniform(-9, -7)(f"{name}_log10_F"),
     "e0": true_params["e0"],  # Uniform(0.01, 0.8)(f"{name}_e0"),
-    "gamma0": Uniform(0, np.pi)(f"{name}_gamma0"), # true_params["gamma0"], 
+    "gamma0": Uniform(-np.pi/2, np.pi/2)(f"{name}_gamma0"), # true_params["gamma0"], 
     "gammap": 0.0,  # Uniform(0, np.pi),
     "l0": true_params["l0"],  # Uniform(0, 2 * np.pi)(f"{name}_l0"),
     "lp": 0.0,  # Uniform(0, 2 * np.pi),
