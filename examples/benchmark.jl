@@ -27,9 +27,6 @@ proj = ProjectionParams(ψ, cosι, γ0, γp)
 
 l0p = InitPhaseParams(l_init.θ, l_init.θ)
 
-tEs = Time.(LinRange(0.0, 10000.0, 100))
-tref = Time(10000.0)
-
 year = 365.25 * 24 * 3600
 _tref = 10 * year
 tref = Time(_tref)
