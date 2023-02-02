@@ -1,4 +1,4 @@
-export ProjectionParams, SkyLocation, InitPhaseParams
+export ProjectionParams, ProjectionParams1psr, SkyLocation, InitPhaseParams
 export ScaledTime, Time, Distance, Redshift, unredshifted_time_difference, extract
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
@@ -140,6 +140,27 @@ struct ProjectionParams
             throw(DomainError(γp, "γp out of range."))
         else
             return new(SinCos(Angle(2 * ψ)), cosι, γ0, γp)
+        end
+    end
+end
+
+struct ProjectionParams1psr
+    ζ0::Float64
+    scσ::Float64
+    scρe::Float64
+    scρp::Float64
+
+    function ProjectionParams1psr(ζ0::Float64, σ::Float64, ρe::Float64, ρp::Float64)
+        if ζ0 <= 0.0
+            throw(DomainError(ζ0, "ζ0 must be positive."))
+        elseif !(σ >= -π && σ <= π)
+            throw(DomainError(σ, "σ out of range."))
+        elseif !(ρe >= -2*π && ρe <= 2*π)
+            throw(DomainError(ρe, "ρe out of range."))
+        elseif !(ρp >= -2*π && ρp <= 2*π)
+            throw(DomainError(ρp, "ρp out of range."))
+        else
+            return new(ζ0, SinCos(Angle(σ)), SinCos(Angle(ρe)), SinCos(Angle(ρp)))
         end
     end
 end
