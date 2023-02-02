@@ -1,11 +1,11 @@
 export ProjectionParams, SkyLocation, InitPhaseParams
-export ScaledTime, Time, Distance, Redshift, redshi, fted_time_difference
+export ScaledTime, Time, Distance, Redshift, unredshifted_time_difference, extract
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
 export Term, EARTH, PULSAR
 
-import Base.+, Base.-, Base.*
+import Base.+, Base.-, Base.* # , Base./
 
 "Dimensionless scaled time (Defined in Susobhanan+ 2020, Section IIC)"
 struct ScaledTime
@@ -24,6 +24,11 @@ t1::Time - t2::Time = Time(t1.t - t2.t)
 -t1::Time = Time(-t1.t)
 a::Number * t1::Time = Time(a * t1.t)
 t1::Time * a::Number = a * t1
+# t1::Time / a::Number = Time(t1.t / a)
+
+function extract(ts::Vector{Time})::Vector{Float64}
+    return [t.t for t in ts]
+end
 
 "Eccentricity. Must lie in [0,1)."
 struct Eccentricity
@@ -96,9 +101,9 @@ struct InitPhaseParams
     l0::Angle
     lp::Angle
     function InitPhaseParams(l0::Float64, lp::Float64)
-        if l0 < 0 || l0 >= 2 * π
+        if l0 < -2 * π || l0 >= 2 * π
             throw(DomainError(l0, "l0 out of range."))
-        elseif lp < 0 || lp >= 2 * π
+        elseif lp < -2 * π || lp >= 2 * π
             throw(DomainError(lp, "lp out of range."))
         else
             return new(Angle(l0), Angle(lp))
@@ -125,13 +130,13 @@ struct ProjectionParams
     γp::Float64
 
     function ProjectionParams(ψ::Float64, cosι::Float64, γ0::Float64, γp::Float64)
-        if !(ψ >= 0 && ψ < π)
+        if !(ψ >= -π && ψ < π)
             throw(DomainError(ψ, "ψ out of range."))
         elseif !(cosι >= -1 && cosι <= 1)
             throw(DomainError(cosι, "cosι out of range."))
-        elseif !(γ0 >= 0 && γ0 <= π)
+        elseif !(γ0 >= -π && γ0 <= π)
             throw(DomainError(γ0, "γ0 out of range."))
-        elseif !(γp >= 0 && γp <= π)
+        elseif !(γp >= -π && γp <= π)
             throw(DomainError(γp, "γp out of range."))
         else
             return new(SinCos(Angle(2 * ψ)), cosι, γ0, γp)
@@ -170,6 +175,7 @@ struct Redshift
 end
 
 "Apply redshift to a time difference"
-redshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time = (1 + z.z) * (t - tref)
+unredshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time =
+    Time((t - tref).t / (1 + z.z))
 
 @enum Term EARTH PULSAR
