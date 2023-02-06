@@ -158,7 +158,7 @@ struct ProjectionParams1psr
         elseif !(σ >= -π && σ <= π)
             throw(DomainError(σ, "σ out of range."))
         elseif !(ρ >= -2*π && ρ <= 2*π)
-            throw(DomainError(ρe, "ρ out of range."))
+            throw(DomainError(ρ, "ρ out of range."))
         else
             return new(ζ0, SinCos(Angle(σ)), SinCos(Angle(ρ)))
         end
