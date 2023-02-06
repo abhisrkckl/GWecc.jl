@@ -43,6 +43,10 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test_throws DomainError ProjectionParams(1.0, 1.1, 1.0, 1.0)
             @test_throws DomainError ProjectionParams(1.0, 0.3, 4.0, 1.0)
             @test_throws DomainError ProjectionParams(1.0, 0.3, 1.0, 4.0)
+
+            @test_throws DomainError ProjectionParams1psr(-4.0, 0.3, 1.0)
+            @test_throws DomainError ProjectionParams1psr(1.0, 7.1, 1.0)
+            @test_throws DomainError ProjectionParams1psr(1.0, 0.3, 7.0)
         end
 
         @testset "sky location params" begin
@@ -840,37 +844,36 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
     @testset "enterprise functions" begin
         toas = LinRange(0, 1000000, 100)
         pdist = 400.0 # kpc
-        alpha = 0.3
-        psi = 1.1
-        cos_inc = 0.5
+        log10_A = -9.0
+        sigma = 1.1
+        rhoe = 0.5
+        rhop = 0.5
         log10_M = 9.0
         eta = 0.25
         log10_F = -8.0
         e0 = 0.3
         gamma0 = 0.0
         gammap = 0.0
-        l0 = 0.0
+        le = 0.0
         lp = 0.0
         tref = maximum(toas)
         log10_zc = -2.0
 
         for psrTerm in [true, false]
-            res = eccentric_pta_signal_planck18_1psr(
+            res = eccentric_pta_signal_1psr(
                 toas,
                 pdist,
-                alpha,
-                psi,
-                cos_inc,
+                log10_A,
+                sigma,
+                rhoe,
+                rhop,
                 log10_M,
                 eta,
                 log10_F,
                 e0,
-                gamma0,
-                gammap,
-                l0,
+                le,
                 lp,
                 tref,
-                log10_zc,
                 psrTerm,
             )
             @test all(isfinite.(res))

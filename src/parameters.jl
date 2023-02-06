@@ -1,4 +1,4 @@
-export ProjectionParams, SkyLocation, InitPhaseParams
+export ProjectionParams, ProjectionParams1psr, SkyLocation, InitPhaseParams
 export ScaledTime, Time, Distance, Redshift, unredshifted_time_difference, extract
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
@@ -140,6 +140,27 @@ struct ProjectionParams
             throw(DomainError(γp, "γp out of range."))
         else
             return new(SinCos(Angle(2 * ψ)), cosι, γ0, γp)
+        end
+    end
+end
+
+"""Projection parameters including polarization angle, 
+inclination, and the initial periastron angles of the 
+earth and the pulsar terms."""
+struct ProjectionParams1psr
+    ζ0::Float64
+    scσ::SinCos
+    scρ::SinCos
+
+    function ProjectionParams1psr(ζ0::Float64, σ::Float64, ρ::Float64)
+        if ζ0 <= 0
+            throw(DomainError(ζ0, "ζ0 should be positive."))
+        elseif !(σ >= -π && σ <= π)
+            throw(DomainError(σ, "σ out of range."))
+        elseif !(ρ >= -2*π && ρ <= 2*π)
+            throw(DomainError(ρe, "ρ out of range."))
+        else
+            return new(ζ0, SinCos(Angle(σ)), SinCos(Angle(ρ)))
         end
     end
 end
