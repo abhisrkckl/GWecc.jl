@@ -19,28 +19,6 @@ function waveform_coeffs_c(proj::ProjectionParams)
     return 1 - ci^2, 1 + ci^2, 2 * ci
 end
 
-"Waveform component functions"
-function waveform_A(ecc::Eccentricity, phase::OrbitalPhase)
-    e = ecc.e
-    su = phase.scu.sinx
-    cu = phase.scu.cosx
-    s2φ = phase.sc2φ.sinx
-    c2φ = phase.sc2φ.cosx
-
-    χ = e * cu
-    ξ = e * su
-
-    P = (2 * e^2 - χ^2 + χ - 2) / (1 - χ)^2
-    Q = (2 * sqrt(1 - e^2) * ξ) / (1 - χ)^2
-    R = χ / (1 - χ)
-
-    hA0 = R
-    hA1 = -Q * s2φ + P * c2φ
-    hA2 = Q * c2φ + P * s2φ
-
-    return hA0, hA1, hA2
-end
-
 "+/x polarizations of the waveform."
 function waveform_px(
     mass::Mass,

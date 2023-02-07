@@ -1,6 +1,4 @@
-export residual_PQR,
-    residual_A,
-    residual_px,
+export residual_px,
     residual,
     residual_1psr,
     residuals_px,
@@ -8,34 +6,6 @@ export residual_PQR,
     residuals_and_waveform,
     residuals_1psr,
     residuals_and_waveform_1psr
-
-"PTA signal component functions."
-function residual_PQR(ecc::Eccentricity, scu::SinCos)
-    e = ecc.e
-    su = scu.sinx
-    cu = scu.cosx
-    c2u = cu * cu - su * su
-
-    P = (sqrt(1 - e^2) * (c2u - e * cu)) / (1 - e * cu)
-    Q = (((e^2 - 2) * cu + e) * su) / (1 - e * cu)
-    R = e * su
-
-    return P, Q, R
-end
-
-"PTA signal component functions."
-function residual_A(ecc::Eccentricity, phase::OrbitalPhase)
-    s2ω = phase.sc2ω.sinx
-    c2ω = phase.sc2ω.cosx
-
-    P, Q, R = residual_PQR(ecc, phase.scu)
-
-    sA0 = R
-    sA1 = -P * s2ω + Q * c2ω
-    sA2 = P * c2ω + Q * s2ω
-
-    return sA0, sA1, sA2
-end
 
 "+/x polarizations of the PTA signal."
 function residual_px(
@@ -345,23 +315,20 @@ function residuals_1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l0p::InitPhaseParams,
-    proj::ProjectionParams,
-    dl::Distance,
+    lep::InitPhaseParams,
+    proj::ProjectionParams1psr,
     dp::Distance,
-    α::AzimuthParam,
-    z::Redshift,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [(tE-tref) for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
-    Δp = pulsar_term_delay(α, dp, z)
+    Δp = pulsar_term_delay(α, dp)
 
     ss = [
-        residual_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) * (1 + z.z) for
+        residual_1psr(mass, coeffs, lep, proj, dl, α, terms, Δp, dt) * (1 + z.z) for
         dt in dts
     ]
 
