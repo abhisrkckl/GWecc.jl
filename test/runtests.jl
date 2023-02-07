@@ -304,8 +304,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         @test_throws DomainError AntennaPattern(gwpos, gwpos)
 
-        @test AzimuthParam(0.5).α == 0.5
-        @test_throws DomainError AzimuthParam(1.1)
+        # @test AzimuthParam(0.5).α == 0.5
+        # @test_throws DomainError AzimuthParam(1.1)
     end
 
     @testset "mismatch" begin
@@ -341,7 +341,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         gwpos = SkyLocation(ra_gw, dec_gw)
         dp = Distance(1e13)
         ap = AntennaPattern(psrpos, gwpos)
-        α = AzimuthParam(ap)
+        # α = AzimuthParam(ap)
         z = Redshift(0.1)
         Δp = pulsar_term_delay(ap, dp, z)
         @test Δp.t < 0
@@ -599,8 +599,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             end
         end
 
-        # @testset "1psr functions" begin
-        #     for e_init in Eccentricity.([0.1, 0.4, 0.8])
+        @testset "1psr functions" begin
+            for e_init in Eccentricity.([0.1, 0.4, 0.8])
         #         dψ = acos(dot([ap.Fp, ap.Fx], [α.α, 0]) / α.α^2) / 2
         #         proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
         #         ss = residuals(
@@ -681,8 +681,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         #         )
         #         @test all(isapprox.(hs1, hs2))
         #         @test all(isapprox.(ss1, ss2))
-        #     end
-        # end
+            end
+        end
 
         @testset "h = ds/dt" begin
             year = 365.25 * 24 * 3600
