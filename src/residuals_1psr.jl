@@ -1,3 +1,41 @@
+export ProjectionParams1psr, waveform_amplitude_ratio, 
+    residual_amplitude_ratio
+
+function ProjectionParams1psr(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    proj::ProjectionParams,
+    dl::Distance,
+    psrpos::SkyLocation,
+    gwpos::SkyLocation
+)
+    H0 = gw_amplitude(mass, n_init, e_init, dl)
+    ap = AntennaPattern(psrpos, gwpos)
+    α = (1 + ap.cosµ)/2
+    n = n_init.n
+
+    dψ = acos(dot([ap.Fp, ap.Fx], [α, 0]) / α^2) / 2
+    ψ = proj.sc2ψ.x.θ - dψ
+
+    ci = proj.cosι
+    c2ψ = cos(2*ψ)
+    s2ψ = sin(2*ψ)
+    c2γ0 = cos(2*proj.γ0)
+    s2γ0 = sin(2*proj.γ0)
+
+    β1 = (1 + ci^2)*c2ψ*c2γ0 - 2*ci*s2ψ*s2γ0
+    β2 = -(1 + ci^2)*c2ψ*s2γ0 - 2*ci*s2ψ*c2γ0
+    β3 = (1 - ci^2)*c2ψ
+
+    β = sqrt(β1^2 + β2^2 + β3^2)
+    σ = acos(β3/β)
+    ρ = atan(β2/β1)
+
+    ζ0 = H0 * α * β / n
+
+    return ProjectionParams1psr(ζ0, σ, ρ)
+end
 
 function waveform_amplitude_ratio(
     mass::Mass,

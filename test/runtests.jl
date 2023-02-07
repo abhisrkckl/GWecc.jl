@@ -341,7 +341,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         gwpos = SkyLocation(ra_gw, dec_gw)
         dp = Distance(1e13)
         ap = AntennaPattern(psrpos, gwpos)
-        # α = AzimuthParam(ap)
         z = Redshift(0.1)
         Δp = pulsar_term_delay(ap, dp, z)
         @test Δp.t < 0
@@ -601,6 +600,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         @testset "1psr functions" begin
             for e_init in Eccentricity.([0.1, 0.4, 0.8])
+                proj1 = ProjectionParams1psr(mass, n_init, e_init, proj, dl, psrpos, gwpos)
         #         dψ = acos(dot([ap.Fp, ap.Fx], [α.α, 0]) / α.α^2) / 2
         #         proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
         #         ss = residuals(
