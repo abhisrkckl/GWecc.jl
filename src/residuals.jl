@@ -151,73 +151,6 @@ function residual_and_waveform(
     return s, h
 end
 
-"PTA signal for the single-pulsar case."
-function residual_1psr(
-    mass::Mass,
-    coeffs::EvolvCoeffs,
-    l0p::InitPhaseParams,
-    proj::ProjectionParams,
-    dl::Distance,
-    α::AzimuthParam,
-    terms::Vector{Term},
-    Δp::Time,
-    dt::Time,
-)
-    sp = 0.0
-    # sx = 0.0
-
-    if EARTH in terms
-        spE, sxE = residual_px(mass, coeffs, l0p, proj, dl, false, dt)
-        sp = sp + spE
-        # sx = sx + sxE
-    end
-
-    if PULSAR in terms
-        dtp = dt + Δp
-        spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
-        sp = sp - spP
-        # sx = sx - sxP
-    end
-
-    return α.α * sp
-end
-
-"PTA signal for the single-pulsar case."
-function residual_and_waveform_1psr(
-    mass::Mass,
-    coeffs::EvolvCoeffs,
-    l0p::InitPhaseParams,
-    proj::ProjectionParams,
-    dl::Distance,
-    α::AzimuthParam,
-    terms::Vector{Term},
-    Δp::Time,
-    dt::Time,
-)
-    sp = 0.0
-    hp = 0.0
-
-    if EARTH in terms
-        spE, sxE, hpE, hxE =
-            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
-        sp = sp + spE
-        hp = hp + hpE
-    end
-
-    if PULSAR in terms
-        dtp = dt + Δp
-
-        spP, sxP, hpP, hxP =
-            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
-        sp = sp - spP
-        hp = hp - hpP
-    end
-
-    s = α.α * sp
-    h = α.α * hp
-
-    return s, h
-end
 
 "+/x polarizations of the PTA signal"
 function residuals_px(
@@ -306,62 +239,6 @@ function residuals_and_waveform(
 
     ss = [sh[1] * (1 + z.z) for sh in shs]
     hs = [sh[2] for sh in shs]
-
-    return ss, hs
-end
-
-"PTA signal for the single-pulsar case"
-function residuals_1psr(
-    mass::Mass,
-    n_init::MeanMotion,
-    e_init::Eccentricity,
-    lep::InitPhaseParams,
-    proj::ProjectionParams1psr,
-    dp::Distance,
-    terms::Vector{Term},
-    tref::Time,
-    tEs::Vector{Time},
-)
-    dts = [(tE-tref) for tE in tEs]
-
-    coeffs = EvolvCoeffs(mass, n_init, e_init)
-    Δp = pulsar_term_delay(α, dp)
-
-    ss = [
-        residual_1psr(mass, coeffs, lep, proj, dl, α, terms, Δp, dt) * (1 + z.z) for
-        dt in dts
-    ]
-
-    return ss
-end
-
-"PTA signal for the single-pulsar case"
-function residuals_and_waveform_1psr(
-    mass::Mass,
-    n_init::MeanMotion,
-    e_init::Eccentricity,
-    l0p::InitPhaseParams,
-    proj::ProjectionParams,
-    dl::Distance,
-    dp::Distance,
-    α::AzimuthParam,
-    z::Redshift,
-    terms::Vector{Term},
-    tref::Time,
-    tEs::Vector{Time},
-)
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
-
-    coeffs = EvolvCoeffs(mass, n_init, e_init)
-    Δp = pulsar_term_delay(α, dp, z)
-
-    shs = [
-        residual_and_waveform_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) for
-        dt in dts
-    ]
-
-    ss = first.(shs) * (1 + z.z)
-    hs = last.(shs)
 
     return ss, hs
 end

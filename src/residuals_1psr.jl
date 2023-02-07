@@ -188,3 +188,77 @@ function waveform_and_residual_1psr(
     return h, R
 end
 
+"PTA signal for the single-pulsar case"
+function waveform_1psr(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l_init::Angle,
+    proj::ProjectionParams1psr,
+    Δp::Time,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [(tE-tref) for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+
+    hs = [
+        waveform_1psr(mass, coeffs, n_init, e_init, l_init, proj, terms, Δp, dt) for
+        dt in dts
+    ]
+
+    return hs
+end
+
+"PTA signal for the single-pulsar case"
+function residuals_1psr(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l_init::Angle,
+    proj::ProjectionParams1psr,
+    Δp::Time,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [(tE-tref) for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+
+    Rs = [
+        residual_1psr(mass, coeffs, n_init, e_init, l_init, proj, terms, Δp, dt) for
+        dt in dts
+    ]
+
+    return Rs
+end
+
+"PTA signal for the single-pulsar case"
+function waveform_and_residuals_1psr(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l_init::Angle,
+    proj::ProjectionParams1psr,
+    Δp::Time,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [(tE-tref) for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+
+    hRs = [
+        waveform_and_residual_1psr(mass, coeffs, n_init, e_init, l_init, proj, terms, Δp, dt) for
+        dt in dts
+    ]
+
+    hs = first.(hRs)
+    Rs = last.(hRs)
+
+    return hs, Rs
+end
