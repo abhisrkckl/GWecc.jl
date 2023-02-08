@@ -106,7 +106,7 @@ function residual_1psr_term(
     phase = OrbitalPhase(mass, n, e, l, γ)
 
     sB0, sB1, sB2 = residual_A(e, phase)
-    b0, b1, b1 = waveform_coeffs_b(proj)
+    b0, b1, b2 = waveform_coeffs_b(proj)
 
     c = residual_amplitude_ratio(mass, n_init, e_init, n, e)
     
