@@ -651,86 +651,86 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 @test all(isapprox.(hs1, hs))
                 @test all(isapprox.(Rs1, Rs))
 
-        #         dψ = acos(dot([ap.Fp, ap.Fx], [α.α, 0]) / α.α^2) / 2
-        #         proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
-        #         ss = residuals(
-        #             mass,
-        #             n_init,
-        #             e_init,
-        #             l0p,
-        #             proj,
-        #             dl,
-        #             dp,
-        #             psrpos,
-        #             gwpos,
-        #             z,
-        #             [EARTH, PULSAR],
-        #             tref,
-        #             tEs,
-        #         )
-        #         ss1 = residuals_1psr(
-        #             mass,
-        #             n_init,
-        #             e_init,
-        #             l0p,
-        #             proj1,
-        #             dl,
-        #             dp,
-        #             α,
-        #             z,
-        #             [EARTH, PULSAR],
-        #             tref,
-        #             tEs,
-        #         )
-        #         @test all(isapprox.(ss1, ss, atol = 1e-9))
+                # dψ = acos(dot([ap.Fp, ap.Fx], [α.α, 0]) / α.α^2) / 2
+                # proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
+                # ss = residuals(
+                #     mass,
+                #     n_init,
+                #     e_init,
+                #     l0p,
+                #     proj,
+                #     dl,
+                #     dp,
+                #     psrpos,
+                #     gwpos,
+                #     z,
+                #     [EARTH, PULSAR],
+                #     tref,
+                #     tEs,
+                # )
+                # ss1 = residuals_1psr(
+                #     mass,
+                #     n_init,
+                #     e_init,
+                #     l0p,
+                #     proj1,
+                #     dl,
+                #     dp,
+                #     α,
+                #     z,
+                #     [EARTH, PULSAR],
+                #     tref,
+                #     tEs,
+                # )
+                # @test all(isapprox.(ss1, ss, atol = 1e-9))
 
-        #         hs = waveform(
-        #             mass,
-        #             n_init,
-        #             e_init,
-        #             l0p,
-        #             proj,
-        #             dl,
-        #             dp,
-        #             psrpos,
-        #             gwpos,
-        #             z,
-        #             [EARTH, PULSAR],
-        #             tref,
-        #             tEs,
-        #         )
-        #         hs1 = waveform_1psr(
-        #             mass,
-        #             n_init,
-        #             e_init,
-        #             l0p,
-        #             proj1,
-        #             dl,
-        #             dp,
-        #             α,
-        #             z,
-        #             [EARTH, PULSAR],
-        #             tref,
-        #             tEs,
-        #         )
-        #         @test all(isapprox.(hs1, hs, atol = 1e-9))
+                # hs = waveform(
+                #     mass,
+                #     n_init,
+                #     e_init,
+                #     l0p,
+                #     proj,
+                #     dl,
+                #     dp,
+                #     psrpos,
+                #     gwpos,
+                #     z,
+                #     [EARTH, PULSAR],
+                #     tref,
+                #     tEs,
+                # )
+                # hs1 = waveform_1psr(
+                #     mass,
+                #     n_init,
+                #     e_init,
+                #     l0p,
+                #     proj1,
+                #     dl,
+                #     dp,
+                #     α,
+                #     z,
+                #     [EARTH, PULSAR],
+                #     tref,
+                #     tEs,
+                # )
+                # @test all(isapprox.(hs1, hs, atol = 1e-9))
 
-        #         ss2, hs2 = residuals_and_waveform_1psr(
-        #             mass,
-        #             n_init,
-        #             e_init,
-        #             l0p,
-        #             proj1,
-        #             dl,
-        #             dp,
-        #             α,
-        #             z,
-        #             [EARTH, PULSAR],
-        #             tref,
-        #             tEs,
-        #         )
-        #         @test all(isapprox.(hs1, hs2))
-        #         @test all(isapprox.(ss1, ss2))
+                # ss2, hs2 = residuals_and_waveform_1psr(
+                #     mass,
+                #     n_init,
+                #     e_init,
+                #     l0p,
+                #     proj1,
+                #     dl,
+                #     dp,
+                #     α,
+                #     z,
+                #     [EARTH, PULSAR],
+                #     tref,
+                #     tEs,
+                # )
+                # @test all(isapprox.(hs1, hs2))
+                # @test all(isapprox.(ss1, ss2))
             end
         end
 
@@ -780,7 +780,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
                 @test mismatch(rps, rps_n) < 1e-3
                 @test mismatch(rxs, rxs_n) < 1e-3
-
+                
                 hs = waveform(
                     mass,
                     n_init,
@@ -807,6 +807,35 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     psrpos,
                     gwpos,
                     z,
+                    [term],
+                    tref,
+                    tEs,
+                )
+
+                rs_n = cumul_integrate(_ts, hs)
+                rs_n = rs_n .+ (mean(rs) - mean(rs_n))
+
+                @test mismatch(rs, rs_n) < 1e-3
+
+                proj1 = ProjectionParams1psr(mass, n_init, e_init, proj, dl, psrpos, gwpos)
+                hs = waveform_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l_init,
+                    proj1,
+                    Δp,
+                    [term],
+                    tref,
+                    tEs,
+                )
+                rs = residuals_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l_init,
+                    proj1,
+                    Δp,
                     [term],
                     tref,
                     tEs,
