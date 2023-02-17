@@ -1,4 +1,4 @@
-export gw_amplitude, waveform_coeffs_c, waveform_px, waveform, waveform_1psr
+export gw_amplitude, waveform_coeffs_c, waveform_px, waveform
 
 "GW amplitude"
 function gw_amplitude(

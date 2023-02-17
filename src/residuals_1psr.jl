@@ -1,5 +1,7 @@
 export ProjectionParams1psr, waveform_amplitude_ratio, 
-    residual_amplitude_ratio
+    residual_amplitude_ratio, waveform_1psr, residual_1psr, residuals_1psr,
+    waveform_and_residual_1psr, 
+    waveform_and_residuals_1psr
 
 function ProjectionParams1psr(
     mass::Mass,
