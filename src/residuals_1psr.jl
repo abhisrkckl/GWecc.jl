@@ -133,7 +133,7 @@ function waveform_and_residual_1psr_term(
 
     sB0, sB1, sB2 = residual_A(e, phase)
     hB0, hB1, hB2 = waveform_A(e, phase)
-    b0, b1, b1 = waveform_coeffs_b(proj)
+    b0, b1, b2 = waveform_coeffs_b(proj)
 
     C = waveform_amplitude_ratio(mass, n_init, e_init, n, e)
     c = residual_amplitude_ratio(mass, n_init, e_init, n, e)
@@ -215,14 +215,16 @@ function waveform_and_residual_1psr(
     h = 0.0
 
     if EARTH in terms
-        h += waveform_1psr_term(mass, coeffs, n_init, e_init, l_init, proj, dt)
-        R += residual_1psr_term(mass, coeffs, n_init, e_init, l_init, proj, dt)
+        hE, RE = waveform_and_residual_1psr_term(mass, coeffs, n_init, e_init, l_init, proj, dt)
+        h += hE
+        R += RE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        h += waveform_1psr_term(mass, coeffs, n_init, e_init, l_init, proj, dtp)
-        R += residual_1psr_term(mass, coeffs, n_init, e_init, l_init, proj, dtp)
+        hP, RP = waveform_and_residual_1psr_term(mass, coeffs, n_init, e_init, l_init, proj, dtp)
+        h += hP
+        R += RP
     end
 
     return h, R
