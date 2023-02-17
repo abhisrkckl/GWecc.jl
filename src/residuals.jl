@@ -1,8 +1,4 @@
-export residual_px,
-    residual,
-    residuals_px,
-    residuals,
-    residuals_and_waveform
+export residual_px, residual, residuals_px, residuals, residuals_and_waveform
 
 "+/x polarizations of the PTA signal."
 function residual_px(

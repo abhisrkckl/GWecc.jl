@@ -389,7 +389,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             hA0_ = hR
             hA1_ = -hP * s2ω + hQ * c2ω
             hA2_ = hP * c2ω + hQ * s2ω
-            @test isapprox([hA0, hA1, hA2], [hA0_, hA1_, hA2_], atol=1e-3)
+            @test isapprox([hA0, hA1, hA2], [hA0_, hA1_, hA2_], atol = 1e-3)
         end
 
         @testset "terms and polarizations" begin
@@ -647,7 +647,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     tref,
                     tEs,
                 )
-                
+
                 @test all(isapprox.(hs1, hs))
                 @test all(isapprox.(Rs1, Rs))
 
@@ -780,7 +780,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
                 @test mismatch(rps, rps_n) < 1e-3
                 @test mismatch(rxs, rxs_n) < 1e-3
-                
+
                 hs = waveform(
                     mass,
                     n_init,
