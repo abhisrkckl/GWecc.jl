@@ -42,14 +42,12 @@ l0 = lp = 0.0
 log10_A = -9
 sigma = 0.0
 rho = 0.0
-deltap = 100*year
+deltap = 100 * year
 tref = max(toas)
 log10_zc = -2.0
 
 
-@pytest.mark.parametrize(
-    "psrTerm", [True, False]
-)
+@pytest.mark.parametrize("psrTerm", [True, False])
 def test_eccentric_pta_signal_1psr(psrTerm):
     res = eccentric_pta_signal_1psr(
         toas,
@@ -69,9 +67,7 @@ def test_eccentric_pta_signal_1psr(psrTerm):
     assert np.all(np.isfinite(res))
 
 
-@pytest.mark.parametrize(
-    "psrTerm", [True, False]
-)
+@pytest.mark.parametrize("psrTerm", [True, False])
 def test_gwecc_1psr_block(psr, psrTerm):
     tref = max(psr.toas)
 
