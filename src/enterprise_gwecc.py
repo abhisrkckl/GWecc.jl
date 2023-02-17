@@ -15,43 +15,35 @@ jl.seval("using GWecc")
 # This thin wrapper function is required because ENTERPRISE relies on reflection
 # of Python functions, which does not work properly with juliacall.
 @enterprise_function
-def eccentric_pta_signal_planck18_1psr(
+def eccentric_pta_signal_1psr(
     toas,
-    pdist,
-    alpha,
-    psi,
-    cos_inc,
+    log10_A,
+    sigma,
+    rho,
     log10_M,
     eta,
     log10_F,
     e0,
-    gamma0,
-    gammap,
     l0,
-    lp,
+    deltap,
     tref,
-    log10_zc,
     psrTerm=False,
-    spline=False,
+    # spline=False,
 ):
-    return jl.eccentric_pta_signal_planck18_1psr(
+    return jl.eccentric_pta_signal_1psr(
         toas,
-        float(pdist[0] if isinstance(pdist, tuple) else pdist),
-        float(alpha),
-        float(psi),
-        float(cos_inc),
+        float(log10_A),
+        float(sigma),
+        float(rho),
         float(log10_M),
         float(eta),
         float(log10_F),
         float(e0),
-        float(gamma0),
-        float(gammap),
         float(l0),
-        float(lp),
+        float(deltap),
         float(tref),
-        float(log10_zc),
         psrTerm,
-        spline,
+        # spline,
     )
 
 
@@ -106,43 +98,39 @@ def eccentric_pta_signal_planck18(
 
 def gwecc_1psr_block(
     tref,
-    alpha=Uniform(0, 1)("gwecc_alpha"),
-    psi=Uniform(0, np.pi)("gwecc_psi"),
-    cos_inc=Uniform(-1, 1)("gwecc_cos_inc"),
+    log10_A=Uniform(0, 1)("gwecc_log10_A"),
+    sigma=Uniform(0, np.pi)("gwecc_sigma"),
+    rho=Uniform(0, 2 * np.pi)("gwecc_rho"),
     log10_M=Uniform(6, 9)("gwecc_log10_M"),
     eta=Uniform(0, 0.25)("gwecc_eta"),
     log10_F=Uniform(-9, -7)("gwecc_log10_F"),
     e0=Uniform(0.01, 0.8)("gwecc_e0"),
-    gamma0=Uniform(0, np.pi)("gwecc_gamma0"),
-    gammap=Uniform(0, np.pi),
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
-    lp=Uniform(0, 2 * np.pi),
-    log10_zc=Uniform(-4, -3)("gwecc_log10_zc"),
+    deltap=Uniform(0, 2 * np.pi)("gwecc_deltap"),
     psrTerm=False,
-    spline=False,
+    # spline=False,
     name="gwecc",
 ):
-    """Returns deterministic eccentric orbit continuous GW model for a single pulsar."""
+    """Returns deterministic eccentric orbit continuous GW model for a single pulsar.
+    Not to be used for analyzing multiple pulsars.
+    """
 
-    gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
+    deltap_ = deltap if psrTerm else 0.0
 
     return Deterministic(
-        eccentric_pta_signal_planck18_1psr(
-            alpha=alpha,
-            psi=psi,
-            cos_inc=cos_inc,
+        eccentric_pta_signal_1psr(
+            log10_A=log10_A,
+            sigma=sigma,
+            rho=rho,
             log10_M=log10_M,
             eta=eta,
             log10_F=log10_F,
             e0=e0,
-            gamma0=gamma0,
-            gammap=gammap,
             l0=l0,
-            lp=lp,
+            deltap=deltap_,
             tref=tref,
-            log10_zc=log10_zc,
             psrTerm=psrTerm,
-            spline=spline,
+            # spline=spline,
         ),
         name=name,
     )
