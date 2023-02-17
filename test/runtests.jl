@@ -894,10 +894,9 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
     @testset "enterprise functions" begin
         toas = LinRange(0, 1000000, 100)
         pdist = 400.0 # kpc
-        log10_A = -9.0
+        log10_ζ0 = -9.0
         sigma = 1.1
-        rhoe = 0.5
-        rhop = 0.5
+        rho = 0.5
         psi = 0.5
         cos_inc = 0.3
         log10_M = 9.0
@@ -910,26 +909,25 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         lp = 0.0
         tref = maximum(toas)
         log10_zc = -2.0
+        deltap = 100 * 365.25 * 24 * 3600
 
-        # for psrTerm in [true, false]
-        #     res = eccentric_pta_signal_1psr(
-        #         toas,
-        #         pdist,
-        #         log10_A,
-        #         sigma,
-        #         rhoe,
-        #         rhop,
-        #         log10_M,
-        #         eta,
-        #         log10_F,
-        #         e0,
-        #         le,
-        #         lp,
-        #         tref,
-        #         psrTerm,
-        #     )
-        #     @test all(isfinite.(res))
-        # end
+        for psrTerm in [true, false]
+            res = eccentric_pta_signal_1psr(
+                toas,
+                log10_ζ0,
+                sigma,
+                rho,
+                log10_M,
+                eta,
+                log10_F,
+                e0,
+                l0,
+                deltap,
+                tref,
+                psrTerm,
+            )
+            @test all(isfinite.(res))
+        end
 
         ra_p = 1.5
         dec_p = -0.8
