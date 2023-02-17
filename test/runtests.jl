@@ -380,6 +380,16 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
             @test hP ≈ -(ap.Fp * hpP + ap.Fx * hxP)
             @test hE ≈ (ap.Fp * hpE + ap.Fx * hxE)
+
+            phase = OrbitalPhase(mass, n_init, e_init, l_init, γ_init)
+            hA0, hA1, hA2 = waveform_A(e_init, phase)
+            s2ω = phase.sc2ω.sinx
+            c2ω = phase.sc2ω.cosx
+            hP, hQ, hR = waveform_PQR(e_init, phase.scu)
+            hA0_ = hR
+            hA1_ = -hP * s2ω + hQ * c2ω
+            hA2_ = hP * c2ω + hQ * s2ω
+            @test isapprox([hA0, hA1, hA2], [hA0_, hA1_, hA2_], atol=1e-3)
         end
 
         @testset "terms and polarizations" begin
