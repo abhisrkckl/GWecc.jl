@@ -1,4 +1,5 @@
 export ProjectionParams1psr,
+    compute_1psr_params,
     waveform_amplitude_ratio,
     residual_amplitude_ratio,
     waveform_1psr,
@@ -21,8 +22,8 @@ function ProjectionParams1psr(
     α = (1 + ap.cosµ) / 2
     n = n_init.n
 
-    dψ = acos(dot([ap.Fp, ap.Fx], [α, 0]) / α^2) / 2
-    ψ = proj.sc2ψ.x.θ - dψ
+    dψ = acos(ap.Fp / α) / 2
+    ψ = proj.sc2ψ.x.θ + dψ
 
     ci = proj.cosι
     c2ψ = cos(2 * ψ)
@@ -41,6 +42,28 @@ function ProjectionParams1psr(
     ζ0 = H0 * α * β / n
 
     return ProjectionParams1psr(ζ0, σ, ρ)
+end
+
+function compute_1psr_params(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l0p::InitPhaseParams,
+    proj::ProjectionParams,
+    dl::Distance,
+    dp::Distance,
+    psrpos::SkyLocation,
+    gwpos::SkyLocation,
+    tref::Time,
+)
+    l_init = l0p.l0
+
+    ap = AntennaPattern(psrpos, gwpos)
+    Δp = pulsar_term_delay(ap, dp, Redshift(0.0))
+
+    proj1 = ProjectionParams1psr(mass, n_init, e_init, proj, dl, psrpos, gwpos)
+
+    return mass, n_init, e_init, l_init, proj1, Δp, tref
 end
 
 function waveform_amplitude_ratio(

@@ -610,46 +610,57 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         @testset "1psr functions" begin
             for e_init in Eccentricity.([0.1, 0.4, 0.8])
-                proj1 = ProjectionParams1psr(mass, n_init, e_init, proj, dl, psrpos, gwpos)
-
-                hs = waveform_1psr(
+                m, n0, e0, l0, proj1, Δp, t0 = compute_1psr_params(
                     mass,
                     n_init,
                     e_init,
-                    l_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    tref
+                )
+
+                hs1 = waveform_1psr(
+                    m,
+                    n0,
+                    e0,
+                    l0,
                     proj1,
                     Δp,
                     [EARTH, PULSAR],
-                    tref,
+                    t0,
                     tEs,
                 )
 
-                Rs = residuals_1psr(
-                    mass,
-                    n_init,
-                    e_init,
-                    l_init,
+                Rs1 = residuals_1psr(
+                    m,
+                    n0,
+                    e0,
+                    l0,
                     proj1,
                     Δp,
                     [EARTH, PULSAR],
-                    tref,
+                    t0,
                     tEs,
                 )
 
-                hs1, Rs1 = waveform_and_residuals_1psr(
-                    mass,
-                    n_init,
-                    e_init,
-                    l_init,
+                hs1_, Rs1_ = waveform_and_residuals_1psr(
+                    m,
+                    n0,
+                    e0,
+                    l0,
                     proj1,
                     Δp,
                     [EARTH, PULSAR],
-                    tref,
+                    t0,
                     tEs,
                 )
 
-                @test all(isapprox.(hs1, hs))
-                @test all(isapprox.(Rs1, Rs))
+                @test all(isapprox.(hs1, hs1_))
+                @test all(isapprox.(Rs1, Rs1_))
 
                 # dψ = acos(dot([ap.Fp, ap.Fx], [α.α, 0]) / α.α^2) / 2
                 # proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
