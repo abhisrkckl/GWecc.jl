@@ -1,4 +1,4 @@
-export eccentric_pta_signal_planck18, eccentric_pta_signal_1psr
+export eccentric_pta_signal, eccentric_pta_signal_1psr
 
 "ENTERPRISE-compatible interface for the residuals function. This function
 computes the eccentric PTA signal for a single pulsar given a collection of 
@@ -22,10 +22,10 @@ Parameters:
     l0 : Initial mean anomaly for the Earth term (rad)
     lp : Initial mean anomaly for the Pulsar term (rad)
     tref : Fiducial time (s)
-    log10_z : Log10 of the cosmological redshift
+    log10_dl : Log10 luminosity distance
     psrTerm : Whether to include the pulsar term
 "
-function eccentric_pta_signal_planck18(
+function eccentric_pta_signal(
     toas,
     theta::Float64,
     phi::Float64,
@@ -43,7 +43,7 @@ function eccentric_pta_signal_planck18(
     l0::Float64,
     lp::Float64,
     tref::Float64,
-    log10_zc::Float64,
+    log10_dl::Float64,
     psrTerm::Bool = false,
     spline::Bool = false,
 )
@@ -55,7 +55,7 @@ function eccentric_pta_signal_planck18(
 
     proj = ProjectionParams(psi, cos_inc, gamma0, gammap)
 
-    z, dl = redshift_luminosity_dist_from_log10_redshift(log10_zc)
+    dl = Distance(10^log10_dl)
     dp = psrdist_from_pdist(pdist)
 
     ra_psr = phi
@@ -72,7 +72,7 @@ function eccentric_pta_signal_planck18(
 
     res = spline ? residuals_spline : residuals
 
-    return res(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, terms, tref, tEs)
+    return res(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, terms, tref, tEs)
 end
 
 "ENTERPRISE-compatible interface for the residuals_1psr function. This 

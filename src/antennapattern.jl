@@ -71,9 +71,8 @@ struct AntennaPattern
 end
 
 "Time delay between the earth and the pulsar terms."
-function pulsar_term_delay(ap::AntennaPattern, psrdist::Distance, redshift::Redshift)::Time
+function pulsar_term_delay(ap::AntennaPattern, psrdist::Distance)::Time
     dp = psrdist.D
     cosµ = ap.cosµ
-    z = redshift.z
-    return Time(-dp * (1 - cosµ) / (1 + z))
+    return Time(-dp * (1 - cosµ))
 end

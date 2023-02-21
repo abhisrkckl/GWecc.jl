@@ -93,18 +93,17 @@ function waveform_px(
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
-    z::Redshift,
     term::Term,
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [(tE - tref) for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
 
     psrterm = term == PULSAR
-    delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
+    delay = psrterm ? pulsar_term_delay(ap, dp) : Time(0.0)
 
     hpxs = [waveform_px(mass, coeffs, l0p, proj, dl, psrterm, dt + delay) for dt in dts]
     hps = first.(hpxs)
@@ -124,16 +123,15 @@ function waveform(
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
-    z::Redshift,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [(tE - tref) for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
-    Δp = pulsar_term_delay(ap, dp, z)
+    Δp = pulsar_term_delay(ap, dp)
 
     ss = [waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
 
