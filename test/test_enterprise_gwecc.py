@@ -8,7 +8,7 @@ from enterprise.signals.white_signals import MeasurementNoise
 from enterprise.signals.signal_base import PTA
 
 from enterprise_gwecc import (
-    eccentric_pta_signal_planck18,
+    eccentric_pta_signal,
     eccentric_pta_signal_1psr,
     gwecc_block,
     gwecc_1psr_block,
@@ -44,7 +44,7 @@ sigma = 0.0
 rho = 0.0
 deltap = 100 * year
 tref = max(toas)
-log10_zc = -2.0
+log10_dl = 15.0
 
 
 @pytest.mark.parametrize("psrTerm", [True, False])
@@ -89,8 +89,8 @@ def test_gwecc_1psr_block(psr, psrTerm):
 @pytest.mark.parametrize(
     "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
 )
-def test_eccentric_pta_signal_planck18(psrTerm, spline):
-    res = eccentric_pta_signal_planck18(
+def test_eccentric_pta_signal(psrTerm, spline):
+    res = eccentric_pta_signal(
         toas,
         theta,
         phi,
@@ -108,7 +108,7 @@ def test_eccentric_pta_signal_planck18(psrTerm, spline):
         l0,
         lp,
         tref,
-        log10_zc,
+        log10_dl,
         psrTerm=psrTerm,
         spline=spline,
     )
