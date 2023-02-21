@@ -609,60 +609,62 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     tref
                 )
 
-                hs1 = waveform_1psr(
-                    m,
-                    n0,
-                    e0,
-                    l0,
-                    proj1,
-                    Δp,
-                    [EARTH],
-                    t0,
-                    tEs,
-                )
+                for term in [EARTH, PULSAR]
+                    hs1 = waveform_1psr(
+                        m,
+                        n0,
+                        e0,
+                        l0,
+                        proj1,
+                        Δp,
+                        [term],
+                        t0,
+                        tEs,
+                    )
 
-                Rs1 = residuals_1psr(
-                    m,
-                    n0,
-                    e0,
-                    l0,
-                    proj1,
-                    Δp,
-                    [EARTH],
-                    t0,
-                    tEs,
-                )
+                    Rs1 = residuals_1psr(
+                        m,
+                        n0,
+                        e0,
+                        l0,
+                        proj1,
+                        Δp,
+                        [term],
+                        t0,
+                        tEs,
+                    )
 
-                hs1_, Rs1_ = waveform_and_residuals_1psr(
-                    m,
-                    n0,
-                    e0,
-                    l0,
-                    proj1,
-                    Δp,
-                    [EARTH],
-                    t0,
-                    tEs,
-                )
+                    hs1_, Rs1_ = waveform_and_residuals_1psr(
+                        m,
+                        n0,
+                        e0,
+                        l0,
+                        proj1,
+                        Δp,
+                        [term],
+                        t0,
+                        tEs,
+                    )
 
-                @test all(isapprox.(hs1, hs1_))
-                @test all(isapprox.(Rs1, Rs1_))
+                    @test all(isapprox.(hs1, hs1_))
+                    @test all(isapprox.(Rs1, Rs1_))
 
-                Rs = residuals(
-                    mass,
-                    n_init,
-                    e_init,
-                    l0p,
-                    proj,
-                    dl,
-                    dp,
-                    psrpos,
-                    gwpos,
-                    [EARTH],
-                    tref,
-                    tEs,
-                )
-                @test_broken all(isapprox.(Rs1, Rs))
+                    Rs = residuals(
+                        mass,
+                        n_init,
+                        e_init,
+                        l0p,
+                        proj,
+                        dl,
+                        dp,
+                        psrpos,
+                        gwpos,
+                        [term],
+                        tref,
+                        tEs,
+                    )
+                    @test_broken all(isapprox.(Rs1, Rs))
+                end
 
                 # hs = waveform(
                 #     mass,
