@@ -12,7 +12,8 @@ function ProjectionParams1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    proj::ProjectionParams,
+    proj::ProjectionParams, 
+    dpsi::Float64,
     dl::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
@@ -23,7 +24,7 @@ function ProjectionParams1psr(
     n = n_init.n
 
     dψ = acos(dot([ap.Fp, ap.Fx], [α, 0]) / α^2) / 2
-    ψ = -(proj.sc2ψ.x.θ + dψ)
+    ψ = proj.sc2ψ.x.θ + dψ + dpsi 
 
     ci = proj.cosι
     c2ψ = cos(2 * ψ)
@@ -50,6 +51,7 @@ function compute_1psr_params(
     e_init::Eccentricity,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
+    dpsi::Float64,
     dl::Distance,
     dp::Distance,
     psrpos::SkyLocation,
@@ -61,7 +63,7 @@ function compute_1psr_params(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp, Redshift(0.0))
 
-    proj1 = ProjectionParams1psr(mass, n_init, e_init, proj, dl, psrpos, gwpos)
+    proj1 = ProjectionParams1psr(mass, n_init, e_init, proj, dpsi, dl, psrpos, gwpos)
 
     return mass, n_init, e_init, l_init, proj1, Δp, tref
 end
