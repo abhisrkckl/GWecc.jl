@@ -630,7 +630,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     l0,
                     proj1,
                     Δp,
-                    [EARTH, PULSAR],
+                    [EARTH],
                     t0,
                     tEs,
                 )
@@ -642,7 +642,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     l0,
                     proj1,
                     Δp,
-                    [EARTH, PULSAR],
+                    [EARTH],
                     t0,
                     tEs,
                 )
@@ -654,7 +654,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     l0,
                     proj1,
                     Δp,
-                    [EARTH, PULSAR],
+                    [EARTH],
                     t0,
                     tEs,
                 )
@@ -662,38 +662,22 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 @test all(isapprox.(hs1, hs1_))
                 @test all(isapprox.(Rs1, Rs1_))
 
-                # dψ = acos(dot([ap.Fp, ap.Fx], [α.α, 0]) / α.α^2) / 2
-                # proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
-                # ss = residuals(
-                #     mass,
-                #     n_init,
-                #     e_init,
-                #     l0p,
-                #     proj,
-                #     dl,
-                #     dp,
-                #     psrpos,
-                #     gwpos,
-                #     z,
-                #     [EARTH, PULSAR],
-                #     tref,
-                #     tEs,
-                # )
-                # ss1 = residuals_1psr(
-                #     mass,
-                #     n_init,
-                #     e_init,
-                #     l0p,
-                #     proj1,
-                #     dl,
-                #     dp,
-                #     α,
-                #     z,
-                #     [EARTH, PULSAR],
-                #     tref,
-                #     tEs,
-                # )
-                # @test all(isapprox.(ss1, ss, atol = 1e-9))
+                Rs = residuals(
+                    mass,
+                    n_init,
+                    e_init,
+                    l0p,
+                    proj,
+                    dl,
+                    dp,
+                    psrpos,
+                    gwpos,
+                    z,
+                    [EARTH],
+                    tref,
+                    tEs,
+                )
+                @test all(isapprox.(Rs1, Rs))
 
                 # hs = waveform(
                 #     mass,
