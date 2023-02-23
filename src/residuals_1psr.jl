@@ -23,7 +23,7 @@ function ProjectionParams1psr(
     n0 = n_init.n
 
     dψ = acos(ap.Fp / α) / 2
-    ψ = proj.sc2ψ.x.θ + dψ
+    ψ = proj.sc2ψ.x.θ / 2 + dψ
 
     ci = proj.cosι
     c2ψ = cos(2 * ψ)
