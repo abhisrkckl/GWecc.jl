@@ -19,11 +19,11 @@ function ProjectionParams1psr(
 )
     H0 = gw_amplitude(mass, n_init, e_init, dl)
     ap = AntennaPattern(psrpos, gwpos)
-    α = (1 + ap.cosµ) / 2
-    n = n_init.n
+    α = sqrt(ap.Fp^2 + ap.Fx^2)
+    n0 = n_init.n
 
-    dψ = acos(dot([ap.Fp, ap.Fx], [α, 0]) / α^2) / 2
-    ψ = proj.sc2ψ.x.θ - dψ
+    dψ = acos(ap.Fp / α) / 2
+    ψ = proj.sc2ψ.x.θ + dψ
 
     ci = proj.cosι
     c2ψ = cos(2 * ψ)
@@ -39,7 +39,7 @@ function ProjectionParams1psr(
     σ = acos(β3 / β)
     ρ = atan(β2 / β1)
 
-    ζ0 = H0 * α * β / n
+    ζ0 = H0 * α * β / n0
 
     return ProjectionParams1psr(ζ0, σ, ρ)
 end
