@@ -1,11 +1,11 @@
 export ProjectionParams, SkyLocation, InitPhaseParams
-export ScaledTime, Time, Distance, Redshift, unredshifted_time_difference, extract
+export ScaledTime, Time, Distance, extract
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
 export Term, EARTH, PULSAR
 
-import Base.+, Base.-, Base.* # , Base./
+import Base.+, Base.-, Base.*
 
 "Dimensionless scaled time (Defined in Susobhanan+ 2020, Section IIC)"
 struct ScaledTime
@@ -166,16 +166,5 @@ struct Distance
     Distance(D::Float64) =
         D > 0 ? new(D) : throw(DomainError(D, "distance should be positive."))
 end
-
-"Cosmological redshift. Must be positive."
-struct Redshift
-    z::Float64
-    Redshift(z::Float64) =
-        z >= 0 ? new(z) : throw(DomainError(z, "redshift should be positive."))
-end
-
-"Apply redshift to a time difference"
-unredshifted_time_difference(t::Time, tref::Time, z::Redshift)::Time =
-    Time((t - tref).t / (1 + z.z))
 
 @enum Term EARTH PULSAR

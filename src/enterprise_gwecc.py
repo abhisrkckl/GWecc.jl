@@ -15,7 +15,7 @@ jl.seval("using GWecc")
 # This thin wrapper function is required because ENTERPRISE relies on reflection
 # of Python functions, which does not work properly with juliacall.
 @enterprise_function
-def eccentric_pta_signal_planck18_1psr(
+def eccentric_pta_signal_1psr(
     toas,
     pdist,
     alpha,
@@ -30,7 +30,7 @@ def eccentric_pta_signal_planck18_1psr(
     l0,
     lp,
     tref,
-    log10_zc,
+    log10_dl,
     psrTerm=False,
     spline=False,
 ):
@@ -49,7 +49,7 @@ def eccentric_pta_signal_planck18_1psr(
         float(l0),
         float(lp),
         float(tref),
-        float(log10_zc),
+        float(log10_dl),
         psrTerm,
         spline,
     )
@@ -58,7 +58,7 @@ def eccentric_pta_signal_planck18_1psr(
 # This thin wrapper function is required because ENTERPRISE relies on reflection
 # of Python functions, which does not work properly with juliacall.
 @enterprise_function
-def eccentric_pta_signal_planck18(
+def eccentric_pta_signal(
     toas,
     theta,
     phi,
@@ -76,11 +76,11 @@ def eccentric_pta_signal_planck18(
     l0,
     lp,
     tref,
-    log10_zc,
+    log10_dl,
     psrTerm=False,
     spline=False,
 ):
-    return jl.eccentric_pta_signal_planck18(
+    return jl.eccentric_pta_signal(
         toas,
         float(theta),
         float(phi),
@@ -98,7 +98,7 @@ def eccentric_pta_signal_planck18(
         float(l0),
         float(lp),
         float(tref),
-        float(log10_zc),
+        float(log10_dl),
         psrTerm,
         spline,
     )
@@ -117,7 +117,7 @@ def gwecc_1psr_block(
     gammap=Uniform(0, np.pi),
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     lp=Uniform(0, 2 * np.pi),
-    log10_zc=Uniform(-4, -3)("gwecc_log10_zc"),
+    log10_dl=Uniform(13, 18)("gwecc_log10_dl"),
     psrTerm=False,
     spline=False,
     name="gwecc",
@@ -127,7 +127,7 @@ def gwecc_1psr_block(
     gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
 
     return Deterministic(
-        eccentric_pta_signal_planck18_1psr(
+        eccentric_pta_signal_1psr(
             alpha=alpha,
             psi=psi,
             cos_inc=cos_inc,
@@ -140,7 +140,7 @@ def gwecc_1psr_block(
             l0=l0,
             lp=lp,
             tref=tref,
-            log10_zc=log10_zc,
+            log10_dl=log10_dl,
             psrTerm=psrTerm,
             spline=spline,
         ),
@@ -162,7 +162,7 @@ def gwecc_block(
     gammap=Uniform(0, np.pi),
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     lp=Uniform(0, 2 * np.pi),
-    log10_zc=Uniform(-4, -3)("gwecc_log10_zc"),
+    log10_dl=Uniform(-4, -3)("gwecc_log10_dl"),
     psrTerm=False,
     spline=False,
     name="gwecc",
@@ -172,7 +172,7 @@ def gwecc_block(
     gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
 
     return Deterministic(
-        eccentric_pta_signal_planck18(
+        eccentric_pta_signal(
             cos_gwtheta=cos_gwtheta,
             gwphi=gwphi,
             psi=psi,
@@ -186,7 +186,7 @@ def gwecc_block(
             l0=l0,
             lp=lp,
             tref=tref,
-            log10_zc=log10_zc,
+            log10_dl=log10_dl,
             psrTerm=psrTerm,
             spline=spline,
         ),
