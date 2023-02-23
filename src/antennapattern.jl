@@ -21,22 +21,22 @@ function gw_polarization_tensors(pos::SkyLocation)
     e11p = (sin(λ)^2) - (cos(λ)^2) * (sin(β)^2)
     e21p = -sin(λ) * cos(λ) * ((sin(β)^2) + 1)
     e31p = cos(λ) * sin(β) * cos(β)
-    e12p = -sin(λ) * cos(λ) * ((sin(β)^2) + 1)
+    e12p = e12p
     e22p = (cos(λ)^2) - (sin(λ)^2) * (sin(β)^2)
     e32p = sin(λ) * sin(β) * cos(β)
-    e13p = cos(λ) * sin(β) * cos(β)
-    e23p = sin(λ) * sin(β) * cos(β)
+    e13p = e31p
+    e23p = e32p
     e33p = -(cos(β)^2)
 
     e11c = sin(2 * λ) * sin(β)
     e21c = -cos(2 * λ) * sin(β)
     e31c = -sin(λ) * cos(β)
-    e12c = -cos(2 * λ) * sin(β)
+    e12c = e21c
     e22c = -sin(2 * λ) * sin(β)
     e32c = cos(λ) * cos(β)
-    e13c = -sin(λ) * cos(β)
-    e23c = cos(λ) * cos(β)
-    e33c = 0
+    e13c = e31c
+    e23c = e32c
+    e33c = 0.0
 
     ep = [e11p e12p e13p; e21p e22p e23p; e31p e32p e33p]
     ec = [e11c e12c e13c; e21c e22c e23c; e31c e32c e33c]
