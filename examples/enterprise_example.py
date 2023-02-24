@@ -22,7 +22,7 @@ e0 = 0.3
 gamma0 = gammap = 0.0
 l0 = lp = 0.0
 tref = max(toas)
-log10_dl = -15
+log10_dl = 12
 res = eccentric_pta_signal_1psr(
     toas,
     pdist,
