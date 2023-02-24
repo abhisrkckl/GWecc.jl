@@ -8,8 +8,8 @@ from enterprise.signals.white_signals import MeasurementNoise
 from enterprise.signals.signal_base import PTA
 
 from enterprise_gwecc import (
-    eccentric_pta_signal_planck18,
-    eccentric_pta_signal_planck18_1psr,
+    eccentric_pta_signal,
+    eccentric_pta_signal_1psr,
     gwecc_block,
     gwecc_1psr_block,
 )
@@ -40,29 +40,29 @@ e0 = 0.3
 gamma0 = gammap = 0.0
 l0 = lp = 0.0
 tref = max(toas)
-log10_zc = -2.0
+log10_dl = -15.0
 
 
 @pytest.mark.parametrize(
     "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
 )
-def test_eccentric_pta_signal_planck18_1psr(psrTerm, spline):
-    res = eccentric_pta_signal_planck18_1psr(
-        toas,
-        pdist,
-        alpha,
-        psi,
-        cos_inc,
-        log10_M,
-        eta,
-        log10_F,
-        e0,
-        gamma0,
-        gammap,
-        l0,
-        lp,
-        tref,
-        log10_zc,
+def test_eccentric_pta_signal_1psr(psrTerm, spline):
+    res = eccentric_pta_signal_1psr(
+        toas=toas,
+        pdist=pdist,
+        alpha=alpha,
+        psi=psi,
+        cos_inc=cos_inc,
+        log10_M=log10_M,
+        eta=eta,
+        log10_F=log10_F,
+        e0=e0,
+        gamma0=gamma0,
+        gammap=gammap,
+        l0=l0,
+        lp=lp,
+        tref=tref,
+        log10_dl=log10_dl,
         psrTerm=psrTerm,
         spline=spline,
     )
@@ -72,8 +72,8 @@ def test_eccentric_pta_signal_planck18_1psr(psrTerm, spline):
 @pytest.mark.parametrize(
     "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
 )
-def test_eccentric_pta_signal_planck18(psrTerm, spline):
-    res = eccentric_pta_signal_planck18(
+def test_eccentric_pta_signal(psrTerm, spline):
+    res = eccentric_pta_signal(
         toas,
         theta,
         phi,
@@ -91,7 +91,7 @@ def test_eccentric_pta_signal_planck18(psrTerm, spline):
         l0,
         lp,
         tref,
-        log10_zc,
+        log10_dl,
         psrTerm=psrTerm,
         spline=spline,
     )

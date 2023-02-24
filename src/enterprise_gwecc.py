@@ -34,7 +34,7 @@ def eccentric_pta_signal_1psr(
     psrTerm=False,
     spline=False,
 ):
-    return jl.eccentric_pta_signal_planck18_1psr(
+    return jl.eccentric_pta_signal_1psr(
         toas,
         float(pdist[0] if isinstance(pdist, tuple) else pdist),
         float(alpha),
