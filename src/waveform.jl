@@ -1,4 +1,4 @@
-export gw_amplitude, waveform_coeffs_c, waveform_px, waveform, waveform_1psr
+export gw_amplitude, gwres_amplitude_ratio, waveform_coeffs_c, waveform_px, waveform, waveform_1psr
 
 "GW amplitude"
 function gw_amplitude(
@@ -13,17 +13,17 @@ function gw_amplitude(
     return m * η * x / dgw
 end
 
-function gw_amplitude_ratio(
-    mass::Mass,
-    n0::MeanMotion,
-    e0::Eccentricity,
-    n1::MeanMotion,
-    e1::Eccentricity,
-)
-    x0 = pn_param_x(mass, n0, e0).x
-    x1 = pn_param_x(mass, n1, e1).x
-    return x1 / x0
-end
+# function gw_amplitude_ratio(
+#     mass::Mass,
+#     n0::MeanMotion,
+#     e0::Eccentricity,
+#     n1::MeanMotion,
+#     e1::Eccentricity,
+# )
+#     x0 = pn_param_x(mass, n0, e0).x
+#     x1 = pn_param_x(mass, n1, e1).x
+#     return x1 / x0
+# end
 
 function gwres_amplitude_ratio(
     mass::Mass,
