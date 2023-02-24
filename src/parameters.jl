@@ -124,13 +124,16 @@ end
 inclination, and the initial periastron angles of the 
 earth and the pulsar terms."""
 struct ProjectionParams
+    S0::Float64
     sc2ψ::SinCos
     cosι::Float64
     γ0::Float64
     γp::Float64
 
-    function ProjectionParams(ψ::Float64, cosι::Float64, γ0::Float64, γp::Float64)
-        if !(ψ >= -π && ψ < π)
+    function ProjectionParams(S0::Float64, ψ::Float64, cosι::Float64, γ0::Float64, γp::Float64)
+        if S0 <= 0
+            throw(DomainError(S0, "S0 out of range."))
+        elseif !(ψ >= -π && ψ < π)
             throw(DomainError(ψ, "ψ out of range."))
         elseif !(cosι >= -1 && cosι <= 1)
             throw(DomainError(cosι, "cosι out of range."))
@@ -139,7 +142,7 @@ struct ProjectionParams
         elseif !(γp >= -π && γp <= π)
             throw(DomainError(γp, "γp out of range."))
         else
-            return new(SinCos(Angle(2 * ψ)), cosι, γ0, γp)
+            return new(S0, SinCos(Angle(2 * ψ)), cosι, γ0, γp)
         end
     end
 end

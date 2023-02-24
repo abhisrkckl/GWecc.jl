@@ -43,7 +43,6 @@ function residual_px(
     coeffs::EvolvCoeffs,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     psrterm::Bool,
     dt::Time,
 )
@@ -56,8 +55,9 @@ function residual_px(
     sA0, sA1, sA2 = residual_A(e, phase)
     a0, a1, a2 = waveform_coeffs_c(proj)
 
-    h0 = gw_amplitude(mass, n, e, dl)
-    s0 = h0 / n.n
+    # h0 = gw_amplitude(mass, n, e, dl)
+    c = gwres_amplitude_ratio(mass, coeffs.n_init, coeffs.e_init, n, e)
+    s0 = proj.S0 * c
 
     sA = s0 * (a1 * sA1 + a0 * sA0)
     sB = s0 * (a2 * sA2)
@@ -75,7 +75,6 @@ function residual_and_waveform_px(
     coeffs::EvolvCoeffs,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     psrterm::Bool,
     dt::Time,
 )
@@ -89,8 +88,9 @@ function residual_and_waveform_px(
     hA0, hA1, hA2 = waveform_A(e, phase)
     a0, a1, a2 = waveform_coeffs_c(proj)
 
-    h0 = gw_amplitude(mass, n, e, dl)
-    s0 = h0 / n.n
+    c = gwres_amplitude_ratio(mass, coeffs.n_init, coeffs.e_init, n, e)
+    s0 = proj.S0 * c
+    h0 = s0 * n.n
 
     sA = s0 * (a1 * sA1 + a0 * sA0)
     sB = s0 * (a2 * sA2)
@@ -115,7 +115,6 @@ function residual(
     coeffs::EvolvCoeffs,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     ap::AntennaPattern,
     terms::Vector{Term},
     Δp::Time,
@@ -125,14 +124,14 @@ function residual(
     sx = 0.0
 
     if EARTH in terms
-        spE, sxE = residual_px(mass, coeffs, l0p, proj, dl, false, dt)
+        spE, sxE = residual_px(mass, coeffs, l0p, proj, false, dt)
         sp = sp + spE
         sx = sx + sxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
+        spP, sxP = residual_px(mass, coeffs, l0p, proj, true, dtp)
         sp = sp - spP
         sx = sx - sxP
     end
@@ -145,7 +144,6 @@ function residual_and_waveform(
     coeffs::EvolvCoeffs,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     ap::AntennaPattern,
     terms::Vector{Term},
     Δp::Time,
@@ -158,7 +156,7 @@ function residual_and_waveform(
 
     if EARTH in terms
         spE, sxE, hpE, hxE =
-            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+            residual_and_waveform_px(mass, coeffs, l0p, proj, false, dt)
         sp = sp + spE
         sx = sx + sxE
         hp = hp + hpE
@@ -168,7 +166,7 @@ function residual_and_waveform(
     if PULSAR in terms
         dtp = dt + Δp
         spP, sxP, hpP, hxP =
-            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+            residual_and_waveform_px(mass, coeffs, l0p, proj, true, dtp)
         sp = sp - spP
         sx = sx - sxP
         hp = hp - hpP
@@ -187,7 +185,6 @@ function residual_1psr(
     coeffs::EvolvCoeffs,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     α::AzimuthParam,
     terms::Vector{Term},
     Δp::Time,
@@ -197,14 +194,14 @@ function residual_1psr(
     # sx = 0.0
 
     if EARTH in terms
-        spE, sxE = residual_px(mass, coeffs, l0p, proj, dl, false, dt)
+        spE, sxE = residual_px(mass, coeffs, l0p, proj, false, dt)
         sp = sp + spE
         # sx = sx + sxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
+        spP, sxP = residual_px(mass, coeffs, l0p, proj, true, dtp)
         sp = sp - spP
         # sx = sx - sxP
     end
@@ -218,7 +215,6 @@ function residual_and_waveform_1psr(
     coeffs::EvolvCoeffs,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     α::AzimuthParam,
     terms::Vector{Term},
     Δp::Time,
@@ -229,7 +225,7 @@ function residual_and_waveform_1psr(
 
     if EARTH in terms
         spE, sxE, hpE, hxE =
-            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+            residual_and_waveform_px(mass, coeffs, l0p, proj, false, dt)
         sp = sp + spE
         hp = hp + hpE
     end
@@ -238,7 +234,7 @@ function residual_and_waveform_1psr(
         dtp = dt + Δp
 
         spP, sxP, hpP, hxP =
-            residual_and_waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+            residual_and_waveform_px(mass, coeffs, l0p, proj, true, dtp)
         sp = sp - spP
         hp = hp - hpP
     end
@@ -256,7 +252,6 @@ function residuals_px(
     e_init::Eccentricity,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
@@ -272,7 +267,7 @@ function residuals_px(
     psrterm = term == PULSAR
     delay = psrterm ? pulsar_term_delay(ap, dp) : Time(0.0)
 
-    spxs = [residual_px(mass, coeffs, l0p, proj, dl, psrterm, dt + delay) for dt in dts]
+    spxs = [residual_px(mass, coeffs, l0p, proj, psrterm, dt + delay) for dt in dts]
     sps = first.(spxs)
     sxs = last.(spxs)
 
@@ -286,7 +281,6 @@ function residuals(
     e_init::Eccentricity,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
@@ -300,7 +294,7 @@ function residuals(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp)
 
-    ss = [residual(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
+    ss = [residual(mass, coeffs, l0p, proj, ap, terms, Δp, dt) for dt in dts]
 
     return ss
 end
@@ -312,7 +306,6 @@ function residuals_and_waveform(
     e_init::Eccentricity,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
@@ -327,7 +320,7 @@ function residuals_and_waveform(
     Δp = pulsar_term_delay(ap, dp)
 
     shs = [
-        residual_and_waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts
+        residual_and_waveform(mass, coeffs, l0p, proj, ap, terms, Δp, dt) for dt in dts
     ]
 
     ss = [sh[1] for sh in shs]
@@ -343,7 +336,6 @@ function residuals_1psr(
     e_init::Eccentricity,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     dp::Distance,
     α::AzimuthParam,
     terms::Vector{Term},
@@ -355,7 +347,7 @@ function residuals_1psr(
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     Δp = pulsar_term_delay(α, dp)
 
-    ss = [residual_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) for dt in dts]
+    ss = [residual_1psr(mass, coeffs, l0p, proj, α, terms, Δp, dt) for dt in dts]
 
     return ss
 end
@@ -367,7 +359,6 @@ function residuals_and_waveform_1psr(
     e_init::Eccentricity,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     dp::Distance,
     α::AzimuthParam,
     terms::Vector{Term},
@@ -380,7 +371,7 @@ function residuals_and_waveform_1psr(
     Δp = pulsar_term_delay(α, dp)
 
     shs = [
-        residual_and_waveform_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) for
+        residual_and_waveform_1psr(mass, coeffs, l0p, proj, α, terms, Δp, dt) for
         dt in dts
     ]
 
