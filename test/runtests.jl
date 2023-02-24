@@ -39,10 +39,11 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         end
 
         @testset "projection params" begin
-            @test_throws DomainError ProjectionParams(4.0, 0.3, 1.0, 1.0)
-            @test_throws DomainError ProjectionParams(1.0, 1.1, 1.0, 1.0)
-            @test_throws DomainError ProjectionParams(1.0, 0.3, 4.0, 1.0)
-            @test_throws DomainError ProjectionParams(1.0, 0.3, 1.0, 4.0)
+            @test_throws DomainError ProjectionParams(-1e-9, 1.0, 0.3, 1.0, 1.0)
+            @test_throws DomainError ProjectionParams(1e-9, 4.0, 0.3, 1.0, 1.0)
+            @test_throws DomainError ProjectionParams(1e-9, 1.0, 1.1, 1.0, 1.0)
+            @test_throws DomainError ProjectionParams(1e-9, 1.0, 0.3, 4.0, 1.0)
+            @test_throws DomainError ProjectionParams(1e-9, 1.0, 0.3, 1.0, 4.0)
         end
 
         @testset "sky location params" begin
@@ -324,10 +325,17 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         l_init = Angle(0.1)
         γ_init = Angle(1.25)
         coeffs = EvolvCoeffs(mass, n_init, e_init)
-        dl = Distance(1e16)
+        dl = Distance(1e15)
 
         h0 = gw_amplitude(mass, n_init, e_init, dl)
         @test h0 > 0
+
+        n1 = MeanMotion(2e-8)
+        e1 = Eccentricity(0.09)
+        h1 = gw_amplitude(mass, n1, e1, dl)
+
+        c01 = gwres_amplitude_ratio(mass, n_init, e_init, n1, e1)
+        @test c01 ≈ (h1 / h0) / (n1.n / n_init.n)
 
         ra_p = 1.5
         dec_p = -0.8
@@ -345,7 +353,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         cosι = 0.52
         γ0 = γ_init.θ
         γp = γ0 + 0.2
-        proj = ProjectionParams(ψ, cosι, γ0, γp)
+        S0 = 1e-9
+        proj = ProjectionParams(S0, ψ, cosι, γ0, γp)
 
         l0p = InitPhaseParams(l_init.θ, l_init.θ)
 
@@ -357,23 +366,23 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         @testset "single point functions" begin
 
-            sE = residual(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
-            sP = residual(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
-            s = residual(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
+            sE = residual(mass, coeffs, l0p, proj, ap, [EARTH], Δp, dt)
+            sP = residual(mass, coeffs, l0p, proj, ap, [PULSAR], Δp, dt)
+            s = residual(mass, coeffs, l0p, proj, ap, [EARTH, PULSAR], Δp, dt)
             @test s ≈ sP + sE
 
-            spE, sxE = residual_px(mass, coeffs, l0p, proj, dl, false, dt)
-            spP, sxP = residual_px(mass, coeffs, l0p, proj, dl, true, dtp)
+            spE, sxE = residual_px(mass, coeffs, l0p, proj, false, dt)
+            spP, sxP = residual_px(mass, coeffs, l0p, proj, true, dtp)
             @test sP ≈ -(ap.Fp * spP + ap.Fx * sxP)
             @test sE ≈ (ap.Fp * spE + ap.Fx * sxE)
 
-            hE = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH], Δp, dt)
-            hP = waveform(mass, coeffs, l0p, proj, dl, ap, [PULSAR], Δp, dt)
-            h = waveform(mass, coeffs, l0p, proj, dl, ap, [EARTH, PULSAR], Δp, dt)
+            hE = waveform(mass, coeffs, l0p, proj, ap, [EARTH], Δp, dt)
+            hP = waveform(mass, coeffs, l0p, proj, ap, [PULSAR], Δp, dt)
+            h = waveform(mass, coeffs, l0p, proj, ap, [EARTH, PULSAR], Δp, dt)
             @test h ≈ hP + hE
 
-            hpE, hxE = waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
-            hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+            hpE, hxE = waveform_px(mass, coeffs, l0p, proj, false, dt)
+            hpP, hxP = waveform_px(mass, coeffs, l0p, proj, true, dtp)
             @test hP ≈ -(ap.Fp * hpP + ap.Fx * hxP)
             @test hE ≈ (ap.Fp * hpE + ap.Fx * hxE)
         end
@@ -385,7 +394,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 e_init,
                 l0p,
                 proj,
-                dl,
                 dp,
                 psrpos,
                 gwpos,
@@ -399,7 +407,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 e_init,
                 l0p,
                 proj,
-                dl,
                 dp,
                 psrpos,
                 gwpos,
@@ -413,7 +420,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 e_init,
                 l0p,
                 proj,
-                dl,
                 dp,
                 psrpos,
                 gwpos,
@@ -430,7 +436,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 e_init,
                 l0p,
                 proj,
-                dl,
                 dp,
                 psrpos,
                 gwpos,
@@ -446,7 +451,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 e_init,
                 l0p,
                 proj,
-                dl,
                 dp,
                 psrpos,
                 gwpos,
@@ -460,7 +464,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 e_init,
                 l0p,
                 proj,
-                dl,
                 dp,
                 psrpos,
                 gwpos,
@@ -474,7 +477,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 e_init,
                 l0p,
                 proj,
-                dl,
                 dp,
                 psrpos,
                 gwpos,
@@ -491,7 +493,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 e_init,
                 l0p,
                 proj,
-                dl,
                 dp,
                 psrpos,
                 gwpos,
@@ -511,7 +512,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -525,7 +525,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -539,7 +538,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -553,7 +551,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -569,7 +566,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     n_init,
                     e_init,
                     l0p,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -584,14 +580,13 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @testset "1psr functions" begin
             for e_init in Eccentricity.([0.1, 0.4, 0.8])
                 dψ = acos(dot([ap.Fp, ap.Fx], [α.α, 0]) / α.α^2) / 2
-                proj1 = ProjectionParams(ψ + dψ, cosι, γ0, γp)
+                proj1 = ProjectionParams(S0, ψ + dψ, cosι, γ0, γp)
                 ss = residuals(
                     mass,
                     n_init,
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -605,7 +600,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj1,
-                    dl,
                     dp,
                     α,
                     [EARTH, PULSAR],
@@ -620,7 +614,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -634,7 +627,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj1,
-                    dl,
                     dp,
                     α,
                     [EARTH, PULSAR],
@@ -649,7 +641,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj1,
-                    dl,
                     dp,
                     α,
                     [EARTH, PULSAR],
@@ -674,7 +665,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -688,7 +678,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -712,7 +701,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -726,7 +714,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -755,7 +742,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -769,7 +755,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     psrpos,
                     gwpos,
@@ -785,7 +770,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     α,
                     [term],
@@ -798,7 +782,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     e_init,
                     l0p,
                     proj,
-                    dl,
                     dp,
                     α,
                     [term],

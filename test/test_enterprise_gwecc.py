@@ -40,7 +40,7 @@ e0 = 0.3
 gamma0 = gammap = 0.0
 l0 = lp = 0.0
 tref = max(toas)
-log10_dl = -15.0
+log10_A = -9.0
 
 
 @pytest.mark.parametrize(
@@ -62,7 +62,7 @@ def test_eccentric_pta_signal_1psr(psrTerm, spline):
         l0=l0,
         lp=lp,
         tref=tref,
-        log10_dl=log10_dl,
+        log10_A=log10_A,
         psrTerm=psrTerm,
         spline=spline,
     )
@@ -91,7 +91,7 @@ def test_eccentric_pta_signal(psrTerm, spline):
         l0,
         lp,
         tref,
-        log10_dl,
+        log10_A,
         psrTerm=psrTerm,
         spline=spline,
     )

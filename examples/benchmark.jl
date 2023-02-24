@@ -6,7 +6,6 @@ n_init = MeanMotion(1e-8)
 e_init = Eccentricity(0.1)
 l_init = Angle(0.1)
 γ_init = Angle(1.25)
-dl = Distance(1e16)
 
 ra_p = 1.5
 dec_p = -0.8
@@ -22,7 +21,8 @@ ap = AntennaPattern(psrpos, gwpos)
 cosι = 0.52
 γ0 = γ_init.θ
 γp = γ0 + 0.2
-proj = ProjectionParams(ψ, cosι, γ0, γp)
+S0 = 1e-9
+proj = ProjectionParams(S0, ψ, cosι, γ0, γp)
 
 l0p = InitPhaseParams(l_init.θ, l_init.θ)
 
@@ -35,15 +35,14 @@ tEs = Time.(_tEs)
 
 term = EARTH
 
-hs = waveform(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [term], tref, tEs)
-rs = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [term], tref, tEs)
+hs = waveform(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [term], tref, tEs)
+rs = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [term], tref, tEs)
 rs, hs = residuals_and_waveform(
     mass,
     n_init,
     e_init,
     l0p,
     proj,
-    dl,
     dp,
     psrpos,
     gwpos,
@@ -51,52 +50,14 @@ rs, hs = residuals_and_waveform(
     tref,
     tEs,
 )
-rs_spl = residuals_spline(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    [term],
-    tref,
-    tEs,
-)
+rs_spl =
+    residuals_spline(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [term], tref, tEs)
 
 print("waveform :: ")
-@btime waveform(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    [term],
-    tref,
-    tEs,
-)
+@btime waveform(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [term], tref, tEs)
 
 print("residuals :: ")
-@btime residuals(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    [term],
-    tref,
-    tEs,
-)
+@btime residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [term], tref, tEs)
 
 print("residuals_and_waveform :: ")
 @btime residuals_and_waveform(
@@ -105,7 +66,6 @@ print("residuals_and_waveform :: ")
     e_init,
     l0p,
     proj,
-    dl,
     dp,
     psrpos,
     gwpos,
@@ -121,7 +81,6 @@ print("residuals_spline :: ")
     e_init,
     l0p,
     proj,
-    dl,
     dp,
     psrpos,
     gwpos,

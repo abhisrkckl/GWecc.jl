@@ -1,4 +1,5 @@
-export gw_amplitude, waveform_coeffs_c, waveform_px, waveform, waveform_1psr
+export gw_amplitude,
+    gwres_amplitude_ratio, waveform_coeffs_c, waveform_px, waveform, waveform_1psr
 
 "GW amplitude"
 function gw_amplitude(
@@ -11,6 +12,30 @@ function gw_amplitude(
     dgw = dl.D
     x = pn_param_x(mass, norb, ecc).x
     return m * η * x / dgw
+end
+
+# function gw_amplitude_ratio(
+#     mass::Mass,
+#     n0::MeanMotion,
+#     e0::Eccentricity,
+#     n1::MeanMotion,
+#     e1::Eccentricity,
+# )
+#     x0 = pn_param_x(mass, n0, e0).x
+#     x1 = pn_param_x(mass, n1, e1).x
+#     return x1 / x0
+# end
+
+function gwres_amplitude_ratio(
+    mass::Mass,
+    n0::MeanMotion,
+    e0::Eccentricity,
+    n1::MeanMotion,
+    e1::Eccentricity,
+)
+    x0 = pn_param_x(mass, n0, e0).x
+    x1 = pn_param_x(mass, n1, e1).x
+    return (x1 / x0) / (n1.n / n0.n)
 end
 
 "Waveform coefficients that depend on the inclination"
@@ -47,7 +72,6 @@ function waveform_px(
     coeffs::EvolvCoeffs,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     psrterm::Bool,
     dt::Time,
 )
@@ -60,7 +84,9 @@ function waveform_px(
     hA0, hA1, hA2 = waveform_A(e, phase)
     a0, a1, a2 = waveform_coeffs_c(proj)
 
-    h0 = gw_amplitude(mass, n, e, dl)
+    c = gwres_amplitude_ratio(mass, coeffs.n_init, coeffs.e_init, n, e)
+    s0 = proj.S0 * c
+    h0 = s0 * n.n
 
     hA = h0 * (a1 * hA1 + a0 * hA0)
     hB = h0 * (a2 * hA2)
@@ -79,7 +105,6 @@ function waveform(
     coeffs::EvolvCoeffs,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     ap::AntennaPattern,
     terms::Vector{Term},
     Δp::Time,
@@ -89,14 +114,14 @@ function waveform(
     hx = 0.0
 
     if EARTH in terms
-        hpE, hxE = waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+        hpE, hxE = waveform_px(mass, coeffs, l0p, proj, false, dt)
         hp = hp + hpE
         hx = hx + hxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+        hpP, hxP = waveform_px(mass, coeffs, l0p, proj, true, dtp)
         hp = hp - hpP
         hx = hx - hxP
     end
@@ -110,7 +135,6 @@ function waveform_1psr(
     coeffs::EvolvCoeffs,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     α::AzimuthParam,
     terms::Vector{Term},
     Δp::Time,
@@ -120,14 +144,14 @@ function waveform_1psr(
     # hx = 0.0
 
     if EARTH in terms
-        hpE, hxE = waveform_px(mass, coeffs, l0p, proj, dl, false, dt)
+        hpE, hxE = waveform_px(mass, coeffs, l0p, proj, false, dt)
         hp = hp + hpE
         # hx = hx + hxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
-        hpP, hxP = waveform_px(mass, coeffs, l0p, proj, dl, true, dtp)
+        hpP, hxP = waveform_px(mass, coeffs, l0p, proj, true, dtp)
         hp = hp - hpP
         # hx = hx - hxP
     end
@@ -142,7 +166,6 @@ function waveform_px(
     e_init::Eccentricity,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
@@ -158,7 +181,7 @@ function waveform_px(
     psrterm = term == PULSAR
     delay = psrterm ? pulsar_term_delay(ap, dp) : Time(0.0)
 
-    hpxs = [waveform_px(mass, coeffs, l0p, proj, dl, psrterm, dt + delay) for dt in dts]
+    hpxs = [waveform_px(mass, coeffs, l0p, proj, psrterm, dt + delay) for dt in dts]
     hps = first.(hpxs)
     hxs = last.(hpxs)
 
@@ -172,7 +195,6 @@ function waveform(
     e_init::Eccentricity,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
@@ -186,7 +208,7 @@ function waveform(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp)
 
-    ss = [waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
+    ss = [waveform(mass, coeffs, l0p, proj, ap, terms, Δp, dt) for dt in dts]
 
     return ss
 end
@@ -198,7 +220,6 @@ function waveform_1psr(
     e_init::Eccentricity,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dl::Distance,
     dp::Distance,
     α::AzimuthParam,
     terms::Vector{Term},
@@ -210,7 +231,7 @@ function waveform_1psr(
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     Δp = pulsar_term_delay(α, dp)
 
-    ss = [waveform_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) for dt in dts]
+    ss = [waveform_1psr(mass, coeffs, l0p, proj, α, terms, Δp, dt) for dt in dts]
 
     return ss
 end

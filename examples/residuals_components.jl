@@ -13,7 +13,7 @@ e_init = Eccentricity(0.4)
 l0p = InitPhaseParams(0.0, 0.0)
 tref = Time(5000.0)
 
-proj = ProjectionParams(0.0, 1.0, 0.0, 0.0)
+proj = ProjectionParams(1e-9, 0.0, 1.0, 0.0, 0.0)
 
 ra_p = 1.5
 dec_p = -0.8
@@ -23,71 +23,19 @@ psrpos = SkyLocation(ra_p, dec_p)
 gwpos = SkyLocation(ra_gw, dec_gw)
 
 dp = Distance(500 * parsec)
-dl = Distance(1e9 * parsec)
 
 tEs = Time.(LinRange(0, 10 * year, 5000))
 tyrs = [t.t for t in tEs] / year
 
-𝒜Es = residuals_components_𝒜(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    EARTH,
-    tref,
-    tEs,
-)
-𝒜Ps = residuals_components_𝒜(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    PULSAR,
-    tref,
-    tEs,
-)
+𝒜Es = residuals_components_𝒜(mass, n_init, e_init, l0p, dp, psrpos, gwpos, EARTH, tref, tEs)
+𝒜Ps =
+    residuals_components_𝒜(mass, n_init, e_init, l0p, dp, psrpos, gwpos, PULSAR, tref, tEs)
 
-sEs1 =
-    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [EARTH], tref, tEs)
-sPs1 = residuals(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    [PULSAR],
-    tref,
-    tEs,
-)
+sEs1 = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [EARTH], tref, tEs)
+sPs1 = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [PULSAR], tref, tEs)
 
-sEs2 =
-    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [EARTH], tref, tEs)
-sPs2 = residuals(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    [PULSAR],
-    tref,
-    tEs,
-)
+sEs2 = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [EARTH], tref, tEs)
+sPs2 = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [PULSAR], tref, tEs)
 
 subplot(221)
 for (idx, 𝒜E) in enumerate(𝒜Es)

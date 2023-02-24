@@ -12,7 +12,7 @@ n_init = MeanMotion(2 * π / (2 * year))
 l0p = InitPhaseParams(0.0, 0.0)
 tref = Time(5000.0)
 
-proj = ProjectionParams(0.0, 1.0, 0.0, 0.0)
+proj = ProjectionParams(1e-9, 0.0, 1.0, 0.0, 0.0)
 
 ra_p = 1.5
 dec_p = -0.8
@@ -22,48 +22,20 @@ psrpos = SkyLocation(ra_p, dec_p)
 gwpos = SkyLocation(ra_gw, dec_gw)
 
 dp = Distance(500 * parsec)
-dl = Distance(1e9 * parsec)
 
 tEs = Time.(LinRange(0, 10 * year, 5000))
 tyrs = [t.t for t in tEs] / year
 
 for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
 
-    sEs = residuals(
-        mass,
-        n_init,
-        e_init,
-        l0p,
-        proj,
-        dl,
-        dp,
-        psrpos,
-        gwpos,
-        [EARTH],
-        tref,
-        tEs,
-    )
-    sPs = residuals(
-        mass,
-        n_init,
-        e_init,
-        l0p,
-        proj,
-        dl,
-        dp,
-        psrpos,
-        gwpos,
-        [PULSAR],
-        tref,
-        tEs,
-    )
+    sEs = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [EARTH], tref, tEs)
+    sPs = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [PULSAR], tref, tEs)
     ss = residuals(
         mass,
         n_init,
         e_init,
         l0p,
         proj,
-        dl,
         dp,
         psrpos,
         gwpos,

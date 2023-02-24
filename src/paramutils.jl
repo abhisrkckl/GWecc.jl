@@ -14,10 +14,6 @@ function mean_motion_from_log10_freq(log10_F::Float64)::MeanMotion
     return MeanMotion(π * (10.0^log10_F))
 end
 
-function luminosity_dist_from_log10_dl(log10_dl::Float64)::Distance
-    return Distance(10^log10_dl)
-end
-
 function psrdist_from_pdist(pdist::Float64)::Distance
     dp = uconvert(u"s", pdist * u"kpc" / c_0).val
     return Distance(dp)
