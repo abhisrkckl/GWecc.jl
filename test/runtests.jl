@@ -335,7 +335,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         h1 = gw_amplitude(mass, n1, e1, dl)
 
         c01 = gwres_amplitude_ratio(mass, n_init, e_init, n1, e1)
-        @test c01 ≈ (h1/h0) / (n1.n/n_init.n)
+        @test c01 ≈ (h1 / h0) / (n1.n / n_init.n)
 
         ra_p = 1.5
         dec_p = -0.8

@@ -46,7 +46,7 @@ gwecc_params = {
     "l0": 0.0,
     "lp": 0.0,
     "tref": tref,
-    "log10_dl": 11.0,
+    "log10_A": -9,
 }
 with open(f"{output_dir}/true_gwecc_params.dat", "w") as outfile:
     json.dump(gwecc_params, outfile, indent=4)
