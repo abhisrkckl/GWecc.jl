@@ -67,36 +67,10 @@ rs_spl = residuals_spline(
 )
 
 print("waveform :: ")
-@btime waveform(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    [term],
-    tref,
-    tEs,
-)
+@btime waveform(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [term], tref, tEs)
 
 print("residuals :: ")
-@btime residuals(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    [term],
-    tref,
-    tEs,
-)
+@btime residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [term], tref, tEs)
 
 print("residuals_and_waveform :: ")
 @btime residuals_and_waveform(

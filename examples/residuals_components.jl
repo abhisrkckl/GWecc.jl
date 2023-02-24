@@ -55,39 +55,13 @@ tyrs = [t.t for t in tEs] / year
     tEs,
 )
 
-sEs1 =
-    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [EARTH], tref, tEs)
-sPs1 = residuals(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    [PULSAR],
-    tref,
-    tEs,
-)
+sEs1 = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [EARTH], tref, tEs)
+sPs1 =
+    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [PULSAR], tref, tEs)
 
-sEs2 =
-    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [EARTH], tref, tEs)
-sPs2 = residuals(
-    mass,
-    n_init,
-    e_init,
-    l0p,
-    proj,
-    dl,
-    dp,
-    psrpos,
-    gwpos,
-    [PULSAR],
-    tref,
-    tEs,
-)
+sEs2 = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [EARTH], tref, tEs)
+sPs2 =
+    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [PULSAR], tref, tEs)
 
 subplot(221)
 for (idx, 𝒜E) in enumerate(𝒜Es)

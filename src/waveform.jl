@@ -18,11 +18,11 @@ function gw_amplitude_ratio(
     n0::MeanMotion,
     e0::Eccentricity,
     n1::MeanMotion,
-    e1::Eccentricity
+    e1::Eccentricity,
 )
     x0 = pn_param_x(mass, n0, e0).x
     x1 = pn_param_x(mass, n1, e1).x
-    return x1/x0
+    return x1 / x0
 end
 
 function gwres_amplitude_ratio(
@@ -30,11 +30,11 @@ function gwres_amplitude_ratio(
     n0::MeanMotion,
     e0::Eccentricity,
     n1::MeanMotion,
-    e1::Eccentricity
+    e1::Eccentricity,
 )
     x0 = pn_param_x(mass, n0, e0).x
     x1 = pn_param_x(mass, n1, e1).x
-    return (x1/x0) / (n1.n/n0.n)
+    return (x1 / x0) / (n1.n / n0.n)
 end
 
 "Waveform coefficients that depend on the inclination"

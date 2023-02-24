@@ -91,25 +91,16 @@ function residuals_from_components(
 
     if EARTH in terms
         res =
-            res + [
-                residual_from_components(mass, coeffs, l0p, proj, ap, EARTH, dt) for
-                dt in dts
-            ]
+            res +
+            [residual_from_components(mass, coeffs, l0p, proj, ap, EARTH, dt) for dt in dts]
     end
 
     if PULSAR in terms
         delay = pulsar_term_delay(ap, dp)
         res =
             res + [
-                residual_from_components(
-                    mass,
-                    coeffs,
-                    l0p,
-                    proj,
-                    ap,
-                    PULSAR,
-                    dt + delay,
-                ) for dt in dts
+                residual_from_components(mass, coeffs, l0p, proj, ap, PULSAR, dt + delay)
+                for dt in dts
             ]
     end
 
