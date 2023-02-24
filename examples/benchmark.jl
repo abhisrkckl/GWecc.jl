@@ -17,7 +17,6 @@ gwpos = SkyLocation(ra_gw, dec_gw)
 dp = Distance(1e13)
 ap = AntennaPattern(psrpos, gwpos)
 α = AzimuthParam(ap)
-z = Redshift(0.1)
 
 ψ = 1.1
 cosι = 0.52
@@ -36,8 +35,8 @@ tEs = Time.(_tEs)
 
 term = EARTH
 
-hs = waveform(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tEs)
-rs = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [term], tref, tEs)
+hs = waveform(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [term], tref, tEs)
+rs = residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [term], tref, tEs)
 rs, hs = residuals_and_waveform(
     mass,
     n_init,
@@ -48,7 +47,6 @@ rs, hs = residuals_and_waveform(
     dp,
     psrpos,
     gwpos,
-    z,
     [term],
     tref,
     tEs,
@@ -63,7 +61,6 @@ rs_spl = residuals_spline(
     dp,
     psrpos,
     gwpos,
-    z,
     [term],
     tref,
     tEs,
@@ -80,7 +77,6 @@ print("waveform :: ")
     dp,
     psrpos,
     gwpos,
-    z,
     [term],
     tref,
     tEs,
@@ -97,7 +93,6 @@ print("residuals :: ")
     dp,
     psrpos,
     gwpos,
-    z,
     [term],
     tref,
     tEs,
@@ -114,7 +109,6 @@ print("residuals_and_waveform :: ")
     dp,
     psrpos,
     gwpos,
-    z,
     [term],
     tref,
     tEs,
@@ -131,7 +125,6 @@ print("residuals_spline :: ")
     dp,
     psrpos,
     gwpos,
-    z,
     [term],
     tref,
     tEs,
