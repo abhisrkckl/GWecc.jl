@@ -34,7 +34,7 @@ priors = {
     "l0": true_params["l0"],  # Uniform(0, 2 * np.pi)(f"{name}_l0"),
     "lp": 0.0,  # Uniform(0, 2 * np.pi),
     "tref": tref,
-    "log10_zc": Uniform(-5, -3)(f"{name}_log10_zc"),
+    "log10_dl": Uniform(13, 15)(f"{name}_log10_dl"),
 }
 
 tm = MarginalizingTimingModel()

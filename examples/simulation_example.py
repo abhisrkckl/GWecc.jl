@@ -13,8 +13,8 @@ import numpy as np
 import enterprise_gwecc as gwecc
 
 data_dir = "data"
-parfile = f"{data_dir}/JPSR00_sim.par"
-timfile = f"{data_dir}/JPSR00_sim.sim"
+parfile = f"{data_dir}/JPSR00_simulate.par"
+timfile = f"{data_dir}/JPSR00_simulate.tim"
 
 output_dir = "gwecc_sims"
 if not os.path.exists(output_dir):
@@ -26,9 +26,9 @@ print(psr.name)
 
 def save_psr_sim(psr, savedir):
     print("Writing simulated data for", psr.name)
-    psr.savepar(f"{savedir}/{psr.name}_simulate.par")
-    psr.savetim(f"{savedir}/{psr.name}_simulate.tim")
-    lst.purgetim(f"{savedir}/{psr.name}_simulate.tim")
+    psr.savepar(f"{savedir}/{psr.name}_simulate_1.par")
+    psr.savetim(f"{savedir}/{psr.name}_simulate_1.tim")
+    lst.purgetim(f"{savedir}/{psr.name}_simulate_1.tim")
 
 
 day_to_s = 24 * 3600
@@ -39,14 +39,14 @@ gwecc_params = {
     "cos_inc": 0.6,
     "log10_M": 8.9,
     "eta": 0.25,
-    "log10_F": -8.0,
+    "log10_F": -8.5,
     "e0": 0.5,
     "gamma0": 0.0,
     "gammap": 0.0,
     "l0": 0.0,
     "lp": 0.0,
     "tref": tref,
-    "log10_zc": -4.0,
+    "log10_dl": 11.0,
 }
 with open(f"{output_dir}/true_gwecc_params.dat", "w") as outfile:
     json.dump(gwecc_params, outfile, indent=4)
@@ -64,7 +64,7 @@ def add_gwecc_1psr(psr, gwecc_params, psrTerm=False):
 
     signal = (
         np.array(
-            gwecc.eccentric_pta_signal_planck18_1psr(
+            gwecc.eccentric_pta_signal_1psr(
                 toas=toas,
                 pdist=1.0,  # get_pdist(psr.name),
                 psrTerm=psrTerm,

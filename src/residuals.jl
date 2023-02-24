@@ -260,22 +260,21 @@ function residuals_px(
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
-    z::Redshift,
     term::Term,
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
 
     psrterm = term == PULSAR
-    delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
+    delay = psrterm ? pulsar_term_delay(ap, dp) : Time(0.0)
 
     spxs = [residual_px(mass, coeffs, l0p, proj, dl, psrterm, dt + delay) for dt in dts]
-    sps = first.(spxs) * (1 + z.z)
-    sxs = last.(spxs) * (1 + z.z)
+    sps = first.(spxs)
+    sxs = last.(spxs)
 
     return sps, sxs
 end
@@ -291,19 +290,17 @@ function residuals(
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
-    z::Redshift,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
-    Δp = pulsar_term_delay(ap, dp, z)
+    Δp = pulsar_term_delay(ap, dp)
 
-    ss =
-        [residual(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) * (1 + z.z) for dt in dts]
+    ss = [residual(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts]
 
     return ss
 end
@@ -319,22 +316,21 @@ function residuals_and_waveform(
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
-    z::Redshift,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
-    Δp = pulsar_term_delay(ap, dp, z)
+    Δp = pulsar_term_delay(ap, dp)
 
     shs = [
         residual_and_waveform(mass, coeffs, l0p, proj, dl, ap, terms, Δp, dt) for dt in dts
     ]
 
-    ss = [sh[1] * (1 + z.z) for sh in shs]
+    ss = [sh[1] for sh in shs]
     hs = [sh[2] for sh in shs]
 
     return ss, hs
@@ -350,20 +346,16 @@ function residuals_1psr(
     dl::Distance,
     dp::Distance,
     α::AzimuthParam,
-    z::Redshift,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
-    Δp = pulsar_term_delay(α, dp, z)
+    Δp = pulsar_term_delay(α, dp)
 
-    ss = [
-        residual_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) * (1 + z.z) for
-        dt in dts
-    ]
+    ss = [residual_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) for dt in dts]
 
     return ss
 end
@@ -378,22 +370,21 @@ function residuals_and_waveform_1psr(
     dl::Distance,
     dp::Distance,
     α::AzimuthParam,
-    z::Redshift,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
-    Δp = pulsar_term_delay(α, dp, z)
+    Δp = pulsar_term_delay(α, dp)
 
     shs = [
         residual_and_waveform_1psr(mass, coeffs, l0p, proj, dl, α, terms, Δp, dt) for
         dt in dts
     ]
 
-    ss = first.(shs) * (1 + z.z)
+    ss = first.(shs)
     hs = last.(shs)
 
     return ss, hs

@@ -23,7 +23,6 @@ gwpos = SkyLocation(ra_gw, dec_gw)
 
 dp = Distance(500 * parsec)
 dl = Distance(1e9 * parsec)
-z = Redshift(0.1)
 
 tEs = Time.(LinRange(0, 10 * year, 5000))
 tyrs = [t.t for t in tEs] / year
@@ -40,7 +39,6 @@ for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
         dp,
         psrpos,
         gwpos,
-        z,
         [EARTH],
         tref,
         tEs,
@@ -55,7 +53,6 @@ for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
         dp,
         psrpos,
         gwpos,
-        z,
         [PULSAR],
         tref,
         tEs,
@@ -70,7 +67,6 @@ for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
         dp,
         psrpos,
         gwpos,
-        z,
         [PULSAR, EARTH],
         tref,
         tEs,

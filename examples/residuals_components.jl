@@ -24,7 +24,6 @@ gwpos = SkyLocation(ra_gw, dec_gw)
 
 dp = Distance(500 * parsec)
 dl = Distance(1e9 * parsec)
-z = Redshift(0.1)
 
 tEs = Time.(LinRange(0, 10 * year, 5000))
 tyrs = [t.t for t in tEs] / year
@@ -38,7 +37,6 @@ tyrs = [t.t for t in tEs] / year
     dp,
     psrpos,
     gwpos,
-    z,
     EARTH,
     tref,
     tEs,
@@ -52,14 +50,13 @@ tyrs = [t.t for t in tEs] / year
     dp,
     psrpos,
     gwpos,
-    z,
     PULSAR,
     tref,
     tEs,
 )
 
 sEs1 =
-    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
+    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [EARTH], tref, tEs)
 sPs1 = residuals(
     mass,
     n_init,
@@ -70,14 +67,13 @@ sPs1 = residuals(
     dp,
     psrpos,
     gwpos,
-    z,
     [PULSAR],
     tref,
     tEs,
 )
 
 sEs2 =
-    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, z, [EARTH], tref, tEs)
+    residuals(mass, n_init, e_init, l0p, proj, dl, dp, psrpos, gwpos, [EARTH], tref, tEs)
 sPs2 = residuals(
     mass,
     n_init,
@@ -88,7 +84,6 @@ sPs2 = residuals(
     dp,
     psrpos,
     gwpos,
-    z,
     [PULSAR],
     tref,
     tEs,

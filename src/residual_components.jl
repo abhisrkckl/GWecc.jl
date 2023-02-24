@@ -79,12 +79,11 @@ function residuals_from_components(
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
-    z::Redshift,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [tE - tref for tE in tEs]
 
     res = zeros(length(tEs))
 
@@ -94,13 +93,13 @@ function residuals_from_components(
     if EARTH in terms
         res =
             res + [
-                residual_from_components(mass, coeffs, l0p, proj, dl, ap, EARTH, dt) *
-                (1 + z.z) for dt in dts
+                residual_from_components(mass, coeffs, l0p, proj, dl, ap, EARTH, dt) for
+                dt in dts
             ]
     end
 
     if PULSAR in terms
-        delay = pulsar_term_delay(ap, dp, z)
+        delay = pulsar_term_delay(ap, dp)
         res =
             res + [
                 residual_from_components(
@@ -112,7 +111,7 @@ function residuals_from_components(
                     ap,
                     PULSAR,
                     dt + delay,
-                ) * (1 + z.z) for dt in dts
+                ) for dt in dts
             ]
     end
 
@@ -129,18 +128,17 @@ function residuals_components_𝒜(
     dp::Distance,
     psrpos::SkyLocation,
     gwpos::SkyLocation,
-    z::Redshift,
     term::Term,
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [unredshifted_time_difference(tE, tref, z) for tE in tEs]
+    dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
 
     psrterm = term == PULSAR
-    delay = psrterm ? pulsar_term_delay(ap, dp, z) : Time(0.0)
+    delay = psrterm ? pulsar_term_delay(ap, dp) : Time(0.0)
 
     𝒜s = [residual_components_𝒜(mass, coeffs, l0p, ap, dl, term, dt + delay) for dt in dts]
 

@@ -17,23 +17,23 @@ psr = Pulsar(parfile, timfile)
 
 true_params = json.load(open("data/true_gwecc_params.dat", "r"))
 
-# Only log10_zc is allowed to here for demonstration.
+# Only log10_dl is allowed to here for demonstration.
 name = "gwecc"
 tref = max(psr.toas)
 priors = {
     "alpha": true_params["alpha"],  # Uniform(0, 1)(f"{name}_alpha"),
-    "psi": true_params["psi"], #  Uniform(-np.pi / 2, np.pi / 2)(f"{name}_psi"),  
-    "cos_inc": true_params["cos_inc"],   # Uniform(-1, 1)(f"{name}_cos_inc"), 
-    "log10_M": true_params["log10_M"], #  Uniform(6, 9)(f"{name}_log10_M"),
+    "psi": true_params["psi"],  #  Uniform(-np.pi / 2, np.pi / 2)(f"{name}_psi"),
+    "cos_inc": true_params["cos_inc"],  # Uniform(-1, 1)(f"{name}_cos_inc"),
+    "log10_M": true_params["log10_M"],  #  Uniform(6, 9)(f"{name}_log10_M"),
     "eta": true_params["eta"],  # Uniform(0, 0.25)(f"{name}_eta"),
-    "log10_F": true_params["log10_F"], #  Uniform(-9, -7)(f"{name}_log10_F"),
-    "e0": true_params["e0"],  # Uniform(0.4, 0.6)(f"{name}_e0"), 
+    "log10_F": true_params["log10_F"],  #  Uniform(-9, -7)(f"{name}_log10_F"),
+    "e0": true_params["e0"],  # Uniform(0.4, 0.6)(f"{name}_e0"),
     "gamma0": Uniform(0, np.pi)(f"{name}_gamma0"),  # true_params["gamma0"],
     "gammap": 0.0,  # Uniform(0, np.pi),
-    "l0": Uniform(-np.pi, np.pi)(f"{name}_l0"), # true_params["l0"], 
+    "l0": Uniform(-np.pi, np.pi)(f"{name}_l0"),  # true_params["l0"],
     "lp": 0.0,  # Uniform(0, 2 * np.pi),
     "tref": tref,
-    "log10_zc": Uniform(-5, -3)(f"{name}_log10_zc"),
+    "log10_dl": Uniform(13, 15)(f"{name}_log10_dl"),
 }
 
 tm = MarginalizingTimingModel()
