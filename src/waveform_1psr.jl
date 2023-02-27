@@ -1,45 +1,44 @@
-export waveform, residual, residuals, residual_and_waveform, residuals_and_waveform
+export waveform_1psr, residual_1psr, residuals_1psr, residual_and_waveform_1psr, residuals_and_waveform_1psr
 
-"PTA waveform."
-function waveform(
+"PTA waveform for single pulsar case."
+function waveform_1psr(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
-    ap::AntennaPattern,
     terms::Vector{Term},
     Δp::Time,
     dt::Time,
 )
     hp = 0.0
-    hx = 0.0
+    # hx = 0.0
+
+    l0p = InitPhaseParams(l_init.θ)
 
     if EARTH in terms
         hpE, hxE = waveform_px(mass, coeffs, l0p, proj, false, dt)
         hp = hp + hpE
-        hx = hx + hxE
+        # hx = hx + hxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
         hpP, hxP = waveform_px(mass, coeffs, l0p, proj, true, dtp)
         hp = hp - hpP
-        hx = hx - hxP
+        # hx = hx - hxP
     end
 
-    return ap.Fp * hp + ap.Fx * hx
+    return hp
 end
 
-"PTA waveform"
-function waveform(
+"PTA waveform for single pulsar case"
+function waveform_1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
-    dp::Distance,
-    psrpos::SkyLocation,
-    gwpos::SkyLocation,
+    Δp::Time,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
@@ -47,54 +46,51 @@ function waveform(
     dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
-    ap = AntennaPattern(psrpos, gwpos)
-    Δp = pulsar_term_delay(ap, dp)
 
-    ss = [waveform(mass, coeffs, l0p, proj, ap, terms, Δp, dt) for dt in dts]
+    ss = [waveform_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
 
     return ss
 end
 
-"PTA signal."
-function residual(
+"PTA signal for the single-pulsar case."
+function residual_1psr(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
-    ap::AntennaPattern,
     terms::Vector{Term},
     Δp::Time,
     dt::Time,
 )
     sp = 0.0
-    sx = 0.0
+    # sx = 0.0
+
+    l0p = InitPhaseParams(l_init.θ)
 
     if EARTH in terms
         spE, sxE = residual_px(mass, coeffs, l0p, proj, false, dt)
         sp = sp + spE
-        sx = sx + sxE
+        # sx = sx + sxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
         spP, sxP = residual_px(mass, coeffs, l0p, proj, true, dtp)
         sp = sp - spP
-        sx = sx - sxP
+        # sx = sx - sxP
     end
 
-    return ap.Fp * sp + ap.Fx * sx
+    return sp
 end
 
-"PTA signal"
-function residuals(
+"PTA signal for the single-pulsar case"
+function residuals_1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
-    dp::Distance,
-    psrpos::SkyLocation,
-    gwpos::SkyLocation,
+    Δp::Time,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
@@ -102,62 +98,55 @@ function residuals(
     dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
-    ap = AntennaPattern(psrpos, gwpos)
-    Δp = pulsar_term_delay(ap, dp)
 
-    ss = [residual(mass, coeffs, l0p, proj, ap, terms, Δp, dt) for dt in dts]
+    ss = [residual_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
 
     return ss
 end
 
-function residual_and_waveform(
+"PTA signal for the single-pulsar case."
+function residual_and_waveform_1psr(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
-    ap::AntennaPattern,
     terms::Vector{Term},
     Δp::Time,
     dt::Time,
 )
     sp = 0.0
-    sx = 0.0
     hp = 0.0
-    hx = 0.0
+
+    l0p = InitPhaseParams(l_init.θ)
 
     if EARTH in terms
         spE, sxE, hpE, hxE = residual_and_waveform_px(mass, coeffs, l0p, proj, false, dt)
         sp = sp + spE
-        sx = sx + sxE
         hp = hp + hpE
-        hx = hx + hxE
     end
 
     if PULSAR in terms
         dtp = dt + Δp
+
         spP, sxP, hpP, hxP = residual_and_waveform_px(mass, coeffs, l0p, proj, true, dtp)
         sp = sp - spP
-        sx = sx - sxP
         hp = hp - hpP
-        hx = hx - hxP
     end
 
-    s = ap.Fp * sp + ap.Fx * sx
-    h = ap.Fp * hp + ap.Fx * hx
+    s = sp
+    h = hp
 
     return s, h
 end
 
-"PTA waveform and PTA signal"
-function residuals_and_waveform(
+"PTA signal for the single-pulsar case"
+function residuals_and_waveform_1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
-    dp::Distance,
-    psrpos::SkyLocation,
-    gwpos::SkyLocation,
+    Δp::Time,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
@@ -165,13 +154,13 @@ function residuals_and_waveform(
     dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
-    ap = AntennaPattern(psrpos, gwpos)
-    Δp = pulsar_term_delay(ap, dp)
 
-    shs = [residual_and_waveform(mass, coeffs, l0p, proj, ap, terms, Δp, dt) for dt in dts]
+    shs = [
+        residual_and_waveform_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts
+    ]
 
-    ss = [sh[1] for sh in shs]
-    hs = [sh[2] for sh in shs]
+    ss = first.(shs)
+    hs = last.(shs)
 
     return ss, hs
 end
