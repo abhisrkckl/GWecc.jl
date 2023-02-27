@@ -117,7 +117,7 @@ function eccentric_pta_signal_1psr(
     e_init = Eccentricity(e0)
     l0p = InitPhaseParams(l0)
     proj = ProjectionParams(10^log10_A, psi, cos_inc, gamma0)
-    Δp = Time(deltap)
+    Δp = Time(-deltap)
     terms = psrTerm ? [EARTH, PULSAR] : [EARTH]
     tref = Time(tref)
     tEs = Time.(toas)
