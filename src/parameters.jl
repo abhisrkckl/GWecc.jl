@@ -154,12 +154,7 @@ struct ProjectionParams
         end
     end
 
-    function ProjectionParams(
-        S0::Float64,
-        ψ::Float64,
-        cosι::Float64,
-        γ0::Float64,
-    )
+    function ProjectionParams(S0::Float64, ψ::Float64, cosι::Float64, γ0::Float64)
         return ProjectionParams(S0, ψ, cosι, γ0, γ0)
     end
 end

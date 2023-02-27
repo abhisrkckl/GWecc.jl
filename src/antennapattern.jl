@@ -1,5 +1,9 @@
 export sky_direction_uvec,
-    gw_polarization_tensors, AntennaPattern, pulsar_term_delay, AzimuthParam, polarization_angle_shift_1psr
+    gw_polarization_tensors,
+    AntennaPattern,
+    pulsar_term_delay,
+    AzimuthParam,
+    polarization_angle_shift_1psr
 
 using LinearAlgebra
 

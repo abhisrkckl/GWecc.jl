@@ -765,7 +765,17 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 @test mismatch(rs, rs_spl) < 1e-3
 
                 Δp = pulsar_term_delay(α, dp)
-                rs = residuals_1psr(mass, n_init, e_init, l_init, proj, Δp, [term], tref, tEs)
+                rs = residuals_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l_init,
+                    proj,
+                    Δp,
+                    [term],
+                    tref,
+                    tEs,
+                )
                 rs_spl = residuals_1psr_spline(
                     mass,
                     n_init,
