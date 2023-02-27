@@ -41,6 +41,7 @@ gamma0 = gammap = 0.0
 l0 = lp = 0.0
 tref = max(toas)
 log10_A = -9.0
+deltap = 100 * year
 
 
 @pytest.mark.parametrize(
@@ -49,8 +50,6 @@ log10_A = -9.0
 def test_eccentric_pta_signal_1psr(psrTerm, spline):
     res = eccentric_pta_signal_1psr(
         toas=toas,
-        pdist=pdist,
-        alpha=alpha,
         psi=psi,
         cos_inc=cos_inc,
         log10_M=log10_M,
@@ -58,11 +57,10 @@ def test_eccentric_pta_signal_1psr(psrTerm, spline):
         log10_F=log10_F,
         e0=e0,
         gamma0=gamma0,
-        gammap=gammap,
         l0=l0,
-        lp=lp,
         tref=tref,
         log10_A=log10_A,
+        deltap=deltap,
         psrTerm=psrTerm,
         spline=spline,
     )
@@ -132,7 +130,7 @@ def test_gwecc_1psr_block(psr, psrTerm, spline):
 
     pta = PTA([model(psr)])
 
-    assert len(pta.param_names) == (12 if psrTerm else 10)
+    assert len(pta.param_names) == (10 if psrTerm else 9)
 
     x0 = [param.sample() for param in pta.params]
     assert np.all(np.isfinite(x0))
