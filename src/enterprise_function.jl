@@ -98,8 +98,6 @@ Parameters:
 "
 function eccentric_pta_signal_1psr(
     toas,
-    pdist::Float64,
-    alpha::Float64,
     psi::Float64,
     cos_inc::Float64,
     log10_M::Float64,
@@ -112,6 +110,7 @@ function eccentric_pta_signal_1psr(
     lp::Float64,
     tref::Float64,
     log10_A::Float64,
+    deltap::Float64,
     psrTerm::Bool = false,
     spline::Bool = false,
 )
@@ -120,13 +119,12 @@ function eccentric_pta_signal_1psr(
     e_init = Eccentricity(e0)
     l0p = InitPhaseParams(l0, lp)
     proj = ProjectionParams(10^log10_A, psi, cos_inc, gamma0, gammap)
-    dp = psrdist_from_pdist(pdist)
-    α = AzimuthParam(alpha)
+    Δp = Time(deltap)
     terms = psrTerm ? [EARTH, PULSAR] : [EARTH]
     tref = Time(tref)
     tEs = Time.(toas)
 
     res = spline ? residuals_1psr_spline : residuals_1psr
 
-    return res(mass, n_init, e_init, l0p, proj, dp, α, terms, tref, tEs)
+    return res(mass, n_init, e_init, l0p, proj, Δp, terms, tref, tEs)
 end

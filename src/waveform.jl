@@ -135,7 +135,6 @@ function waveform_1psr(
     coeffs::EvolvCoeffs,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    α::AzimuthParam,
     terms::Vector{Term},
     Δp::Time,
     dt::Time,
@@ -156,7 +155,7 @@ function waveform_1psr(
         # hx = hx - hxP
     end
 
-    return α.α * hp
+    return hp
 end
 
 "+/x polarizations of the PTA signal"
@@ -220,8 +219,7 @@ function waveform_1psr(
     e_init::Eccentricity,
     l0p::InitPhaseParams,
     proj::ProjectionParams,
-    dp::Distance,
-    α::AzimuthParam,
+    Δp::Time,
     terms::Vector{Term},
     tref::Time,
     tEs::Vector{Time},
@@ -229,9 +227,8 @@ function waveform_1psr(
     dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
-    Δp = pulsar_term_delay(α, dp)
 
-    ss = [waveform_1psr(mass, coeffs, l0p, proj, α, terms, Δp, dt) for dt in dts]
+    ss = [waveform_1psr(mass, coeffs, l0p, proj, terms, Δp, dt) for dt in dts]
 
     return ss
 end
