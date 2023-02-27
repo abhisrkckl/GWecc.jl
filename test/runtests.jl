@@ -580,14 +580,16 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @testset "1psr functions" begin
             for e_init in Eccentricity.([0.1, 0.4, 0.8])
                 dψ = acos(ap.Fp / α.α) / 2
-                proj1 = ProjectionParams(S0 * α.α, ψ + dψ, cosι, γ0, γp)
+                l0p0 = InitPhaseParams(l_init.θ)
+                proj0 = ProjectionParams(S0, ψ, cosι, γ0, γ0)
+                proj1 = ProjectionParams(S0 * α.α, ψ + dψ, cosι, γ0)
                 Δp = pulsar_term_delay(α, dp)
                 ss = residuals(
                     mass,
                     n_init,
                     e_init,
-                    l0p,
-                    proj,
+                    l0p0,
+                    proj0,
                     dp,
                     psrpos,
                     gwpos,
@@ -599,7 +601,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     mass,
                     n_init,
                     e_init,
-                    l0p,
+                    l0p0,
                     proj1,
                     Δp,
                     [EARTH, PULSAR],
@@ -612,8 +614,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     mass,
                     n_init,
                     e_init,
-                    l0p,
-                    proj,
+                    l0p0,
+                    proj0,
                     dp,
                     psrpos,
                     gwpos,
@@ -625,7 +627,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     mass,
                     n_init,
                     e_init,
-                    l0p,
+                    l0p0,
                     proj1,
                     Δp,
                     [EARTH, PULSAR],
@@ -638,10 +640,9 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     mass,
                     n_init,
                     e_init,
-                    l0p,
+                    l0p0,
                     proj1,
                     Δp,
-                    # AzimuthParam(1.0),
                     [EARTH, PULSAR],
                     tref,
                     tEs,
@@ -808,9 +809,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 log10_F,
                 e0,
                 gamma0,
-                gammap,
                 l0,
-                lp,
                 tref,
                 log10_dl,
                 deltap,

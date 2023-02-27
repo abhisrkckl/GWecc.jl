@@ -105,9 +105,7 @@ function eccentric_pta_signal_1psr(
     log10_F::Float64,
     e0::Float64,
     gamma0::Float64,
-    gammap::Float64,
     l0::Float64,
-    lp::Float64,
     tref::Float64,
     log10_A::Float64,
     deltap::Float64,
@@ -117,8 +115,8 @@ function eccentric_pta_signal_1psr(
     mass = mass_from_log10_mass(log10_M, eta)
     n_init = mean_motion_from_log10_freq(log10_F)
     e_init = Eccentricity(e0)
-    l0p = InitPhaseParams(l0, lp)
-    proj = ProjectionParams(10^log10_A, psi, cos_inc, gamma0, gammap)
+    l0p = InitPhaseParams(l0)
+    proj = ProjectionParams(10^log10_A, psi, cos_inc, gamma0)
     Δp = Time(deltap)
     terms = psrTerm ? [EARTH, PULSAR] : [EARTH]
     tref = Time(tref)
