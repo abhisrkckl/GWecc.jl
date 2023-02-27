@@ -115,7 +115,7 @@ function eccentric_pta_signal_1psr(
     mass = mass_from_log10_mass(log10_M, eta)
     n_init = mean_motion_from_log10_freq(log10_F)
     e_init = Eccentricity(e0)
-    l0p = InitPhaseParams(l0)
+    l_init = Angle(l0)
     proj = ProjectionParams(10^log10_A, psi, cos_inc, gamma0)
     Δp = Time(-deltap)
     terms = psrTerm ? [EARTH, PULSAR] : [EARTH]
@@ -124,5 +124,5 @@ function eccentric_pta_signal_1psr(
 
     res = spline ? residuals_1psr_spline : residuals_1psr
 
-    return res(mass, n_init, e_init, l0p, proj, Δp, terms, tref, tEs)
+    return res(mass, n_init, e_init, l_init, proj, Δp, terms, tref, tEs)
 end

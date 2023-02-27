@@ -133,7 +133,7 @@ end
 function waveform_1psr(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
     terms::Vector{Term},
     Δp::Time,
@@ -141,6 +141,8 @@ function waveform_1psr(
 )
     hp = 0.0
     # hx = 0.0
+
+    l0p = InitPhaseParams(l_init.θ)
 
     if EARTH in terms
         hpE, hxE = waveform_px(mass, coeffs, l0p, proj, false, dt)
@@ -217,7 +219,7 @@ function waveform_1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
     Δp::Time,
     terms::Vector{Term},
@@ -228,7 +230,7 @@ function waveform_1psr(
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
 
-    ss = [waveform_1psr(mass, coeffs, l0p, proj, terms, Δp, dt) for dt in dts]
+    ss = [waveform_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
 
     return ss
 end

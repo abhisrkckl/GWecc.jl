@@ -181,7 +181,7 @@ end
 function residual_1psr(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
     terms::Vector{Term},
     Δp::Time,
@@ -189,6 +189,8 @@ function residual_1psr(
 )
     sp = 0.0
     # sx = 0.0
+
+    l0p = InitPhaseParams(l_init.θ)
 
     if EARTH in terms
         spE, sxE = residual_px(mass, coeffs, l0p, proj, false, dt)
@@ -210,7 +212,7 @@ end
 function residual_and_waveform_1psr(
     mass::Mass,
     coeffs::EvolvCoeffs,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
     terms::Vector{Term},
     Δp::Time,
@@ -218,6 +220,8 @@ function residual_and_waveform_1psr(
 )
     sp = 0.0
     hp = 0.0
+
+    l0p = InitPhaseParams(l_init.θ)
 
     if EARTH in terms
         spE, sxE, hpE, hxE = residual_and_waveform_px(mass, coeffs, l0p, proj, false, dt)
@@ -326,7 +330,7 @@ function residuals_1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
     Δp::Time,
     terms::Vector{Term},
@@ -337,7 +341,7 @@ function residuals_1psr(
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
 
-    ss = [residual_1psr(mass, coeffs, l0p, proj, terms, Δp, dt) for dt in dts]
+    ss = [residual_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
 
     return ss
 end
@@ -347,7 +351,7 @@ function residuals_and_waveform_1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
-    l0p::InitPhaseParams,
+    l_init::Angle,
     proj::ProjectionParams,
     Δp::Time,
     terms::Vector{Term},
@@ -358,7 +362,7 @@ function residuals_and_waveform_1psr(
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
 
-    shs = [residual_and_waveform_1psr(mass, coeffs, l0p, proj, terms, Δp, dt) for dt in dts]
+    shs = [residual_and_waveform_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
 
     ss = first.(shs)
     hs = last.(shs)
