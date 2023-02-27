@@ -111,11 +111,7 @@ struct InitPhaseParams
     end
 
     function InitPhaseParams(l0::Float64)
-        if l0 < -2 * π || l0 >= 2 * π
-            throw(DomainError(l0, "l0 out of range."))
-        else
-            return new(Angle(l0), Angle(l0))
-        end
+        return InitPhaseParams(l0, l0)
     end
 end
 
@@ -166,17 +162,7 @@ struct ProjectionParams
         cosι::Float64,
         γ0::Float64,
     )
-        if S0 <= 0
-            throw(DomainError(S0, "S0 out of range."))
-        elseif !(ψ >= -π && ψ < π)
-            throw(DomainError(ψ, "ψ out of range."))
-        elseif !(cosι >= -1 && cosι <= 1)
-            throw(DomainError(cosι, "cosι out of range."))
-        elseif !(γ0 >= -π && γ0 <= π)
-            throw(DomainError(γ0, "γ0 out of range."))
-        else
-            return new(S0, SinCos(Angle(2 * ψ)), cosι, γ0, γ0)
-        end
+        return ProjectionParams(S0, ψ, cosι, γ0, γ0)
     end
 end
 
