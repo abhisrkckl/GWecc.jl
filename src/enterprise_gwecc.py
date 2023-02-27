@@ -17,8 +17,6 @@ jl.seval("using GWecc")
 @enterprise_function
 def eccentric_pta_signal_1psr(
     toas,
-    pdist,
-    alpha,
     psi,
     cos_inc,
     log10_M,
@@ -31,13 +29,12 @@ def eccentric_pta_signal_1psr(
     lp,
     tref,
     log10_A,
+    deltap,
     psrTerm=False,
     spline=False,
 ):
     return jl.eccentric_pta_signal_1psr(
         toas,
-        float(pdist[0] if isinstance(pdist, tuple) else pdist),
-        float(alpha),
         float(psi),
         float(cos_inc),
         float(log10_M),
@@ -50,6 +47,7 @@ def eccentric_pta_signal_1psr(
         float(lp),
         float(tref),
         float(log10_A),
+        float(deltap),
         psrTerm,
         spline,
     )
@@ -106,7 +104,6 @@ def eccentric_pta_signal(
 
 def gwecc_1psr_block(
     tref,
-    alpha=Uniform(0, 1)("gwecc_alpha"),
     psi=Uniform(0, np.pi)("gwecc_psi"),
     cos_inc=Uniform(-1, 1)("gwecc_cos_inc"),
     log10_M=Uniform(6, 9)("gwecc_log10_M"),
@@ -118,6 +115,7 @@ def gwecc_1psr_block(
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     lp=Uniform(0, 2 * np.pi),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
+    deltap=Uniform(0, 1e14),
     psrTerm=False,
     spline=False,
     name="gwecc",
@@ -128,7 +126,6 @@ def gwecc_1psr_block(
 
     return Deterministic(
         eccentric_pta_signal_1psr(
-            alpha=alpha,
             psi=psi,
             cos_inc=cos_inc,
             log10_M=log10_M,
@@ -141,6 +138,7 @@ def gwecc_1psr_block(
             lp=lp,
             tref=tref,
             log10_A=log10_A,
+            deltap=deltap,
             psrTerm=psrTerm,
             spline=spline,
         ),
