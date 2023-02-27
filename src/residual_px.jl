@@ -162,4 +162,3 @@ function residual_and_waveform_px(
 
     return sp, sx, hp, hx
 end
-

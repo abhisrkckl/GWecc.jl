@@ -1,4 +1,5 @@
-export waveform_1psr, residual_1psr, residuals_1psr, residual_and_waveform_1psr, residuals_and_waveform_1psr
+export waveform_1psr,
+    residual_1psr, residuals_1psr, residual_and_waveform_1psr, residuals_and_waveform_1psr
 
 "PTA waveform for single pulsar case."
 function waveform_1psr(
