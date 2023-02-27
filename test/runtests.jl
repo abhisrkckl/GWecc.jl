@@ -579,7 +579,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         @testset "1psr functions" begin
             for e_init in Eccentricity.([0.1, 0.4, 0.8])
-                dψ = acos(ap.Fp / α.α) / 2
+                dψ = polarization_angle_shift_1psr(ap)
                 l0p0 = InitPhaseParams(l_init.θ)
                 proj0 = ProjectionParams(S0, ψ, cosι, γ0, γ0)
                 proj1 = ProjectionParams(S0 * α.α, ψ + dψ, cosι, γ0)
@@ -765,7 +765,17 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 @test mismatch(rs, rs_spl) < 1e-3
 
                 Δp = pulsar_term_delay(α, dp)
-                rs = residuals_1psr(mass, n_init, e_init, l_init, proj, Δp, [term], tref, tEs)
+                rs = residuals_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l_init,
+                    proj,
+                    Δp,
+                    [term],
+                    tref,
+                    tEs,
+                )
                 rs_spl = residuals_1psr_spline(
                     mass,
                     n_init,
