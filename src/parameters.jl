@@ -110,9 +110,7 @@ struct InitPhaseParams
         end
     end
 
-    function InitPhaseParams(l0::Float64)
-        return InitPhaseParams(l0, l0)
-    end
+    InitPhaseParams(l0::Float64) = InitPhaseParams(l0, l0)
 end
 
 "sin and cos of an angle."
