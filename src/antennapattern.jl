@@ -1,5 +1,5 @@
 export sky_direction_uvec,
-    gw_polarization_tensors, AntennaPattern, pulsar_term_delay, AzimuthParam
+    gw_polarization_tensors, AntennaPattern, pulsar_term_delay, AzimuthParam, polarization_angle_shift_1psr
 
 using LinearAlgebra
 
@@ -90,4 +90,9 @@ AzimuthParam(ap::AntennaPattern) = AzimuthParam((1 + ap.cosµ) / 2)
 function pulsar_term_delay(α::AzimuthParam, psrdist::Distance)::Time
     dp = psrdist.D
     return Time(-2 * dp * (1 - α.α))
+end
+
+function polarization_angle_shift_1psr(ap::AntennaPattern)
+    α = AzimuthParam(ap)
+    return acos(ap.Fp / α.α) / 2
 end
