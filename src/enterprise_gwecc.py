@@ -17,8 +17,6 @@ jl.seval("using GWecc")
 @enterprise_function
 def eccentric_pta_signal_1psr(
     toas,
-    pdist,
-    alpha,
     psi,
     cos_inc,
     log10_M,
@@ -26,18 +24,15 @@ def eccentric_pta_signal_1psr(
     log10_F,
     e0,
     gamma0,
-    gammap,
     l0,
-    lp,
     tref,
     log10_A,
+    deltap,
     psrTerm=False,
     spline=False,
 ):
     return jl.eccentric_pta_signal_1psr(
         toas,
-        float(pdist[0] if isinstance(pdist, tuple) else pdist),
-        float(alpha),
         float(psi),
         float(cos_inc),
         float(log10_M),
@@ -45,11 +40,10 @@ def eccentric_pta_signal_1psr(
         float(log10_F),
         float(e0),
         float(gamma0),
-        float(gammap),
         float(l0),
-        float(lp),
         float(tref),
         float(log10_A),
+        float(deltap),
         psrTerm,
         spline,
     )
@@ -106,7 +100,6 @@ def eccentric_pta_signal(
 
 def gwecc_1psr_block(
     tref,
-    alpha=Uniform(0, 1)("gwecc_alpha"),
     psi=Uniform(0, np.pi)("gwecc_psi"),
     cos_inc=Uniform(-1, 1)("gwecc_cos_inc"),
     log10_M=Uniform(6, 9)("gwecc_log10_M"),
@@ -114,21 +107,19 @@ def gwecc_1psr_block(
     log10_F=Uniform(-9, -7)("gwecc_log10_F"),
     e0=Uniform(0.01, 0.8)("gwecc_e0"),
     gamma0=Uniform(0, np.pi)("gwecc_gamma0"),
-    gammap=Uniform(0, np.pi),
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
-    lp=Uniform(0, 2 * np.pi),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
+    deltap=Uniform(0, 1e14),
     psrTerm=False,
     spline=False,
     name="gwecc",
 ):
     """Returns deterministic eccentric orbit continuous GW model for a single pulsar."""
 
-    gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
+    deltap = deltap if psrTerm else 0.0
 
     return Deterministic(
         eccentric_pta_signal_1psr(
-            alpha=alpha,
             psi=psi,
             cos_inc=cos_inc,
             log10_M=log10_M,
@@ -136,11 +127,10 @@ def gwecc_1psr_block(
             log10_F=log10_F,
             e0=e0,
             gamma0=gamma0,
-            gammap=gammap,
             l0=l0,
-            lp=lp,
             tref=tref,
             log10_A=log10_A,
+            deltap=deltap,
             psrTerm=psrTerm,
             spline=spline,
         ),
