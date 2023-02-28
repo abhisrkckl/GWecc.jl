@@ -91,9 +91,9 @@ end
 
 AzimuthParam(ap::AntennaPattern) = AzimuthParam((1 + ap.cosµ) / 2)
 
-function azimuth_param(ap::AntennaPattern)
-    return (1 + ap.cosµ) / 2
-end
+# function azimuth_param(ap::AntennaPattern)
+#     return (1 + ap.cosµ) / 2
+# end
 
 function pulsar_term_delay(α::AzimuthParam, psrdist::Distance)::Time
     dp = psrdist.D

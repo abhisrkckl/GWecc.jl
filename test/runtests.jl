@@ -44,6 +44,10 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test_throws DomainError ProjectionParams(1e-9, 1.0, 1.1, 1.0, 1.0)
             @test_throws DomainError ProjectionParams(1e-9, 1.0, 0.3, 4.0, 1.0)
             @test_throws DomainError ProjectionParams(1e-9, 1.0, 0.3, 1.0, 4.0)
+
+            @test_throws DomainError ProjectionParams1psr(-1e-9, 0.1, 0.1)
+            @test_throws DomainError ProjectionParams1psr(1e-9, -0.1, 0.1)
+            @test_throws DomainError ProjectionParams1psr(1e-9, 0.1, 10.0)
         end
 
         @testset "sky location params" begin
