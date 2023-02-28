@@ -181,11 +181,43 @@ function residual_1psr_coeffs_β(proj::ProjectionParams)
     return β0, β1, β2
 end
 
+function ProjectionParams1psr(proj::ProjectionParams, ap::AntennaPattern)
+    dψ = polarization_angle_shift_1psr(ap)
+    α = AzimuthParam(ap).α
+    ψ1 = proj.sc2ψ.x.θ/2 + dψ
+    ci = proj.cosι
+    γ0 = proj.γ0
+    S0 = proj.S0
+    proj1 = ProjectionParams(S0 * α, ψ1, ci, γ0)
+
+    β0, β1, β2 = residual_1psr_coeffs_β(proj1)
+    β = sqrt(β0^2 + β1^2 + β2^2)
+    σ = atan(sqrt(β1^2 + β2^2), β0)
+    ρ = atan(β2, β1)
+
+    ζ0 = proj.S0 * α * β
+
+    return ProjectionParams1psr(ζ0, σ, ρ)
+end
+
+function residual_1psr_coeffs_β(proj::ProjectionParams1psr)
+    cσ = proj.scσ.cosx
+    sσ = proj.scσ.sinx
+    cρ = proj.scρ.cosx
+    sρ = proj.scρ.sinx
+
+    β0 = cσ
+    β1 = sσ*cρ
+    β2 = sσ*sρ
+
+    return β0, β1, β2
+end
+
 function residual_1psr_term(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
-    proj::ProjectionParams,
+    proj::ProjectionParams1psr,
     dt::Time,
 )
     n, e, l, γ = evolve_orbit(coeffs, l_init, Angle(0.0), dt)
@@ -194,7 +226,7 @@ function residual_1psr_term(
     sA0, sA1, sA2 = residual_A(e, phase)
     β0, β1, β2 = residual_1psr_coeffs_β(proj)
 
-    ζ0 = proj.S0
+    ζ0 = proj.ζ0
 
     c = gwres_amplitude_ratio(mass, coeffs.n_init, coeffs.e_init, n, e)
 
@@ -207,7 +239,7 @@ function residual_1psr_new(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
-    proj::ProjectionParams,
+    proj::ProjectionParams1psr,
     terms::Vector{Term},
     Δp::Time,
     dt::Time,
@@ -232,7 +264,7 @@ function residuals_1psr_new(
     n_init::MeanMotion,
     e_init::Eccentricity,
     l_init::Angle,
-    proj::ProjectionParams,
+    proj::ProjectionParams1psr,
     Δp::Time,
     terms::Vector{Term},
     tref::Time,
@@ -251,7 +283,7 @@ function waveform_1psr_term(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
-    proj::ProjectionParams,
+    proj::ProjectionParams1psr,
     dt::Time,
 )
     n, e, l, γ = evolve_orbit(coeffs, l_init, Angle(0.0), dt)
@@ -260,7 +292,7 @@ function waveform_1psr_term(
     hA0, hA1, hA2 = waveform_A(e, phase)
     β0, β1, β2 = residual_1psr_coeffs_β(proj)
 
-    ζ0 = proj.S0
+    ζ0 = proj.ζ0
 
     c = gwres_amplitude_ratio(mass, coeffs.n_init, coeffs.e_init, n, e)
 
@@ -273,7 +305,7 @@ function waveform_1psr_new(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
-    proj::ProjectionParams,
+    proj::ProjectionParams1psr,
     terms::Vector{Term},
     Δp::Time,
     dt::Time,
@@ -292,13 +324,13 @@ function waveform_1psr_new(
     return h
 end
 
-"PTA signal for the single-pulsar case"
+"Waveform for the single-pulsar case"
 function waveform_1psr_new(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
     l_init::Angle,
-    proj::ProjectionParams,
+    proj::ProjectionParams1psr,
     Δp::Time,
     terms::Vector{Term},
     tref::Time,
@@ -312,3 +344,5 @@ function waveform_1psr_new(
 
     return hs
 end
+
+

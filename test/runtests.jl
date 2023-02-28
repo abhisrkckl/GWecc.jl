@@ -583,6 +583,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 l0p0 = InitPhaseParams(l_init.θ)
                 proj0 = ProjectionParams(S0, ψ, cosι, γ0, γ0)
                 proj1 = ProjectionParams(S0 * α.α, ψ + dψ, cosι, γ0)
+                proj1_ = ProjectionParams1psr(proj0, ap)
                 Δp = pulsar_term_delay(α, dp)
                 ss = residuals(
                     mass,
@@ -655,7 +656,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     n_init,
                     e_init,
                     l_init,
-                    proj1,
+                    proj1_,
                     Δp,
                     [EARTH, PULSAR],
                     tref,
@@ -668,7 +669,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     n_init,
                     e_init,
                     l_init,
-                    proj1,
+                    proj1_,
                     Δp,
                     [EARTH, PULSAR],
                     tref,
