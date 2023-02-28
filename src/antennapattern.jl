@@ -91,11 +91,15 @@ end
 
 AzimuthParam(ap::AntennaPattern) = AzimuthParam((1 + ap.cosµ) / 2)
 
+function azimuth_param(ap::AntennaPattern)
+    return (1 + ap.cosµ) / 2
+end
+
 function pulsar_term_delay(α::AzimuthParam, psrdist::Distance)::Time
     dp = psrdist.D
     return Time(-2 * dp * (1 - α.α))
 end
 
 function polarization_angle_shift_1psr(ap::AntennaPattern)
-    return atan(ap.Fx, ap.Fp) / 2
+    return -atan(ap.Fx, ap.Fp) / 2
 end
