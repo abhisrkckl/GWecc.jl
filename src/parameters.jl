@@ -168,16 +168,12 @@ struct ProjectionParams1psr
     scσ::SinCos
     scρ::SinCos
 
-    function ProjectionParams1psr(
-        ζ0::Float64,
-        σ::Float64,
-        ρ::Float64,
-    )
+    function ProjectionParams1psr(ζ0::Float64, σ::Float64, ρ::Float64)
         if ζ0 <= 0
             throw(DomainError(ζ0, "ζ0 out of range."))
         elseif !(σ >= 0 && σ <= π)
             throw(DomainError(σ, "σ out of range."))
-        elseif !(ρ >= -2*π && ρ <= 2*π)
+        elseif !(ρ >= -2 * π && ρ <= 2 * π)
             throw(DomainError(ρ, "ρ out of range."))
         else
             return new(ζ0, SinCos(Angle(σ)), SinCos(Angle(ρ)))

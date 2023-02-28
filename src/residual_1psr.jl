@@ -1,17 +1,22 @@
 export waveform_1psr,
-    residual_1psr, residuals_1psr, residual_and_waveform_1psr, residuals_and_waveform_1psr,
-    residuals_1psr_new, waveform_1psr_new, residuals_and_waveform_1psr_new
+    residual_1psr,
+    residuals_1psr,
+    residual_and_waveform_1psr,
+    residuals_and_waveform_1psr,
+    residuals_1psr_new,
+    waveform_1psr_new,
+    residuals_and_waveform_1psr_new
 
 function residual_1psr_coeffs_β(proj::ProjectionParams)
     ci = proj.cosι
     c2ψ = proj.sc2ψ.cosx
     s2ψ = proj.sc2ψ.sinx
-    c2γ0 = cos(2*proj.γ0)
-    s2γ0 = sin(2*proj.γ0)
+    c2γ0 = cos(2 * proj.γ0)
+    s2γ0 = sin(2 * proj.γ0)
 
-    β0 = (1-ci^2)*c2ψ
-    β1 = (1+ci^2)*c2γ0*c2ψ - 2*ci*s2γ0*s2ψ
-    β2 = -(1+ci^2)*s2γ0*c2ψ - 2*ci*c2γ0*s2ψ
+    β0 = (1 - ci^2) * c2ψ
+    β1 = (1 + ci^2) * c2γ0 * c2ψ - 2 * ci * s2γ0 * s2ψ
+    β2 = -(1 + ci^2) * s2γ0 * c2ψ - 2 * ci * c2γ0 * s2ψ
 
     return β0, β1, β2
 end
@@ -19,7 +24,7 @@ end
 function ProjectionParams1psr(proj::ProjectionParams, ap::AntennaPattern)
     dψ = polarization_angle_shift_1psr(ap)
     α = AzimuthParam(ap).α
-    ψ1 = proj.sc2ψ.x.θ/2 + dψ
+    ψ1 = proj.sc2ψ.x.θ / 2 + dψ
     ci = proj.cosι
     γ0 = proj.γ0
     S0 = proj.S0
@@ -42,8 +47,8 @@ function residual_1psr_coeffs_β(proj::ProjectionParams1psr)
     sρ = proj.scρ.sinx
 
     β0 = cσ
-    β1 = sσ*cρ
-    β2 = sσ*sρ
+    β1 = sσ * cρ
+    β2 = sσ * sρ
 
     return β0, β1, β2
 end
@@ -65,7 +70,7 @@ function residual_1psr_term(
 
     c = gwres_amplitude_ratio(mass, coeffs.n_init, coeffs.e_init, n, e)
 
-    s = ζ0 * c * (β0*sA0 + β1*sA1 + β2*sA2)
+    s = ζ0 * c * (β0 * sA0 + β1 * sA1 + β2 * sA2)
 
     return s
 end
@@ -131,7 +136,7 @@ function waveform_1psr_term(
 
     c = gwres_amplitude_ratio(mass, coeffs.n_init, coeffs.e_init, n, e)
 
-    h = ζ0 * c * n.n * (β0*hA0 + β1*hA1 + β2*hA2)
+    h = ζ0 * c * n.n * (β0 * hA0 + β1 * hA1 + β2 * hA2)
 
     return h
 end
@@ -198,8 +203,8 @@ function residual_and_waveform_1psr_term(
 
     c = gwres_amplitude_ratio(mass, coeffs.n_init, coeffs.e_init, n, e)
 
-    h = ζ0 * c * n.n * (β0*hA0 + β1*hA1 + β2*hA2)
-    s = ζ0 * c * (β0*sA0 + β1*sA1 + β2*sA2)
+    h = ζ0 * c * n.n * (β0 * hA0 + β1 * hA1 + β2 * hA2)
+    s = ζ0 * c * (β0 * sA0 + β1 * sA1 + β2 * sA2)
 
     return s, h
 end
@@ -250,7 +255,8 @@ function residuals_and_waveform_1psr_new(
     coeffs = EvolvCoeffs(mass, n_init, e_init)
 
     shs = [
-        residual_and_waveform_1psr_new(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts
+        residual_and_waveform_1psr_new(mass, coeffs, l_init, proj, terms, Δp, dt) for
+        dt in dts
     ]
 
     ss = first.(shs)

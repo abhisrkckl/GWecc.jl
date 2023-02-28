@@ -9,7 +9,7 @@ l_init = Angle(0.1)
 dl = Distance(1e16)
 
 ra_p = 0.0
-dec_p = pi/6
+dec_p = pi / 6
 ra_gw = pi / 2
 dec_gw = 0.0
 psrpos = SkyLocation(ra_p, dec_p)

@@ -1,4 +1,5 @@
-export spline_time_samples, residuals_spline, residuals_1psr_spline, residuals_1psr_spline_new
+export spline_time_samples,
+    residuals_spline, residuals_1psr_spline, residuals_1psr_spline_new
 
 struct SimpleHermiteSpline
     xs::Vector{Float64}
