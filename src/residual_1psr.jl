@@ -196,7 +196,9 @@ function residual_1psr_term(
 
     ζ0 = proj.S0
 
-    s = ζ0 * (β0*sA0 + β1*sA1 + β2*sA2)
+    c = gwres_amplitude_ratio(mass, coeffs.n_init, coeffs.e_init, n, e)
+
+    s = ζ0 * c * (β0*sA0 + β1*sA1 + β2*sA2)
 
     return s
 end
