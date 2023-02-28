@@ -1,5 +1,6 @@
 export waveform_1psr,
-    residual_1psr, residuals_1psr, residual_and_waveform_1psr, residuals_and_waveform_1psr
+    residual_1psr, residuals_1psr, residual_and_waveform_1psr, residuals_and_waveform_1psr,
+    residuals_1psr_new
 
 "PTA waveform for single pulsar case."
 function waveform_1psr(
@@ -164,4 +165,82 @@ function residuals_and_waveform_1psr(
     hs = last.(shs)
 
     return ss, hs
+end
+
+function residual_1psr_coeffs_β(proj::ProjectionParams)
+    ci = proj.cosι
+    c2ψ = proj.sc2ψ.cosx
+    s2ψ = proj.sc2ψ.sinx
+    c2γ0 = cos(2*proj.γ0)
+    s2γ0 = sin(2*proj.γ0)
+
+    β0 = (1-ci^2)*c2ψ
+    β1 = (1+ci^2)*c2γ0*c2ψ - 2*ci*s2γ0*s2ψ
+    β2 = -(1+ci^2)*s2γ0*c2ψ - 2*ci*c2γ0*s2ψ
+
+    return β0, β1, β2
+end
+
+function residual_1psr_term(
+    mass::Mass,
+    coeffs::EvolvCoeffs,
+    l_init::Angle,
+    proj::ProjectionParams,
+    dt::Time,
+)
+    n, e, l, γ = evolve_orbit(coeffs, l_init, Angle(0.0), dt)
+    phase = OrbitalPhase(mass, n, e, l, γ)
+
+    sA0, sA1, sA2 = residual_A(e, phase)
+    β0, β1, β2 = residual_1psr_coeffs_β(proj)
+
+    ζ0 = proj.S0
+
+    s = ζ0 * (β0*sA0 + β1*sA1 + β2*sA2)
+
+    return s
+end
+
+function residual_1psr_new(
+    mass::Mass,
+    coeffs::EvolvCoeffs,
+    l_init::Angle,
+    proj::ProjectionParams,
+    terms::Vector{Term},
+    Δp::Time,
+    dt::Time,
+)
+    s = 0.0
+
+    if EARTH in terms
+        s += residual_1psr_term(mass, coeffs, l_init, proj, dt)
+    end
+
+    if PULSAR in terms
+        dtp = dt + Δp
+        s -= residual_1psr_term(mass, coeffs, l_init, proj, dtp)
+    end
+
+    return s
+end
+
+"PTA signal for the single-pulsar case"
+function residuals_1psr_new(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l_init::Angle,
+    proj::ProjectionParams,
+    Δp::Time,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [tE - tref for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+
+    ss = [residual_1psr_new(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
+
+    return ss
 end
