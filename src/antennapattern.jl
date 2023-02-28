@@ -97,6 +97,5 @@ function pulsar_term_delay(α::AzimuthParam, psrdist::Distance)::Time
 end
 
 function polarization_angle_shift_1psr(ap::AntennaPattern)
-    α = AzimuthParam(ap)
-    return acos(ap.Fp / α.α) / 2
+    return atan(ap.Fx, ap.Fp) / 2
 end
