@@ -121,7 +121,7 @@ function eccentric_pta_signal_1psr(
     tref = Time(tref)
     tEs = Time.(toas)
 
-    res = spline ? residuals_1psr_spline_new : residuals_1psr_new
+    res = spline ? residuals_1psr_spline : residuals_1psr
 
     return res(mass, n_init, e_init, l_init, proj, Δp, terms, tref, tEs)
 end

@@ -1,5 +1,5 @@
 export spline_time_samples,
-    residuals_spline, residuals_1psr_spline, residuals_1psr_spline_new
+    residuals_spline, residuals_1psr_spline, residuals_1psr_spline
 
 struct SimpleHermiteSpline
     xs::Vector{Float64}
@@ -129,7 +129,7 @@ function residuals_spline(
     )
 end
 
-function residuals_1psr_spline_new(
+function residuals_1psr_spline(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
@@ -142,7 +142,7 @@ function residuals_1psr_spline_new(
     tEs::Vector{Time},
 )
     res_wav =
-        _ts -> residuals_and_waveform_1psr_new(
+        _ts -> residuals_and_waveform_1psr(
             mass,
             n_init,
             e_init,
@@ -157,7 +157,7 @@ function residuals_1psr_spline_new(
     return interp(spl, extract(tEs))
 end
 
-function residuals_1psr_spline_new(
+function residuals_1psr_spline(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
@@ -169,7 +169,7 @@ function residuals_1psr_spline_new(
     tEs::Vector{Time},
 )
     tspl = spline_time_samples(tEs)
-    return residuals_1psr_spline_new(
+    return residuals_1psr_spline(
         mass,
         n_init,
         e_init,

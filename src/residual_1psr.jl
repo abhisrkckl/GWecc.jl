@@ -2,10 +2,7 @@ export waveform_1psr,
     residual_1psr,
     residuals_1psr,
     residual_and_waveform_1psr,
-    residuals_and_waveform_1psr,
-    residuals_1psr_new,
-    waveform_1psr_new,
-    residuals_and_waveform_1psr_new
+    residuals_and_waveform_1psr
 
 function residual_1psr_coeffs_β(proj::ProjectionParams)
     ci = proj.cosι
@@ -75,7 +72,7 @@ function residual_1psr_term(
     return s
 end
 
-function residual_1psr_new(
+function residual_1psr(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
@@ -99,7 +96,7 @@ function residual_1psr_new(
 end
 
 "PTA signal for the single-pulsar case"
-function residuals_1psr_new(
+function residuals_1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
@@ -114,7 +111,7 @@ function residuals_1psr_new(
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
 
-    ss = [residual_1psr_new(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
+    ss = [residual_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
 
     return ss
 end
@@ -141,7 +138,7 @@ function waveform_1psr_term(
     return h
 end
 
-function waveform_1psr_new(
+function waveform_1psr(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
@@ -165,7 +162,7 @@ function waveform_1psr_new(
 end
 
 "Waveform for the single-pulsar case"
-function waveform_1psr_new(
+function waveform_1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
@@ -180,7 +177,7 @@ function waveform_1psr_new(
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
 
-    hs = [waveform_1psr_new(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
+    hs = [waveform_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
 
     return hs
 end
@@ -210,7 +207,7 @@ function residual_and_waveform_1psr_term(
 end
 
 "PTA signal for the single-pulsar case."
-function residual_and_waveform_1psr_new(
+function residual_and_waveform_1psr(
     mass::Mass,
     coeffs::EvolvCoeffs,
     l_init::Angle,
@@ -239,7 +236,7 @@ function residual_and_waveform_1psr_new(
 end
 
 "PTA signal for the single-pulsar case"
-function residuals_and_waveform_1psr_new(
+function residuals_and_waveform_1psr(
     mass::Mass,
     n_init::MeanMotion,
     e_init::Eccentricity,
@@ -255,7 +252,7 @@ function residuals_and_waveform_1psr_new(
     coeffs = EvolvCoeffs(mass, n_init, e_init)
 
     shs = [
-        residual_and_waveform_1psr_new(mass, coeffs, l_init, proj, terms, Δp, dt) for
+        residual_and_waveform_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for
         dt in dts
     ]
 
