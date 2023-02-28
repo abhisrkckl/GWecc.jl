@@ -1,4 +1,4 @@
-export spline_time_samples, residuals_spline, residuals_1psr_spline
+export spline_time_samples, residuals_spline, residuals_1psr_spline, residuals_1psr_spline_new
 
 struct SimpleHermiteSpline
     xs::Vector{Float64}
@@ -128,59 +128,59 @@ function residuals_spline(
     )
 end
 
-function residuals_1psr_spline(
-    mass::Mass,
-    n_init::MeanMotion,
-    e_init::Eccentricity,
-    l_init::Angle,
-    proj::ProjectionParams,
-    Δp::Time,
-    terms::Vector{Term},
-    tref::Time,
-    tspl::Vector{Time},
-    tEs::Vector{Time},
-)
-    res_wav =
-        _ts -> residuals_and_waveform_1psr(
-            mass,
-            n_init,
-            e_init,
-            l_init,
-            proj,
-            Δp,
-            terms,
-            tref,
-            Time.(_ts),
-        )
-    spl = SimpleHermiteSpline(extract(tspl), res_wav)
-    return interp(spl, extract(tEs))
-end
+# function residuals_1psr_spline(
+#     mass::Mass,
+#     n_init::MeanMotion,
+#     e_init::Eccentricity,
+#     l_init::Angle,
+#     proj::ProjectionParams,
+#     Δp::Time,
+#     terms::Vector{Term},
+#     tref::Time,
+#     tspl::Vector{Time},
+#     tEs::Vector{Time},
+# )
+#     res_wav =
+#         _ts -> residuals_and_waveform_1psr(
+#             mass,
+#             n_init,
+#             e_init,
+#             l_init,
+#             proj,
+#             Δp,
+#             terms,
+#             tref,
+#             Time.(_ts),
+#         )
+#     spl = SimpleHermiteSpline(extract(tspl), res_wav)
+#     return interp(spl, extract(tEs))
+# end
 
-function residuals_1psr_spline(
-    mass::Mass,
-    n_init::MeanMotion,
-    e_init::Eccentricity,
-    l_init::Angle,
-    proj::ProjectionParams,
-    Δp::Time,
-    terms::Vector{Term},
-    tref::Time,
-    tEs::Vector{Time},
-)
-    tspl = spline_time_samples(tEs)
-    return residuals_1psr_spline(
-        mass,
-        n_init,
-        e_init,
-        l_init,
-        proj,
-        Δp,
-        terms,
-        tref,
-        tspl,
-        tEs,
-    )
-end
+# function residuals_1psr_spline(
+#     mass::Mass,
+#     n_init::MeanMotion,
+#     e_init::Eccentricity,
+#     l_init::Angle,
+#     proj::ProjectionParams,
+#     Δp::Time,
+#     terms::Vector{Term},
+#     tref::Time,
+#     tEs::Vector{Time},
+# )
+#     tspl = spline_time_samples(tEs)
+#     return residuals_1psr_spline(
+#         mass,
+#         n_init,
+#         e_init,
+#         l_init,
+#         proj,
+#         Δp,
+#         terms,
+#         tref,
+#         tspl,
+#         tEs,
+#     )
+# end
 
 function residuals_1psr_spline_new(
     mass::Mass,
