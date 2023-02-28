@@ -1,5 +1,5 @@
 export ProjectionParams, SkyLocation, InitPhaseParams
-export ScaledTime, Time, Distance, extract
+export ScaledTime, Time, Distance, extract, time_range
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
@@ -28,6 +28,10 @@ t1::Time * a::Number = a * t1
 
 function extract(ts::Vector{Time})::Vector{Float64}
     return [t.t for t in ts]
+end
+
+function time_range(tmin::Time, tmax::Time, len::Int)
+    return Time.(LinRange(tmin.t, tmax.t, len))
 end
 
 "Eccentricity. Must lie in [0,1)."

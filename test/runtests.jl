@@ -361,8 +361,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         dt = Time(10000.0)
         dtp = dt + Δp
 
-        tEs = Time.(LinRange(0.0, 10000.0, 100))
-        tref = Time(10000.0)
+        tref = Time(5 * 365.25 * 24 * 3600)
+        tEs = time_range(Time(0.0), tref, 100)
 
         @testset "single point functions" begin
 
