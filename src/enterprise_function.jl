@@ -98,13 +98,12 @@ Parameters:
 "
 function eccentric_pta_signal_1psr(
     toas,
-    psi::Float64,
-    cos_inc::Float64,
+    sigma::Float64,
+    rho::Float64,
     log10_M::Float64,
     eta::Float64,
     log10_F::Float64,
     e0::Float64,
-    gamma0::Float64,
     l0::Float64,
     tref::Float64,
     log10_A::Float64,
@@ -116,13 +115,13 @@ function eccentric_pta_signal_1psr(
     n_init = mean_motion_from_log10_freq(log10_F)
     e_init = Eccentricity(e0)
     l_init = Angle(l0)
-    proj = ProjectionParams(10^log10_A, psi, cos_inc, gamma0)
+    proj = ProjectionParams1psr(10^log10_A, sigma, rho)
     Δp = Time(-deltap)
     terms = psrTerm ? [EARTH, PULSAR] : [EARTH]
     tref = Time(tref)
     tEs = Time.(toas)
 
-    res = spline ? residuals_1psr_spline : residuals_1psr
+    res = spline ? residuals_1psr_spline_new : residuals_1psr_new
 
     return res(mass, n_init, e_init, l_init, proj, Δp, terms, tref, tEs)
 end
