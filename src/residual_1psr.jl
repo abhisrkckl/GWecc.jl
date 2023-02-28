@@ -1,6 +1,6 @@
 export waveform_1psr,
     residual_1psr, residuals_1psr, residual_and_waveform_1psr, residuals_and_waveform_1psr,
-    residuals_1psr_new
+    residuals_1psr_new, waveform_1psr_new
 
 "PTA waveform for single pulsar case."
 function waveform_1psr(
@@ -245,4 +245,70 @@ function residuals_1psr_new(
     ss = [residual_1psr_new(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
 
     return ss
+end
+
+function waveform_1psr_term(
+    mass::Mass,
+    coeffs::EvolvCoeffs,
+    l_init::Angle,
+    proj::ProjectionParams,
+    dt::Time,
+)
+    n, e, l, γ = evolve_orbit(coeffs, l_init, Angle(0.0), dt)
+    phase = OrbitalPhase(mass, n, e, l, γ)
+
+    hA0, hA1, hA2 = waveform_A(e, phase)
+    β0, β1, β2 = residual_1psr_coeffs_β(proj)
+
+    ζ0 = proj.S0
+
+    c = gwres_amplitude_ratio(mass, coeffs.n_init, coeffs.e_init, n, e)
+
+    h = ζ0 * c * n.n * (β0*hA0 + β1*hA1 + β2*hA2)
+
+    return h
+end
+
+function waveform_1psr_new(
+    mass::Mass,
+    coeffs::EvolvCoeffs,
+    l_init::Angle,
+    proj::ProjectionParams,
+    terms::Vector{Term},
+    Δp::Time,
+    dt::Time,
+)
+    h = 0.0
+
+    if EARTH in terms
+        h += waveform_1psr_term(mass, coeffs, l_init, proj, dt)
+    end
+
+    if PULSAR in terms
+        dtp = dt + Δp
+        h -= waveform_1psr_term(mass, coeffs, l_init, proj, dtp)
+    end
+
+    return h
+end
+
+"PTA signal for the single-pulsar case"
+function waveform_1psr_new(
+    mass::Mass,
+    n_init::MeanMotion,
+    e_init::Eccentricity,
+    l_init::Angle,
+    proj::ProjectionParams,
+    Δp::Time,
+    terms::Vector{Term},
+    tref::Time,
+    tEs::Vector{Time},
+)
+    dts = [tE - tref for tE in tEs]
+
+    coeffs = EvolvCoeffs(mass, n_init, e_init)
+
+    hs = [waveform_1psr_new(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts]
+
+    return hs
 end
