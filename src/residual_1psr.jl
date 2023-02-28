@@ -20,7 +20,7 @@ end
 
 function ProjectionParams1psr(proj::ProjectionParams, ap::AntennaPattern)
     dψ = polarization_angle_shift_1psr(ap)
-    α = AzimuthParam(ap).α
+    α = azimuth_param(ap)
     ψ1 = proj.sc2ψ.x.θ / 2 + dψ
     ci = proj.cosι
     γ0 = proj.γ0
