@@ -1,5 +1,5 @@
-export ProjectionParams, SkyLocation, InitPhaseParams
-export ScaledTime, Time, Distance, extract
+export ProjectionParams, ProjectionParams1psr, SkyLocation, InitPhaseParams
+export ScaledTime, Time, Distance, extract, time_range
 export Eccentricity, MeanMotion
 export ScaledMeanAnomaly, ScaledPeriastronAngle, Angle, SinCos
 export Mass
@@ -28,6 +28,10 @@ t1::Time * a::Number = a * t1
 
 function extract(ts::Vector{Time})::Vector{Float64}
     return [t.t for t in ts]
+end
+
+function time_range(tmin::Time, tmax::Time, len::Int)
+    return Time.(LinRange(tmin.t, tmax.t, len))
 end
 
 "Eccentricity. Must lie in [0,1)."
@@ -60,7 +64,7 @@ end
 struct MeanMotion
     n::Float64
     MeanMotion(n::Float64) =
-        (n >= 1e-11 && n <= 5e-6) ? new(n) : throw(DomainError(n, "n out of range."))
+        (n >= 1e-12 && n <= 5e-6) ? new(n) : throw(DomainError(n, "n out of range."))
 end
 
 "Dimensionless scaled mean anomaly."
@@ -156,6 +160,24 @@ struct ProjectionParams
 
     function ProjectionParams(S0::Float64, ψ::Float64, cosι::Float64, γ0::Float64)
         return ProjectionParams(S0, ψ, cosι, γ0, γ0)
+    end
+end
+
+struct ProjectionParams1psr
+    ζ0::Float64
+    scσ::SinCos
+    scρ::SinCos
+
+    function ProjectionParams1psr(ζ0::Float64, σ::Float64, ρ::Float64)
+        if ζ0 <= 0
+            throw(DomainError(ζ0, "ζ0 out of range."))
+        elseif !(σ >= 0 && σ <= π)
+            throw(DomainError(σ, "σ out of range."))
+        elseif !(ρ >= -2 * π && ρ <= 2 * π)
+            throw(DomainError(ρ, "ρ out of range."))
+        else
+            return new(ζ0, SinCos(Angle(σ)), SinCos(Angle(ρ)))
+        end
     end
 end
 

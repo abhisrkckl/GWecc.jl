@@ -2,7 +2,7 @@ export sky_direction_uvec,
     gw_polarization_tensors,
     AntennaPattern,
     pulsar_term_delay,
-    AzimuthParam,
+    azimuth_param,
     polarization_angle_shift_1psr
 
 using LinearAlgebra
@@ -82,21 +82,24 @@ function pulsar_term_delay(ap::AntennaPattern, psrdist::Distance)::Time
     return Time(-dp * (1 - cosµ))
 end
 
-struct AzimuthParam
-    α::Float64
+# struct AzimuthParam
+#     α::Float64
 
-    AzimuthParam(α::Float64) =
-        α >= 0 && α <= 1 ? new(α) : throw(DomainError(α, "α out of range."))
+#     AzimuthParam(α::Float64) =
+#         α >= 0 && α <= 1 ? new(α) : throw(DomainError(α, "α out of range."))
+# end
+
+# AzimuthParam(ap::AntennaPattern) = AzimuthParam((1 + ap.cosµ) / 2)
+
+function azimuth_param(ap::AntennaPattern)
+    return (1 + ap.cosµ) / 2
 end
 
-AzimuthParam(ap::AntennaPattern) = AzimuthParam((1 + ap.cosµ) / 2)
-
-function pulsar_term_delay(α::AzimuthParam, psrdist::Distance)::Time
-    dp = psrdist.D
-    return Time(-2 * dp * (1 - α.α))
-end
+# function pulsar_term_delay(α::AzimuthParam, psrdist::Distance)::Time
+#     dp = psrdist.D
+#     return Time(-2 * dp * (1 - α.α))
+# end
 
 function polarization_angle_shift_1psr(ap::AntennaPattern)
-    α = AzimuthParam(ap)
-    return acos(ap.Fp / α.α) / 2
+    return -atan(ap.Fx, ap.Fp) / 2
 end

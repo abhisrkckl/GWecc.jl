@@ -44,6 +44,10 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test_throws DomainError ProjectionParams(1e-9, 1.0, 1.1, 1.0, 1.0)
             @test_throws DomainError ProjectionParams(1e-9, 1.0, 0.3, 4.0, 1.0)
             @test_throws DomainError ProjectionParams(1e-9, 1.0, 0.3, 1.0, 4.0)
+
+            @test_throws DomainError ProjectionParams1psr(-1e-9, 0.1, 0.1)
+            @test_throws DomainError ProjectionParams1psr(1e-9, -0.1, 0.1)
+            @test_throws DomainError ProjectionParams1psr(1e-9, 0.1, 10.0)
         end
 
         @testset "sky location params" begin
@@ -301,8 +305,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         @test_throws DomainError AntennaPattern(gwpos, gwpos)
 
-        @test AzimuthParam(0.5).α == 0.5
-        @test_throws DomainError AzimuthParam(1.1)
+        # @test AzimuthParam(0.5).α == 0.5
+        # @test_throws DomainError AzimuthParam(1.1)
     end
 
     @testset "mismatch" begin
@@ -345,7 +349,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         gwpos = SkyLocation(ra_gw, dec_gw)
         dp = Distance(1e13)
         ap = AntennaPattern(psrpos, gwpos)
-        α = AzimuthParam(ap)
+        α = azimuth_param(ap)
         Δp = pulsar_term_delay(ap, dp)
         @test Δp.t < 0
 
@@ -361,8 +365,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         dt = Time(10000.0)
         dtp = dt + Δp
 
-        tEs = Time.(LinRange(0.0, 10000.0, 100))
-        tref = Time(10000.0)
+        tref = Time(5 * 365.25 * 24 * 3600)
+        tEs = time_range(Time(0.0), tref, 100)
 
         @testset "single point functions" begin
 
@@ -582,8 +586,9 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 dψ = polarization_angle_shift_1psr(ap)
                 l0p0 = InitPhaseParams(l_init.θ)
                 proj0 = ProjectionParams(S0, ψ, cosι, γ0, γ0)
-                proj1 = ProjectionParams(S0 * α.α, ψ + dψ, cosι, γ0)
-                Δp = pulsar_term_delay(α, dp)
+                proj1 = ProjectionParams(S0 * α, ψ + dψ, cosι, γ0)
+                proj1_ = ProjectionParams1psr(proj0, ap)
+                Δp = pulsar_term_delay(ap, dp)
                 ss = residuals(
                     mass,
                     n_init,
@@ -597,18 +602,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     tref,
                     tEs,
                 )
-                ss1 = residuals_1psr(
-                    mass,
-                    n_init,
-                    e_init,
-                    l_init,
-                    proj1,
-                    Δp,
-                    [EARTH, PULSAR],
-                    tref,
-                    tEs,
-                )
-                @test all(isapprox.(ss1, ss, atol = 1e-9))
 
                 hs = waveform(
                     mass,
@@ -623,32 +616,32 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     tref,
                     tEs,
                 )
-                hs1 = waveform_1psr(
-                    mass,
-                    n_init,
-                    e_init,
-                    l_init,
-                    proj1,
-                    Δp,
-                    [EARTH, PULSAR],
-                    tref,
-                    tEs,
-                )
-                @test all(isapprox.(hs1, hs, atol = 1e-9))
 
-                ss2, hs2 = residuals_and_waveform_1psr(
+                hs_new = waveform_1psr(
                     mass,
                     n_init,
                     e_init,
                     l_init,
-                    proj1,
+                    proj1_,
                     Δp,
                     [EARTH, PULSAR],
                     tref,
                     tEs,
                 )
-                @test all(isapprox.(hs1, hs2))
-                @test all(isapprox.(ss1, ss2))
+                @test all(isapprox.(hs, hs_new))
+
+                ss_new = residuals_1psr(
+                    mass,
+                    n_init,
+                    e_init,
+                    l_init,
+                    proj1_,
+                    Δp,
+                    [EARTH, PULSAR],
+                    tref,
+                    tEs,
+                )
+                @test all(isapprox.(ss, ss_new))
             end
         end
 
@@ -735,6 +728,8 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             tEs = Time.(_ts)
             tref = Time(maximum(_ts))
 
+            proj1 = ProjectionParams1psr(proj, ap)
+
             for term in [EARTH, PULSAR]
                 rs = residuals(
                     mass,
@@ -764,13 +759,13 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                 )
                 @test mismatch(rs, rs_spl) < 1e-3
 
-                Δp = pulsar_term_delay(α, dp)
+                Δp = pulsar_term_delay(ap, dp)
                 rs = residuals_1psr(
                     mass,
                     n_init,
                     e_init,
                     l_init,
-                    proj,
+                    proj1,
                     Δp,
                     [term],
                     tref,
@@ -781,7 +776,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     n_init,
                     e_init,
                     l_init,
-                    proj,
+                    proj1,
                     Δp,
                     [term],
                     tref,
@@ -795,7 +790,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
     @testset "enterprise functions" begin
         toas = LinRange(0, 1000000, 100)
         pdist = 400.0 # kpc
-        alpha = 0.3
+        # alpha = azimuth_param(ap)
         psi = 1.1
         cos_inc = 0.5
         log10_M = 9.0
@@ -804,21 +799,22 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         e0 = 0.3
         gamma0 = 0.0
         gammap = 0.0
+        sigma = 0.2
+        rho = 0.15
         l0 = 0.0
         lp = 0.0
         tref = maximum(toas)
         log10_dl = -15.0
-        deltap = pulsar_term_delay(AzimuthParam(alpha), Distance(pdist)).t
+        deltap = 100 * 365.25 * 24 * 3600
         for psrTerm in [true, false]
             res = eccentric_pta_signal_1psr(
                 toas,
-                psi,
-                cos_inc,
+                sigma,
+                rho,
                 log10_M,
                 eta,
                 log10_F,
                 e0,
-                gamma0,
                 l0,
                 tref,
                 log10_dl,

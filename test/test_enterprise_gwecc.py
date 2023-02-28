@@ -35,6 +35,8 @@ psi = 1.2
 cos_inc = 0.5
 log10_M = 8.0
 eta = 0.2
+sigma = 0.3
+rho = 0.5
 log10_F = -8.0
 e0 = 0.3
 gamma0 = gammap = 0.0
@@ -50,13 +52,12 @@ deltap = 100 * year
 def test_eccentric_pta_signal_1psr(psrTerm, spline):
     res = eccentric_pta_signal_1psr(
         toas=toas,
-        psi=psi,
-        cos_inc=cos_inc,
+        sigma=sigma,
+        rho=rho,
         log10_M=log10_M,
         eta=eta,
         log10_F=log10_F,
         e0=e0,
-        gamma0=gamma0,
         l0=l0,
         tref=tref,
         log10_A=log10_A,
@@ -130,7 +131,7 @@ def test_gwecc_1psr_block(psr, psrTerm, spline):
 
     pta = PTA([model(psr)])
 
-    assert len(pta.param_names) == (10 if psrTerm else 9)
+    assert len(pta.param_names) == (9 if psrTerm else 8)
 
     x0 = [param.sample() for param in pta.params]
     assert np.all(np.isfinite(x0))
