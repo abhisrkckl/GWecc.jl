@@ -602,18 +602,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     tref,
                     tEs,
                 )
-                # ss1 = residuals_1psr(
-                #     mass,
-                #     n_init,
-                #     e_init,
-                #     l_init,
-                #     proj1,
-                #     Δp,
-                #     [EARTH, PULSAR],
-                #     tref,
-                #     tEs,
-                # )
-                # @test all(isapprox.(ss1, ss, atol = 1e-9))
 
                 hs = waveform(
                     mass,
@@ -628,32 +616,6 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
                     tref,
                     tEs,
                 )
-                # hs1 = waveform_1psr(
-                #     mass,
-                #     n_init,
-                #     e_init,
-                #     l_init,
-                #     proj1,
-                #     Δp,
-                #     [EARTH, PULSAR],
-                #     tref,
-                #     tEs,
-                # )
-                # @test all(isapprox.(hs1, hs, atol = 1e-9))
-
-                # ss2, hs2 = residuals_and_waveform_1psr(
-                #     mass,
-                #     n_init,
-                #     e_init,
-                #     l_init,
-                #     proj1,
-                #     Δp,
-                #     [EARTH, PULSAR],
-                #     tref,
-                #     tEs,
-                # )
-                # @test all(isapprox.(hs1, hs2))
-                # @test all(isapprox.(ss1, ss2))
 
                 hs_new = waveform_1psr_new(
                     mass,
