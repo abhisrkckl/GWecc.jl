@@ -17,13 +17,12 @@ jl.seval("using GWecc")
 @enterprise_function
 def eccentric_pta_signal_1psr(
     toas,
-    psi,
-    cos_inc,
+    sigma,
+    rho,
     log10_M,
     eta,
     log10_F,
     e0,
-    gamma0,
     l0,
     tref,
     log10_A,
@@ -33,13 +32,12 @@ def eccentric_pta_signal_1psr(
 ):
     return jl.eccentric_pta_signal_1psr(
         toas,
-        float(psi),
-        float(cos_inc),
+        float(sigma),
+        float(rho),
         float(log10_M),
         float(eta),
         float(log10_F),
         float(e0),
-        float(gamma0),
         float(l0),
         float(tref),
         float(log10_A),
@@ -100,13 +98,12 @@ def eccentric_pta_signal(
 
 def gwecc_1psr_block(
     tref,
-    psi=Uniform(0, np.pi)("gwecc_psi"),
-    cos_inc=Uniform(-1, 1)("gwecc_cos_inc"),
+    sigma=Uniform(0, np.pi)("gwecc_sigma"),
+    rho=Uniform(-1, 1)("gwecc_rho"),
     log10_M=Uniform(6, 9)("gwecc_log10_M"),
     eta=Uniform(0, 0.25)("gwecc_eta"),
     log10_F=Uniform(-9, -7)("gwecc_log10_F"),
     e0=Uniform(0.01, 0.8)("gwecc_e0"),
-    gamma0=Uniform(0, np.pi)("gwecc_gamma0"),
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
     deltap=Uniform(0, 1e14),
@@ -120,13 +117,12 @@ def gwecc_1psr_block(
 
     return Deterministic(
         eccentric_pta_signal_1psr(
-            psi=psi,
-            cos_inc=cos_inc,
+            sigma=sigma,
+            rho=rho,
             log10_M=log10_M,
             eta=eta,
             log10_F=log10_F,
             e0=e0,
-            gamma0=gamma0,
             l0=l0,
             tref=tref,
             log10_A=log10_A,
