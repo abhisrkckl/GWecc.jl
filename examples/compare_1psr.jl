@@ -33,14 +33,11 @@ tEs = time_range(Time(0.0), tref, 1000)
 
 ap = AntennaPattern(psrpos, gwpos)
 Δp = pulsar_term_delay(ap, dp)
-α = AzimuthParam(ap)
-dψ = polarization_angle_shift_1psr(ap)
 
-S01 = S0 * α.α
-proj1 = ProjectionParams(S01, ψ + dψ, cosι, γ0)
+proj1 = ProjectionParams1psr(proj, ap)
 
 Rs = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [EARTH], tref, tEs)
 Rs1 = residuals_1psr(mass, n_init, e_init, l_init, proj1, Δp, [EARTH], tref, tEs)
 
 plot(extract(tEs), [Rs, Rs1])
-show()
+
