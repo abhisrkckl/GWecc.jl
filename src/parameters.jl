@@ -64,7 +64,7 @@ end
 struct MeanMotion
     n::Float64
     MeanMotion(n::Float64) =
-        (n >= 1e-12 && n <= 5e-6) ? new(n) : throw(DomainError(n, "n out of range."))
+        (n > 0 && n <= 5e-6) ? new(n) : throw(DomainError(n, "n out of range."))
 end
 
 "Dimensionless scaled mean anomaly."
