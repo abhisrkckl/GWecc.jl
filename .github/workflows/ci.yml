@@ -86,12 +86,14 @@ jobs:
           pip install .
       - name: Run examples
         run: |
-          julia examples/benchmark.jl
-          julia examples/lbar_gammabar_vs_e.jl
-          julia examples/residuals_1psr.jl
-          julia examples/residuals_components.jl
-          julia examples/residuals_terms.jl
-          julia examples/residuals_terms_px.jl
-          julia examples/tau_vs_e.jl
-          julia examples/waveform_residuals_px.jl
-          python examples/enterprise_example.py
+          cd examples
+          julia benchmark.jl
+          julia lbar_gammabar_vs_e.jl
+          julia residuals_1psr.jl
+          julia residuals_components.jl
+          julia residuals_terms.jl
+          julia residuals_terms_px.jl
+          julia tau_vs_e.jl
+          julia waveform_residuals_px.jl
+          python enterprise_example.py
+          cd ..
