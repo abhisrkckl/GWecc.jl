@@ -4,6 +4,8 @@ Figure 2 of Susobhanan+ 2020"""
 using GWecc
 using PyPlot
 
+println("Running ", PROGRAM_FILE)
+
 es = Eccentricity.(LinRange(0.01, 0.99, 1000))
 τs = τ_from_e.(es)
 

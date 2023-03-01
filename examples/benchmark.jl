@@ -1,6 +1,8 @@
 using GWecc
 using BenchmarkTools
 
+println("Running ", PROGRAM_FILE)
+
 mass = Mass(5000.0, 0.1)
 n_init = MeanMotion(1e-8)
 e_init = Eccentricity(0.1)
@@ -15,7 +17,6 @@ psrpos = SkyLocation(ra_p, dec_p)
 gwpos = SkyLocation(ra_gw, dec_gw)
 dp = Distance(1e13)
 ap = AntennaPattern(psrpos, gwpos)
-α = AzimuthParam(ap)
 
 ψ = 1.1
 cosι = 0.52
