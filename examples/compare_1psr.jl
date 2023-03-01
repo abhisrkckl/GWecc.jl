@@ -1,4 +1,4 @@
-using Plots
+import PyPlot
 using GWecc
 
 mass = Mass(5000.0, 0.1)
@@ -27,8 +27,8 @@ proj = ProjectionParams(S0, ψ, cosι, γ0)
 
 l0p = InitPhaseParams(l_init.θ)
 
-
-tref = Time(60 * 365.25 * 24 * 3600)
+year = 365.25 * 24 * 3600
+tref = Time(60 * year)
 tEs = time_range(Time(0.0), tref, 1000)
 
 ap = AntennaPattern(psrpos, gwpos)
@@ -39,5 +39,10 @@ proj1 = ProjectionParams1psr(proj, ap)
 Rs = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [EARTH], tref, tEs)
 Rs1 = residuals_1psr(mass, n_init, e_init, l_init, proj1, Δp, [EARTH], tref, tEs)
 
-plot(extract(tEs), [Rs, Rs1])
+PyPlot.plot(extract(tEs)/year, Rs*1e9, label="Full waveform")
+PyPlot.plot(extract(tEs)/year, Rs1*1e9, label="Single pulsar")
+PyPlot.legend()
+PyPlot.xlabel("t (year)")
+PyPlot.ylabel("R(t) (ns)")
+PyPlot.show()
 
