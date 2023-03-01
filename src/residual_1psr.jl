@@ -1,8 +1,5 @@
 export waveform_1psr,
-    residual_1psr,
-    residuals_1psr,
-    residual_and_waveform_1psr,
-    residuals_and_waveform_1psr
+    residual_1psr, residuals_1psr, residual_and_waveform_1psr, residuals_and_waveform_1psr
 
 function residual_1psr_coeffs_β(proj::ProjectionParams)
     ci = proj.cosι
@@ -252,8 +249,7 @@ function residuals_and_waveform_1psr(
     coeffs = EvolvCoeffs(mass, n_init, e_init)
 
     shs = [
-        residual_and_waveform_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for
-        dt in dts
+        residual_and_waveform_1psr(mass, coeffs, l_init, proj, terms, Δp, dt) for dt in dts
     ]
 
     ss = first.(shs)

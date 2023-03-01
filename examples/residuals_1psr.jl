@@ -41,10 +41,9 @@ proj1 = ProjectionParams1psr(proj, ap)
 Rs = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [EARTH], tref, tEs)
 Rs1 = residuals_1psr(mass, n_init, e_init, l_init, proj1, Δp, [EARTH], tref, tEs)
 
-PyPlot.plot(extract(tEs)/year, Rs*1e9, label="Full waveform")
-PyPlot.plot(extract(tEs)/year, Rs1*1e9, label="Single pulsar")
+PyPlot.plot(extract(tEs) / year, Rs * 1e9, label = "Full waveform")
+PyPlot.plot(extract(tEs) / year, Rs1 * 1e9, label = "Single pulsar")
 PyPlot.legend()
 PyPlot.xlabel("t (year)")
 PyPlot.ylabel("R(t) (ns)")
 PyPlot.show()
-

@@ -22,19 +22,9 @@ e0 = 0.3
 l0 = 0.0
 tref = max(toas)
 log10_A = -9.0
-deltap = 100*year
+deltap = 100 * year
 res = eccentric_pta_signal_1psr(
-    toas,
-    sigma,
-    rho,
-    log10_M,
-    eta,
-    log10_F,
-    e0,
-    l0,
-    tref,
-    log10_A,
-    deltap
+    toas, sigma, rho, log10_M, eta, log10_F, e0, l0, tref, log10_A, deltap
 )
 plt.plot(toas, res)
 plt.show()
