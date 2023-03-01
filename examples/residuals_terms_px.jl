@@ -3,6 +3,8 @@
 using GWecc
 using PyPlot
 
+println("Running ", PROGRAM_FILE)
+
 year = 365.25 * 24 * 3600
 parsec = 102927125.0
 MSun = 4.92703806e-6

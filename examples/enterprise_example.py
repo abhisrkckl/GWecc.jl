@@ -8,6 +8,8 @@ from enterprise.signals.signal_base import PTA
 
 from enterprise_gwecc import eccentric_pta_signal_1psr, gwecc_1psr_block
 
+print("Running", __file__)
+
 # Calling eccentric_pta_signal_planck18_1psr
 year = 365.25 * 24 * 3600
 toas = np.linspace(0, 5 * year, 100)

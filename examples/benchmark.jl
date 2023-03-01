@@ -1,6 +1,8 @@
 using GWecc
 using BenchmarkTools
 
+println("Running ", PROGRAM_FILE)
+
 mass = Mass(5000.0, 0.1)
 n_init = MeanMotion(1e-8)
 e_init = Eccentricity(0.1)
