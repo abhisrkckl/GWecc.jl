@@ -98,3 +98,17 @@ jobs:
           python simulation_example.py
           python enterprise_example.py
           cd ..
+
+  format:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          pip install black
+          julia -e 'import Pkg; Pkg.add("JuliaFormatter")'
+      - name: Test formatting
+        run: |
+          julia -e 'import JuliaFormatter; @assert JuliaFormatter.format(".")'
+          black .
