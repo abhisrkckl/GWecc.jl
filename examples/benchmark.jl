@@ -15,7 +15,6 @@ psrpos = SkyLocation(ra_p, dec_p)
 gwpos = SkyLocation(ra_gw, dec_gw)
 dp = Distance(1e13)
 ap = AntennaPattern(psrpos, gwpos)
-α = AzimuthParam(ap)
 
 ψ = 1.1
 cosι = 0.52
