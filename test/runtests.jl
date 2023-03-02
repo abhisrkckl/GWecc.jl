@@ -805,7 +805,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         lp = 0.0
         tref = maximum(toas)
         log10_dl = -15.0
-        deltap = 100 * 365.25 * 24 * 3600
+        deltap = 100.0
         for psrTerm in [true, false]
             res = eccentric_pta_signal_1psr(
                 toas,

@@ -1,8 +1,8 @@
 export eccentric_pta_signal, eccentric_pta_signal_1psr
 
-"ENTERPRISE-compatible interface for the residuals function. This function
-computes the eccentric PTA signal for a single pulsar given a collection of 
-TOAs and source parameters.
+"High-level interface for the residuals function. This function computes 
+the eccentric PTA signal for a single pulsar given a collection of TOAs 
+and source parameters.
 
 Parameters:
     toas : Collection of TOAs (s)
@@ -13,17 +13,18 @@ Parameters:
     gwphi : RA of the GW source (rad)
     psi : GW polarization angle (rad)
     cos_inc : Cos inclination
-    log10_M : Log10 of the total mass (Msun)
+    log10_M : Log10 total mass (Msun)
     eta : Symmetric mass ratio
-    log10_F : Log10 GW frequency (Hz)
-    e0 : Eccentricity
+    log10_F : Log10 initial GW frequency (Hz)
+    e0 : Initial eccentricity
     gamma0 : Initial periastron angle for the Earth term (rad)
     gammap : Initial periastron angle for the Pulsar term (rad)
     l0 : Initial mean anomaly for the Earth term (rad)
     lp : Initial mean anomaly for the Pulsar term (rad)
     tref : Fiducial time (s)
-    log10_z : Log10 of the cosmological redshift
+    log10_A : Log10 PTA signal amplitude (s)
     psrTerm : Whether to include the pulsar term
+    spline : Whether to use spline-based fast computation
 "
 function eccentric_pta_signal(
     toas,
@@ -74,27 +75,24 @@ function eccentric_pta_signal(
     return res(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, terms, tref, tEs)
 end
 
-"ENTERPRISE-compatible interface for the residuals_1psr function. This 
-function computes the eccentric PTA signal for a single pulsar given a 
-collection of TOAs and source parameters.
+"High-level interface for the residuals_1psr function. This function computes 
+the eccentric PTA signal for a single pulsar given a collection of TOAs and 
+source parameters.
 
 Parameters:
     toas : Collection of TOAs (s)
-    pdist : Pulsar distance (kpc)
-    alpha : GW source azimuth parameter
-    psi : GW polarization angle (rad)
-    cos_inc : Cos inclination
-    log10_M : Log10 of the total mass (Msun)
+    sigma : Projection angle 1 (rad)
+    rho : Projection angle 2 (rad)
+    log10_M : Log10 total mass (Msun)
     eta : Symmetric mass ratio
-    log10_F : Log10 GW frequency (Hz)
-    e0 : Eccentricity
-    gamma0 : Initial periastron angle for the Earth term (rad)
-    gammap : Initial periastron angle for the Pulsar term (rad)
-    l0 : Initial mean anomaly for the Earth term (rad)
-    lp : Initial mean anomaly for the Pulsar term (rad)
+    log10_F : Log10 initial GW frequency (Hz)
+    e0 : Initial Eccentricity
+    l0 : Initial mean anomaly (rad)
     tref : Fiducial time (s)
-    log10_z : Log10 of the cosmological redshift
+    log10_A : Log10 PTA signal amplitude (s)
+    deltap : Pulsar term delay (yr)
     psrTerm : Whether to include the pulsar term
+    spline : Whether to use spline-based fast computation
 "
 function eccentric_pta_signal_1psr(
     toas,
@@ -116,7 +114,7 @@ function eccentric_pta_signal_1psr(
     e_init = Eccentricity(e0)
     l_init = Angle(l0)
     proj = ProjectionParams1psr(10^log10_A, sigma, rho)
-    Δp = Time(-deltap)
+    Δp = Δp_from_deltap(deltap)
     terms = psrTerm ? [EARTH, PULSAR] : [EARTH]
     tref = Time(tref)
     tEs = Time.(toas)

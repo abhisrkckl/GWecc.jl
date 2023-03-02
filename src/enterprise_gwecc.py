@@ -106,12 +106,46 @@ def gwecc_1psr_block(
     e0=Uniform(0.01, 0.8)("gwecc_e0"),
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
-    deltap=Uniform(0, 1e14),
+    deltap=Uniform(0, 2000),
     psrTerm=False,
     spline=False,
     name="gwecc",
 ):
-    """Returns deterministic eccentric orbit continuous GW model for a single pulsar."""
+    """Deterministic eccentric-orbit continuous GW model for a single pulsar
+    using a reduced parametrization to avoid degeneracies. Should not be used 
+    while analyzing more than one pulsar.
+    
+    Parameters
+    ----------
+    sigma : enterprise.signals.parameter.Parameter
+        Projection angle 1 (rad)
+    rho : enterprise.signals.parameter.Parameter
+        Projection angle 2 (rad)
+    log10_M : enterprise.signals.parameter.Parameter
+        Log10 total mass (Msun)
+    eta : enterprise.signals.parameter.Parameter
+        Symmetric mass ratio
+    log10_F : enterprise.signals.parameter.Parameter
+        Log10 initial GW frequency (Hz)
+    e0 : enterprise.signals.parameter.Parameter
+        Initial eccentricity
+    l0 : enterprise.signals.parameter.Parameter
+        Initial mean anomaly (rad)
+    log10_A : enterprise.signals.parameter.Parameter
+        Log10 PTA signal amplitude (s)
+    deltap : enterprise.signals.parameter.Parameter
+        Pulsar term delay (yr)
+    psrTerm : bool
+        Whether to include pulsar term
+    spline : bool
+        Whether to use spline-based fast computation
+    name : str
+        Name of the signal object
+
+    Returns
+    -------
+        ENTERPRISE deterministic signal (`enterprise.signals.deterministic_signals.Deterministic`)
+    """
 
     deltap = deltap if psrTerm else 0.0
 
@@ -153,7 +187,7 @@ def gwecc_block(
     spline=False,
     name="gwecc",
 ):
-    """Returns deterministic eccentric orbit continuous GW model"""
+    """Deterministic eccentric-orbit continuous GW model."""
 
     gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
 
