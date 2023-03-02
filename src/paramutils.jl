@@ -21,5 +21,5 @@ end
 
 function Δp_from_deltap(deltap::Float64)::Time
     year = 365.25 * 24 * 3600
-    return Time(-deltap*year)
+    return Time(-deltap * year)
 end

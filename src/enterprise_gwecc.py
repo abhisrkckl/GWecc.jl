@@ -112,9 +112,9 @@ def gwecc_1psr_block(
     name="gwecc",
 ):
     """Deterministic eccentric-orbit continuous GW model for a single pulsar
-    using a reduced parametrization to avoid degeneracies. Should not be used 
+    using a reduced parametrization to avoid degeneracies. Should not be used
     while analyzing more than one pulsar.
-    
+
     Parameters
     ----------
     sigma : enterprise.signals.parameter.Parameter
