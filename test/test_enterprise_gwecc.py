@@ -43,7 +43,7 @@ gamma0 = gammap = 0.0
 l0 = lp = 0.0
 tref = max(toas)
 log10_A = -9.0
-deltap = 100 * year
+deltap = 100.0
 
 
 @pytest.mark.parametrize(

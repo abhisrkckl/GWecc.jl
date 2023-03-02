@@ -18,3 +18,8 @@ function psrdist_from_pdist(pdist::Float64)::Distance
     dp = uconvert(u"s", pdist * u"kpc" / c_0).val
     return Distance(dp)
 end
+
+function Δp_from_deltap(deltap::Float64)::Time
+    year = 365.25 * 24 * 3600
+    return Time(-deltap * year)
+end
