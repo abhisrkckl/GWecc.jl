@@ -25,8 +25,8 @@ name = "gwecc"
 tref = max(psr.toas)
 priors = {
     "sigma": Uniform(0, np.pi)(f"{name}_sigma"), # true_params["sigma"], 
-    "rho": true_params["rho"],  # Uniform(-np.pi, np.pi)(f"{name}_rho"),
-    "log10_M": true_params["log10_M"],  # Uniform(6, 9)(f"{name}_log10_M"),
+    "rho": Uniform(-np.pi, np.pi)(f"{name}_rho"),  # true_params["rho"],
+    "log10_M": Uniform(6, 9)(f"{name}_log10_M"),  # true_params["log10_M"],
     "eta": true_params["eta"],  # Uniform(0, 0.25)(f"{name}_eta"),
     "log10_F": Uniform(-9, -7)(f"{name}_log10_F"),  # true_params["log10_F"],
     "e0": Uniform(0.01, 0.8)(f"{name}_e0"),  # true_params["e0"],
@@ -44,12 +44,13 @@ model = tm + wn + wf
 pta = PTA([model(psr)])
 print(pta.param_names)
 
-x0 = np.array([p.sample() for p in pta.params])
+# x0 = np.array([p.sample() for p in pta.params])
+x0 = [true_params[ pn[(len(name)+1):] ] for pn in pta.param_names]
 print("Log-likelihood at", x0, "is", pta.get_lnlikelihood(x0))
 
 ndim = len(x0)
 cov = np.diag(np.ones(ndim) * 0.01**2)
-Niter = 1100000
+Niter = 500000
 x0 = np.hstack(x0)
 sampler = ptmcmc(
     ndim,
