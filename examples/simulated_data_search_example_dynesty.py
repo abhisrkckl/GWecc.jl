@@ -12,8 +12,8 @@ from enterprise_gwecc import gwecc_1psr_block
 from dynesty import plotting as dyplot
 from matplotlib import pyplot as plt
 
-parfile = "gwecc_sims/JPSR00_simulate.par"
-timfile = "gwecc_sims/JPSR00_simulate.tim"
+parfile = "gwecc_sims/JPSR00_simulate_1.par"
+timfile = "gwecc_sims/JPSR00_simulate_1.tim"
 try:
     psr = Pulsar(parfile, timfile)
 except FileNotFoundError:

@@ -11,8 +11,8 @@ from enterprise_gwecc import gwecc_1psr_block
 from matplotlib import pyplot as plt
 from PTMCMCSampler.PTMCMCSampler import PTSampler as ptmcmc
 
-parfile = "gwecc_sims/JPSR00_simulate.par"
-timfile = "gwecc_sims/JPSR00_simulate.tim"
+parfile = "gwecc_sims/JPSR00_simulate_1.par"
+timfile = "gwecc_sims/JPSR00_simulate_1.tim"
 try:
     psr = Pulsar(parfile, timfile)
 except FileNotFoundError:
@@ -24,13 +24,13 @@ true_params = json.load(open("gwecc_sims/true_gwecc_params.dat", "r"))
 name = "gwecc"
 tref = max(psr.toas)
 priors = {
-    "sigma": true_params["sigma"],  # Uniform(0, np.pi)("{name}_sigma"),
+    "sigma": Uniform(0, np.pi)("{name}_sigma"), # true_params["sigma"], 
     "rho": true_params["rho"],  # Uniform(-np.pi, np.pi)(f"{name}_rho"),
     "log10_M": true_params["log10_M"],  # Uniform(6, 9)(f"{name}_log10_M"),
     "eta": true_params["eta"],  # Uniform(0, 0.25)(f"{name}_eta"),
-    "log10_F": true_params["log10_F"],  # Uniform(-9, -7)(f"{name}_log10_F"),
-    "e0": true_params["e0"],  # Uniform(0.01, 0.8)(f"{name}_e0"),
-    "l0": true_params["l0"],  # Uniform(-np.pi, np.pi)(f"{name}_l0"),
+    "log10_F": Uniform(-9, -7)(f"{name}_log10_F"),  # true_params["log10_F"],
+    "e0": Uniform(0.01, 0.8)(f"{name}_e0"),  # true_params["e0"],
+    "l0": Uniform(-np.pi, np.pi)(f"{name}_l0"),  # true_params["l0"],
     "tref": tref,
     "log10_A": Uniform(-11, -5)(f"{name}_log10_A"),
     "deltap": true_params["deltap"],
@@ -49,7 +49,7 @@ print("Log-likelihood at", x0, "is", pta.get_lnlikelihood(x0))
 
 ndim = len(x0)
 cov = np.diag(np.ones(ndim) * 0.01**2)
-Niter = 50000
+Niter = 1100000
 x0 = np.hstack(x0)
 sampler = ptmcmc(
     ndim,
@@ -59,7 +59,7 @@ sampler = ptmcmc(
     outDir="gwecc_sims/chains/",
     resume=False,
 )
-# This fails if the acor package is installed, but works otherwise.
+# This sometimes fails if the acor package is installed, but works otherwise.
 # I don't know why.
 sampler.sample(x0, Niter)
 
@@ -67,7 +67,7 @@ chain_file = "gwecc_sims/chains/chain_1.txt"
 chain = np.loadtxt(chain_file)
 print(chain.shape)
 
-burn = chain.shape[0] // 4
+burn = chain.shape[0] // 3
 burned_chain = chain[burn:, :-4]
 
 for i in range(ndim):
