@@ -24,7 +24,7 @@ true_params = json.load(open("gwecc_sims/true_gwecc_params.dat", "r"))
 name = "gwecc"
 tref = max(psr.toas)
 priors = {
-    "sigma": Uniform(0, np.pi)("{name}_sigma"), # true_params["sigma"], 
+    "sigma": Uniform(0, np.pi)(f"{name}_sigma"), # true_params["sigma"], 
     "rho": true_params["rho"],  # Uniform(-np.pi, np.pi)(f"{name}_rho"),
     "log10_M": true_params["log10_M"],  # Uniform(6, 9)(f"{name}_log10_M"),
     "eta": true_params["eta"],  # Uniform(0, 0.25)(f"{name}_eta"),
