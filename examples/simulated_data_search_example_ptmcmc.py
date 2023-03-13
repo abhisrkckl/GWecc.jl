@@ -1,6 +1,7 @@
 import numpy as np
 import json
 import corner
+import os
 
 from enterprise.pulsar import Pulsar
 from enterprise.signals.parameter import Uniform
@@ -70,6 +71,9 @@ print(chain.shape)
 
 burn = chain.shape[0] // 3
 burned_chain = chain[burn:, :-4]
+
+if not os.path.exists("gwecc_sims/plots"):
+    os.mkdir("gwecc_sims/plots")
 
 for i in range(ndim):
     plt.subplot(ndim, 1, i + 1)
