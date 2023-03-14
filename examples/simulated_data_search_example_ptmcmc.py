@@ -17,7 +17,9 @@ timfile = "gwecc_sims/JPSR00_simulate_1.tim"
 try:
     psr = Pulsar(parfile, timfile)
 except FileNotFoundError:
-    print("Simulated par and tim files not found. Run simulation_example.py to create them.")
+    print(
+        "Simulated par and tim files not found. Run simulation_example.py to create them."
+    )
 
 true_params = json.load(open("gwecc_sims/true_gwecc_params.dat", "r"))
 
@@ -25,7 +27,7 @@ true_params = json.load(open("gwecc_sims/true_gwecc_params.dat", "r"))
 name = "gwecc"
 tref = max(psr.toas)
 priors = {
-    "sigma": Uniform(0, np.pi)(f"{name}_sigma"), # true_params["sigma"], 
+    "sigma": Uniform(0, np.pi)(f"{name}_sigma"),  # true_params["sigma"],
     "rho": Uniform(-np.pi, np.pi)(f"{name}_rho"),  # true_params["rho"],
     "log10_M": Uniform(6, 9)(f"{name}_log10_M"),  # true_params["log10_M"],
     "eta": Uniform(0, 0.25)(f"{name}_eta"),  # true_params["eta"],
@@ -46,7 +48,7 @@ pta = PTA([model(psr)])
 print(pta.param_names)
 
 # x0 = np.array([p.sample() for p in pta.params])
-x0 = [true_params[ pn[(len(name)+1):] ] for pn in pta.param_names]
+x0 = [true_params[pn[(len(name) + 1) :]] for pn in pta.param_names]
 print("Log-likelihood at", x0, "is", pta.get_lnlikelihood(x0))
 
 ndim = len(x0)

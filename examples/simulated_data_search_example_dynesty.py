@@ -17,7 +17,9 @@ timfile = "gwecc_sims/JPSR00_simulate_1.tim"
 try:
     psr = Pulsar(parfile, timfile)
 except FileNotFoundError:
-    print("Simulated par and tim files not found. Run simulation_example.py to create them.")
+    print(
+        "Simulated par and tim files not found. Run simulation_example.py to create them."
+    )
 
 true_params = json.load(open("gwecc_sims/true_gwecc_params.dat", "r"))
 
