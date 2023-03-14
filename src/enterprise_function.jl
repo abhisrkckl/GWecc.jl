@@ -50,8 +50,10 @@ function eccentric_pta_signal(
 )
     mass = mass_from_log10_mass(log10_M, eta)
 
-    n_init = mean_motion_from_log10_freq(log10_F)
+    # n_init = mean_motion_from_log10_freq(log10_F)
     e_init = Eccentricity(e0)
+    n_init = mean_motion_from_log10_sidereal_freq(log10_F, e_init, mass)
+
     l0p = InitPhaseParams(l0, lp)
 
     proj = ProjectionParams(10^log10_A, psi, cos_inc, gamma0, gammap)
