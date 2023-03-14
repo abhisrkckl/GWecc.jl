@@ -99,7 +99,7 @@ def eccentric_pta_signal(
 def gwecc_1psr_block(
     tref,
     sigma=Uniform(0, np.pi)("gwecc_sigma"),
-    rho=Uniform(-1, 1)("gwecc_rho"),
+    rho=Uniform(-np.pi, np.pi)("gwecc_rho"),
     log10_M=Uniform(6, 9)("gwecc_log10_M"),
     eta=Uniform(0, 0.25)("gwecc_eta"),
     log10_F=Uniform(-9, -7)("gwecc_log10_F"),
