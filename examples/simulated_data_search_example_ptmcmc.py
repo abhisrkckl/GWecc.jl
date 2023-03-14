@@ -27,7 +27,7 @@ tref = max(psr.toas)
 priors = {
     "sigma": Uniform(0, np.pi)(f"{name}_sigma"), # true_params["sigma"], 
     "rho": Uniform(-np.pi, np.pi)(f"{name}_rho"),  # true_params["rho"],
-    "log10_M": Uniform(6, 9.5)(f"{name}_log10_M"),  # true_params["log10_M"],
+    "log10_M": Uniform(6, 9)(f"{name}_log10_M"),  # true_params["log10_M"],
     "eta": Uniform(0, 0.25)(f"{name}_eta"),  # true_params["eta"],
     "log10_F": Uniform(-9, -7)(f"{name}_log10_F"),  # true_params["log10_F"],
     "e0": Uniform(0.01, 0.8)(f"{name}_e0"),  # true_params["e0"],

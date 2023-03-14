@@ -29,7 +29,7 @@ Manifest.toml
 build/
 dist/
 src/*.egg-info/*
-examples/gwecc_sims
+examples/gwecc_sims*
 
 *.pkl
 
