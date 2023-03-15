@@ -71,7 +71,7 @@ chain_file = "gwecc_sims/chains/chain_1.txt"
 chain = np.loadtxt(chain_file)
 print(chain.shape)
 
-burn = chain.shape[0] // 3
+burn = chain.shape[0] // 4
 burned_chain = chain[burn:, :-4]
 
 if not os.path.exists("gwecc_sims/plots"):
