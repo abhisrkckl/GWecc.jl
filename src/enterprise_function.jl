@@ -1,4 +1,4 @@
-export eccentric_pta_signal, eccentric_pta_signal_1psr
+export eccentric_pta_signal, eccentric_pta_signal_1psr, validate_params
 
 "High-level interface for the residuals function. This function computes 
 the eccentric PTA signal for a single pulsar given a collection of TOAs 
@@ -125,4 +125,33 @@ function eccentric_pta_signal_1psr(
     res = spline ? residuals_1psr_spline : residuals_1psr
 
     return res(mass, n_init, e_init, l_init, proj, Δp, terms, tref, tEs)
+end
+
+function validate_params(
+    log10_M::Float64,
+    eta::Float64,
+    log10_F::Float64,
+    e0::Float64,
+    tref::Float64,
+    tmax::Float64
+)
+    try
+        delay = Time(tmax - tref)
+        mass = mass_from_log10_mass(log10_M, eta)
+        n_init = mean_motion_from_log10_freq(log10_F)
+        e_init = Eccentricity(e0)
+        l_init = Angle(0.0)
+        γ_init = Angle(0.0)
+        coeffs = EvolvCoeffs(mass, n_init, e_init)
+
+        # Throws if binary merges
+        n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, delay)
+        
+        # Throws if QKP fails
+        phase = OrbitalPhase(mass, n, e, l, γ)
+    catch ex
+        return false
+    end
+
+    return true
 end
