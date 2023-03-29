@@ -133,7 +133,7 @@ function validate_params(
     log10_F::Float64,
     e0::Float64,
     tref::Float64,
-    tmax::Float64
+    tmax::Float64,
 )
     try
         delay = Time(tmax - tref)
@@ -146,7 +146,7 @@ function validate_params(
 
         # Throws if binary merges
         n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, delay)
-        
+
         # Throws if QKP fails
         phase = OrbitalPhase(mass, n, e, l, γ)
     catch ex
