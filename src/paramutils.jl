@@ -1,4 +1,4 @@
-export mass_from_log10_mass, mean_motion_from_log10_freq, psrdist_from_pdist, Δp_from_deltap
+export mass_from_log10_mass, mean_motion_from_log10_freq, psrdist_from_pdist, Δp_from_deltap, dl_from_gwdist
 
 using Unitful
 using UnitfulAstro
@@ -18,6 +18,11 @@ end
 
 function psrdist_from_pdist(pdist::Float64)::Distance
     dp = uconvert(u"s", pdist * u"kpc" / c_0).val
+    return Distance(dp)
+end
+
+function dl_from_gwdist(gwdist::Float64)::Distance
+    dp = uconvert(u"s", gwdist * u"Mpc" / c_0).val
     return Distance(dp)
 end
 
@@ -41,3 +46,22 @@ end
 
 #     return n
 # end
+
+function mass_from_gwdist(log10_A, log10_F, e0, gwdist, η)
+    n_init = mean_motion_from_log10_freq(log10_F)
+    e_init = Eccentricity(e0)
+
+    n0 = n_init.n
+    S0 = 10^log10_A
+    dl = dl_from_gwdist(gwdist).D
+
+    M = ((S0 * dl / η)^3 * n0)^5/3
+
+    k = advance_of_periastron(Mass(M, η), n_init, e_init).k
+    M = ((S0 * dl / η)^3 * (1 + k) * n0)^5/3
+
+    k = advance_of_periastron(Mass(M, η), n_init, e_init).k
+    M = ((S0 * dl / η)^3 * (1 + k) * n0)^5/3
+
+    return Mass(M, η)
+end
