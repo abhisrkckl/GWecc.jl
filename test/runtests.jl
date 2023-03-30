@@ -806,51 +806,56 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         tref = maximum(toas)
         log10_dl = -15.0
         deltap = 100.0
-        for psrTerm in [true, false]
-            res = eccentric_pta_signal_1psr(
-                toas,
-                sigma,
-                rho,
-                log10_M,
-                eta,
-                log10_F,
-                e0,
-                l0,
-                tref,
-                log10_dl,
-                deltap,
-                psrTerm,
-            )
-            @test all(isfinite.(res))
+        for spline in [true, false]
+            for psrTerm in [true, false]
+                res = eccentric_pta_signal_1psr(
+                    toas,
+                    sigma,
+                    rho,
+                    log10_M,
+                    eta,
+                    log10_F,
+                    e0,
+                    l0,
+                    tref,
+                    log10_dl,
+                    deltap,
+                    psrTerm,
+                )
+                @test all(isfinite.(res))
+            end
         end
 
         ra_p = 1.5
         dec_p = -0.8
         ra_gw = 0.5
         dec_gw = 0.75
-        for psrTerm in [true, false]
-            res = eccentric_pta_signal(
-                toas,
-                π / 2 - dec_p,
-                ra_p,
-                pdist,
-                sin(dec_gw),
-                ra_gw,
-                psi,
-                cos_inc,
-                log10_M,
-                eta,
-                log10_F,
-                e0,
-                gamma0,
-                gammap,
-                l0,
-                lp,
-                tref,
-                log10_dl,
-                psrTerm,
-            )
-            @test all(isfinite.(res))
+        for spline in [true, false]
+            for psrTerm in [true, false]
+                res = eccentric_pta_signal(
+                    toas,
+                    π / 2 - dec_p,
+                    ra_p,
+                    pdist,
+                    sin(dec_gw),
+                    ra_gw,
+                    psi,
+                    cos_inc,
+                    log10_M,
+                    eta,
+                    log10_F,
+                    e0,
+                    gamma0,
+                    gammap,
+                    l0,
+                    lp,
+                    tref,
+                    log10_dl,
+                    psrTerm,
+                    spline,
+                )
+                @test all(isfinite.(res))
+            end
         end
 
         @test validate_params(log10_M, eta, log10_F, e0, tref, tref)

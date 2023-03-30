@@ -1,4 +1,8 @@
-export eccentric_pta_signal, eccentric_pta_signal_1psr, eccentric_pta_signal_target, validate_params, validate_params_target
+export eccentric_pta_signal,
+    eccentric_pta_signal_1psr,
+    eccentric_pta_signal_target,
+    validate_params,
+    validate_params_target
 
 "High-level interface for the residuals function. This function computes 
 the eccentric PTA signal for a single pulsar given a collection of TOAs 
