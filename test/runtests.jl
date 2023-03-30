@@ -15,7 +15,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test_throws DomainError Mass(4e-2, 0.2)
             @test_throws DomainError Mass(1.0, -1.0)
             @test_throws DomainError Mass(1.0, 0.0)
-            @test_throws DomainError Mass(6e4, 0.2)
+            @test_throws DomainError Mass(6e5, 0.2)
             @test_throws DomainError Mass(1.0, 0.26)
             @test Mass(1.0, 0.1).m == 1.0
             @test Mass(1.0, 0.25).η == 0.25
@@ -854,7 +854,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         end
 
         @test validate_params(log10_M, eta, log10_F, e0, tref, tref)
-        @test !validate_params(10.0, eta, -7.0, 0.99, tref, tref)
+        @test !validate_params(10.0, eta, -7.0, 0.999, tref, tref)
     end
 
 end
