@@ -858,6 +858,36 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             end
         end
 
+        log10_A = -9.0
+        gwdist = 100.0
+        for spline in [true, false]
+            for psrTerm in [true, false]
+                res = eccentric_pta_signal_target(
+                    toas,
+                    π / 2 - dec_p,
+                    ra_p,
+                    pdist,
+                    sin(dec_gw),
+                    ra_gw,
+                    psi,
+                    cos_inc,
+                    eta,
+                    log10_F,
+                    e0,
+                    gamma0,
+                    gammap,
+                    l0,
+                    lp,
+                    tref,
+                    log10_A,
+                    gwdist,
+                    psrTerm,
+                    spline,
+                )
+                @test all(isfinite.(res))
+            end
+        end
+
         @test validate_params(log10_M, eta, log10_F, e0, tref, tref)
         @test !validate_params(10.0, eta, -7.0, 0.999, tref, tref)
 
