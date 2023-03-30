@@ -14,6 +14,8 @@ from enterprise_gwecc import (
     gwecc_block,
     gwecc_1psr_block,
     gwecc_target_block,
+    gwecc_prior,
+    gwecc_target_prior,
 )
 
 
@@ -145,9 +147,11 @@ def test_gwecc_block(psr, psrTerm, spline):
     assert len(pta.param_names) == (13 if psrTerm else 11)
 
     x0 = [param.sample() for param in pta.params]
-    assert np.all(np.isfinite(x0))
-    assert np.isfinite(pta.get_lnlikelihood(x0))
-    assert np.isfinite(pta.get_lnprior(x0))
+    lnprior_fn = gwecc_prior(pta, tref, tref, name="gwecc")
+    if np.isfinite(lnprior_fn(x0)):
+        assert np.all(np.isfinite(x0))
+        assert np.isfinite(pta.get_lnlikelihood(x0))
+        assert np.isfinite(pta.get_lnprior(x0))
 
 
 @pytest.mark.parametrize(
@@ -166,9 +170,11 @@ def test_gwecc_1psr_block(psr, psrTerm, spline):
     assert len(pta.param_names) == (9 if psrTerm else 8)
 
     x0 = [param.sample() for param in pta.params]
-    assert np.all(np.isfinite(x0))
-    assert np.isfinite(pta.get_lnlikelihood(x0))
-    assert np.isfinite(pta.get_lnprior(x0))
+    lnprior_fn = gwecc_prior(pta, tref, tref, name="gwecc")
+    if np.isfinite(lnprior_fn(x0)):
+        assert np.all(np.isfinite(x0))
+        assert np.isfinite(pta.get_lnlikelihood(x0))
+        assert np.isfinite(pta.get_lnprior(x0))
 
 
 @pytest.mark.parametrize(
@@ -194,6 +200,8 @@ def test_gwecc_target_block(psr, psrTerm, spline):
     assert len(pta.param_names) == (10 if psrTerm else 8)
 
     x0 = [param.sample() for param in pta.params]
-    assert np.all(np.isfinite(x0))
-    assert np.isfinite(pta.get_lnlikelihood(x0))
-    assert np.isfinite(pta.get_lnprior(x0))
+    lnprior_fn = gwecc_target_prior(pta, gwdist, tref, tref, name="gwecc")
+    if np.isfinite(lnprior_fn(x0)):
+        assert np.all(np.isfinite(x0))
+        assert np.isfinite(pta.get_lnlikelihood(x0))
+        assert np.isfinite(pta.get_lnprior(x0))

@@ -95,6 +95,7 @@ def eccentric_pta_signal(
         spline,
     )
 
+
 # This thin wrapper function is required because ENTERPRISE relies on reflection
 # of Python functions, which does not work properly with juliacall.
 @enterprise_function
@@ -142,6 +143,7 @@ def eccentric_pta_signal_target(
         psrTerm,
         spline,
     )
+
 
 def gwecc_1psr_block(
     tref,
@@ -305,3 +307,40 @@ def gwecc_target_block(
         ),
         name=name,
     )
+
+
+def gwecc_prior(pta, tref, tmax, name="gwecc"):
+    def gwecc_target_prior_fn(params):
+        param_map = pta.map_params(params)
+        if jl.validate_params(
+            param_map[f"{name}_log10_M"],
+            param_map[f"{name}_eta"],
+            param_map[f"{name}_log10_F"],
+            param_map[f"{name}_e0"],
+            tref,
+            tmax,
+        ):
+            return pta.get_lnprior(param_map)
+        else:
+            return -np.inf
+
+    return gwecc_target_prior_fn
+
+
+def gwecc_target_prior(pta, gwdist, tref, tmax, name="gwecc"):
+    def gwecc_target_prior_fn(params):
+        param_map = pta.map_params(params)
+        if jl.validate_params_target(
+            param_map[f"{name}_log10_A"],
+            param_map[f"{name}_eta"],
+            param_map[f"{name}_log10_F"],
+            param_map[f"{name}_e0"],
+            gwdist,
+            tref,
+            tmax,
+        ):
+            return pta.get_lnprior(param_map)
+        else:
+            return -np.inf
+
+    return gwecc_target_prior_fn
