@@ -1,4 +1,4 @@
-export mass_from_log10_mass, mean_motion_from_log10_freq, psrdist_from_pdist, Δp_from_deltap, dl_from_gwdist
+export mass_from_log10_mass, mean_motion_from_log10_freq, psrdist_from_pdist, Δp_from_deltap, dl_from_gwdist, mass_from_gwdist
 
 using Unitful
 using UnitfulAstro
