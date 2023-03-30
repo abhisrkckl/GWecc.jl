@@ -855,6 +855,11 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 
         @test validate_params(log10_M, eta, log10_F, e0, tref, tref)
         @test !validate_params(10.0, eta, -7.0, 0.999, tref, tref)
+
+        gwdist = 100.0
+        log10_A = -9.0
+        @test validate_params_target(log10_A, eta, log10_F, e0, gwdist, tref, tref)
+        @test !validate_params_target(-5.0, eta, -7.0, 0.999, gwdist, tref, tref)
     end
 
 end
