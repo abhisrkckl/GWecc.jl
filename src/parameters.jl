@@ -49,7 +49,7 @@ struct Mass
     η::Float64
     Mch::Float64
     function Mass(m::Float64, η::Float64)
-        if !(m >= 5e-2 && m <= 5e4)
+        if !(m >= 5e-2 && m <= 5e5)
             throw(DomainError(m, "m out of range."))
         elseif !(η > 0 && η <= 0.25)
             throw(DomainError(η, "η out of range."))

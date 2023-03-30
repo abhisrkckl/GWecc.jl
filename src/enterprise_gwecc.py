@@ -96,6 +96,55 @@ def eccentric_pta_signal(
     )
 
 
+# This thin wrapper function is required because ENTERPRISE relies on reflection
+# of Python functions, which does not work properly with juliacall.
+@enterprise_function
+def eccentric_pta_signal_target(
+    toas,
+    theta,
+    phi,
+    pdist,
+    cos_gwtheta,
+    gwphi,
+    psi,
+    cos_inc,
+    eta,
+    log10_F,
+    e0,
+    gamma0,
+    gammap,
+    l0,
+    lp,
+    tref,
+    log10_A,
+    gwdist,
+    psrTerm=False,
+    spline=False,
+):
+    return jl.eccentric_pta_signal_target(
+        toas,
+        float(theta),
+        float(phi),
+        float(pdist[0] if isinstance(pdist, tuple) else pdist),
+        float(cos_gwtheta),
+        float(gwphi),
+        float(psi),
+        float(cos_inc),
+        float(eta),
+        float(log10_F),
+        float(e0),
+        float(gamma0),
+        float(gammap),
+        float(l0),
+        float(lp),
+        float(tref),
+        float(log10_A),
+        float(gwdist),
+        psrTerm,
+        spline,
+    )
+
+
 def gwecc_1psr_block(
     tref,
     sigma=Uniform(0, np.pi)("gwecc_sigma"),
@@ -212,3 +261,86 @@ def gwecc_block(
         ),
         name=name,
     )
+
+
+def gwecc_target_block(
+    tref,
+    cos_gwtheta,
+    gwphi,
+    gwdist,
+    psi=Uniform(0, np.pi)("gwecc_psi"),
+    cos_inc=Uniform(-1, 1)("gwecc_cos_inc"),
+    eta=Uniform(0, 0.25)("gwecc_eta"),
+    log10_F=Uniform(-9, -7)("gwecc_log10_F"),
+    e0=Uniform(0.01, 0.8)("gwecc_e0"),
+    gamma0=Uniform(0, np.pi)("gwecc_gamma0"),
+    gammap=Uniform(0, np.pi),
+    l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
+    lp=Uniform(0, 2 * np.pi),
+    log10_A=Uniform(-11, -7)("gwecc_log10_A"),
+    psrTerm=False,
+    spline=False,
+    name="gwecc",
+):
+    """Deterministic eccentric-orbit continuous GW model."""
+
+    gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
+
+    return Deterministic(
+        eccentric_pta_signal_target(
+            cos_gwtheta=cos_gwtheta,
+            gwphi=gwphi,
+            psi=psi,
+            cos_inc=cos_inc,
+            eta=eta,
+            log10_F=log10_F,
+            e0=e0,
+            gamma0=gamma0,
+            gammap=gammap,
+            l0=l0,
+            lp=lp,
+            tref=tref,
+            log10_A=log10_A,
+            gwdist=gwdist,
+            psrTerm=psrTerm,
+            spline=spline,
+        ),
+        name=name,
+    )
+
+
+def gwecc_prior(pta, tref, tmax, name="gwecc"):
+    def gwecc_target_prior_fn(params):
+        param_map = pta.map_params(params)
+        if jl.validate_params(
+            param_map[f"{name}_log10_M"],
+            param_map[f"{name}_eta"],
+            param_map[f"{name}_log10_F"],
+            param_map[f"{name}_e0"],
+            tref,
+            tmax,
+        ):
+            return pta.get_lnprior(param_map)
+        else:
+            return -np.inf
+
+    return gwecc_target_prior_fn
+
+
+def gwecc_target_prior(pta, gwdist, tref, tmax, name="gwecc"):
+    def gwecc_target_prior_fn(params):
+        param_map = pta.map_params(params)
+        if jl.validate_params_target(
+            param_map[f"{name}_log10_A"],
+            param_map[f"{name}_eta"],
+            param_map[f"{name}_log10_F"],
+            param_map[f"{name}_e0"],
+            gwdist,
+            tref,
+            tmax,
+        ):
+            return pta.get_lnprior(param_map)
+        else:
+            return -np.inf
+
+    return gwecc_target_prior_fn

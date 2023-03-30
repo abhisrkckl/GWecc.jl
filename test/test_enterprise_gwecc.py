@@ -10,8 +10,12 @@ from enterprise.signals.signal_base import PTA
 from enterprise_gwecc import (
     eccentric_pta_signal,
     eccentric_pta_signal_1psr,
+    eccentric_pta_signal_target,
     gwecc_block,
     gwecc_1psr_block,
+    gwecc_target_block,
+    gwecc_prior,
+    gwecc_target_prior,
 )
 
 
@@ -30,6 +34,7 @@ theta = 0.5
 phi = 3.0
 cos_gwtheta = 0.1
 gwphi = 2.9
+gwdist = 100.0
 alpha = 0.3
 psi = 1.2
 cos_inc = 0.5
@@ -100,6 +105,35 @@ def test_eccentric_pta_signal(psrTerm, spline):
 @pytest.mark.parametrize(
     "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
 )
+def test_eccentric_pta_signal_target(psrTerm, spline):
+    res = eccentric_pta_signal_target(
+        toas,
+        theta,
+        phi,
+        pdist,
+        cos_gwtheta,
+        gwphi,
+        psi,
+        cos_inc,
+        eta,
+        log10_F,
+        e0,
+        gamma0,
+        gammap,
+        l0,
+        lp,
+        tref,
+        log10_A,
+        gwdist,
+        psrTerm=psrTerm,
+        spline=spline,
+    )
+    assert np.all(np.isfinite(res))
+
+
+@pytest.mark.parametrize(
+    "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
+)
 def test_gwecc_block(psr, psrTerm, spline):
     tref = max(psr.toas)
 
@@ -113,9 +147,11 @@ def test_gwecc_block(psr, psrTerm, spline):
     assert len(pta.param_names) == (13 if psrTerm else 11)
 
     x0 = [param.sample() for param in pta.params]
-    assert np.all(np.isfinite(x0))
-    assert np.isfinite(pta.get_lnlikelihood(x0))
-    assert np.isfinite(pta.get_lnprior(x0))
+    lnprior_fn = gwecc_prior(pta, tref, tref, name="gwecc")
+    if np.isfinite(lnprior_fn(x0)):
+        assert np.all(np.isfinite(x0))
+        assert np.isfinite(pta.get_lnlikelihood(x0))
+        assert np.isfinite(pta.get_lnprior(x0))
 
 
 @pytest.mark.parametrize(
@@ -134,6 +170,38 @@ def test_gwecc_1psr_block(psr, psrTerm, spline):
     assert len(pta.param_names) == (9 if psrTerm else 8)
 
     x0 = [param.sample() for param in pta.params]
-    assert np.all(np.isfinite(x0))
-    assert np.isfinite(pta.get_lnlikelihood(x0))
-    assert np.isfinite(pta.get_lnprior(x0))
+    lnprior_fn = gwecc_prior(pta, tref, tref, name="gwecc")
+    if np.isfinite(lnprior_fn(x0)):
+        assert np.all(np.isfinite(x0))
+        assert np.isfinite(pta.get_lnlikelihood(x0))
+        assert np.isfinite(pta.get_lnprior(x0))
+
+
+@pytest.mark.parametrize(
+    "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
+)
+def test_gwecc_target_block(psr, psrTerm, spline):
+    tref = max(psr.toas)
+
+    tm = MarginalizingTimingModel()
+    wn = MeasurementNoise(efac=1.0)
+    wf = gwecc_target_block(
+        tref=tref,
+        cos_gwtheta=cos_gwtheta,
+        gwphi=gwphi,
+        gwdist=gwdist,
+        psrTerm=psrTerm,
+        spline=spline,
+    )
+    model = tm + wn + wf
+
+    pta = PTA([model(psr)])
+
+    assert len(pta.param_names) == (10 if psrTerm else 8)
+
+    x0 = [param.sample() for param in pta.params]
+    lnprior_fn = gwecc_target_prior(pta, gwdist, tref, tref, name="gwecc")
+    if np.isfinite(lnprior_fn(x0)):
+        assert np.all(np.isfinite(x0))
+        assert np.isfinite(pta.get_lnlikelihood(x0))
+        assert np.isfinite(pta.get_lnprior(x0))

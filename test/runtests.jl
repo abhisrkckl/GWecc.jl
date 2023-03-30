@@ -15,7 +15,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
             @test_throws DomainError Mass(4e-2, 0.2)
             @test_throws DomainError Mass(1.0, -1.0)
             @test_throws DomainError Mass(1.0, 0.0)
-            @test_throws DomainError Mass(6e4, 0.2)
+            @test_throws DomainError Mass(6e5, 0.2)
             @test_throws DomainError Mass(1.0, 0.26)
             @test Mass(1.0, 0.1).m == 1.0
             @test Mass(1.0, 0.25).η == 0.25
@@ -806,51 +806,95 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         tref = maximum(toas)
         log10_dl = -15.0
         deltap = 100.0
-        for psrTerm in [true, false]
-            res = eccentric_pta_signal_1psr(
-                toas,
-                sigma,
-                rho,
-                log10_M,
-                eta,
-                log10_F,
-                e0,
-                l0,
-                tref,
-                log10_dl,
-                deltap,
-                psrTerm,
-            )
-            @test all(isfinite.(res))
+        for spline in [true, false]
+            for psrTerm in [true, false]
+                res = eccentric_pta_signal_1psr(
+                    toas,
+                    sigma,
+                    rho,
+                    log10_M,
+                    eta,
+                    log10_F,
+                    e0,
+                    l0,
+                    tref,
+                    log10_dl,
+                    deltap,
+                    psrTerm,
+                )
+                @test all(isfinite.(res))
+            end
         end
 
         ra_p = 1.5
         dec_p = -0.8
         ra_gw = 0.5
         dec_gw = 0.75
-        for psrTerm in [true, false]
-            res = eccentric_pta_signal(
-                toas,
-                π / 2 - dec_p,
-                ra_p,
-                pdist,
-                sin(dec_gw),
-                ra_gw,
-                psi,
-                cos_inc,
-                log10_M,
-                eta,
-                log10_F,
-                e0,
-                gamma0,
-                gammap,
-                l0,
-                lp,
-                tref,
-                log10_dl,
-                psrTerm,
-            )
-            @test all(isfinite.(res))
+        for spline in [true, false]
+            for psrTerm in [true, false]
+                res = eccentric_pta_signal(
+                    toas,
+                    π / 2 - dec_p,
+                    ra_p,
+                    pdist,
+                    sin(dec_gw),
+                    ra_gw,
+                    psi,
+                    cos_inc,
+                    log10_M,
+                    eta,
+                    log10_F,
+                    e0,
+                    gamma0,
+                    gammap,
+                    l0,
+                    lp,
+                    tref,
+                    log10_dl,
+                    psrTerm,
+                    spline,
+                )
+                @test all(isfinite.(res))
+            end
         end
+
+        log10_A = -9.0
+        gwdist = 100.0
+        for spline in [true, false]
+            for psrTerm in [true, false]
+                res = eccentric_pta_signal_target(
+                    toas,
+                    π / 2 - dec_p,
+                    ra_p,
+                    pdist,
+                    sin(dec_gw),
+                    ra_gw,
+                    psi,
+                    cos_inc,
+                    eta,
+                    log10_F,
+                    e0,
+                    gamma0,
+                    gammap,
+                    l0,
+                    lp,
+                    tref,
+                    log10_A,
+                    gwdist,
+                    psrTerm,
+                    spline,
+                )
+                @test all(isfinite.(res))
+            end
+        end
+
+        @test validate_params(log10_M, eta, log10_F, e0, tref, tref)
+        @test !validate_params(10.0, eta, -7.0, 0.999, tref, tref)
+
+        gwdist = 100.0
+        log10_A = -9.0
+        @test validate_params_target(log10_A, eta, log10_F, e0, gwdist, tref, tref)
+        @test !validate_params_target(-5.0, eta, -7.0, 0.999, gwdist, tref, tref)
     end
+
 end
