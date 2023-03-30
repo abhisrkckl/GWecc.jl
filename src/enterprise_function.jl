@@ -102,8 +102,8 @@ function eccentric_pta_signal_target(
     n_init = mean_motion_from_log10_freq(log10_F)
     e_init = Eccentricity(e0)
 
-    mass = mass_from_gwdist(log10_A, log10_F, e0, gwdist, eta)    
-    
+    mass = mass_from_gwdist(log10_A, log10_F, e0, gwdist, eta)
+
     # n_init = mean_motion_from_log10_sidereal_freq(log10_F, e_init, mass)
 
     l0p = InitPhaseParams(l0, lp)
