@@ -61,7 +61,7 @@ function mass_from_gwdist(log10_A, log10_F, e0, gwdist, η)
     dl = dl_from_gwdist(gwdist).D
 
     M = ((S0 * dl / η)^3 * n0)^(1 / 5)
-    for _ in 1:10
+    for _ = 1:10
         M_prev = M
 
         k = advance_of_periastron(Mass(M, η), n_init, e_init).k
