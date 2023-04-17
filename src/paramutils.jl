@@ -54,20 +54,20 @@ end
 
 function mass_from_gwdist(log10_A, log10_F, e0, gwdist, η)
     n_init = mean_motion_from_log10_freq(log10_F)
-    # e_init = Eccentricity(e0)
+    e_init = Eccentricity(e0)
 
     n0 = n_init.n
     S0 = 10^log10_A
     dl = dl_from_gwdist(gwdist).D
 
     M = ((S0 * dl / η)^3 * n0)^(1 / 5)
-    # M_prev = M + 2e-6
-    # while abs(M_prev - M) > 1e-6
-    #     M_prev = M
+    M_prev = M + 2e-6
+    while abs(M_prev - M) > 1e-6
+        M_prev = M
 
-    #     k = advance_of_periastron(Mass(M, η), n_init, e_init).k
-    #     M = ((S0 * dl / η)^3 * n0 / (1 + k)^2)^(1 / 5)
-    # end
+        k = advance_of_periastron(Mass(M, η), n_init, e_init).k
+        M = ((S0 * dl / η)^3 * n0 / (1 + k)^2)^(1 / 5)
+    end
 
     return Mass(M, η)
 end
