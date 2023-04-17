@@ -65,7 +65,7 @@ function mass_from_gwdist(log10_A, log10_F, e0, gwdist, η)
         M_prev = M
 
         k = advance_of_periastron(Mass(M, η), n_init, e_init).k
-        M = ((S0 * dl / η)^3 * n0 / (1+k)^2)^(1 / 5)
+        M = ((S0 * dl / η)^3 * n0 / (1 + k)^2)^(1 / 5)
 
         if abs(M_prev - M) <= 1e-6
             break
