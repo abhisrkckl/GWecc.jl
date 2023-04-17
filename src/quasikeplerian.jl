@@ -37,8 +37,8 @@ function pn_param_x(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::PNParam
         end
     end
 
-    n = norb1.n
-    x = (m * n)^(2 / 3)
+    ns = norb1.n
+    x = (m * ns)^(2 / 3)
 
     return PNParam(x)
 end
