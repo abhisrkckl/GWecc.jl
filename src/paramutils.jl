@@ -54,7 +54,7 @@ end
 
 function mass_from_gwdist(log10_A, log10_F, e0, gwdist, η)
     n_init = mean_motion_from_log10_freq(log10_F)
-    e_init = Eccentricity(e0)
+    # e_init = Eccentricity(e0)
 
     n0 = n_init.n
     S0 = 10^log10_A
