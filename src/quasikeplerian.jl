@@ -24,11 +24,22 @@ end
 "PN expansion parameter"
 function pn_param_x(mass::Mass, norb::MeanMotion, ecc::Eccentricity)::PNParam
     m = mass.m
-    n = norb.n
-    e = ecc.e
-    x = (m * n)^(2 / 3)
-    k = advance_of_periastron(mass, norb, ecc).k
-    x = x * (1 + k)^(2 / 3)
+
+    norb1 = norb
+    for _ = 1:10
+        norb0 = norb1
+
+        k = advance_of_periastron(mass, norb1, ecc).k
+        norb1 = MeanMotion(norb.n * (1 + k))
+
+        if abs(norb1.n - norb0.n) < 1e-15
+            break
+        end
+    end
+
+    ns = norb1.n
+    x = (m * ns)^(2 / 3)
+
     return PNParam(x)
 end
 
