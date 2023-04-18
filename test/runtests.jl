@@ -895,6 +895,20 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         log10_A = -9.0
         @test validate_params_target(log10_A, eta, log10_F, e0, gwdist, tref, tref)
         @test !validate_params_target(-5.0, eta, -7.0, 0.999, gwdist, tref, tref)
+
+        # Roundtrip test for converting mass to/from amplitude
+        # for targetted search.
+        eta = 0.23
+        m1 = mass_from_log10_mass(9.25, eta)
+        log10_F = -7.21
+        n0 = mean_motion_from_log10_freq(log10_F)
+        e0 = Eccentricity(0.3)
+        gwdist = 0.931
+        dl = dl_from_gwdist(gwdist)
+        ampl = gw_amplitude(m1, n0, e0, dl) / n0.n
+        log10_A = log10(ampl)
+        m2 = mass_from_gwdist(log10_A, log10_F, e0.e, gwdist, eta)
+        @test m1.m ≈ m2.m atol=1e-6
     end
 
 end
