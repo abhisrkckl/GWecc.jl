@@ -60,7 +60,7 @@ function mass_from_gwdist(log10_A, log10_F, e0, gwdist, η)
     S0 = 10^log10_A
     dl = dl_from_gwdist(gwdist)
 
-    M0 = ((S0 * dl / η)^3 * n0)^(1 / 5)
+    M0 = ((S0 * dl.D / η)^3 * n0)^(1 / 5)
     
     pta_A = m -> gw_amplitude(Mass(m, η), n_init, e_init, dl) / n0
     f = m -> pta_A(m) - S0
