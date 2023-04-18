@@ -58,7 +58,7 @@ function mass_from_gwdist(log10_A, log10_F, e0, gwdist, η)
 
     n0 = n_init.n
     S0 = 10^log10_A
-    dl = dl_from_gwdist(gwdist).D
+    dl = dl_from_gwdist(gwdist)
 
     M0 = ((S0 * dl / η)^3 * n0)^(1 / 5)
     
