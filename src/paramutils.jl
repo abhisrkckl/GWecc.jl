@@ -67,7 +67,7 @@ function mass_from_gwdist(log10_A, log10_F, e0, gwdist, η)
     
     ∂S_∂M = (S, M, k) -> (15 + 19*k) * S / (9*(1+k)*M)
     k_aop = m ->  advance_of_periastron(Mass(m, η), n_init, e_init).k
-    fp = m -> ∂S_∂M(f(m), m, k_aop(m))
+    fp = m -> ∂S_∂M(pta_A(m), m, k_aop(m))
 
     return newton_raphson(f, fp, M0)
 end
