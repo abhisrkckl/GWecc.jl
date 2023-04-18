@@ -61,12 +61,12 @@ function mass_from_gwdist(log10_A, log10_F, e0, gwdist, η)
     dl = dl_from_gwdist(gwdist)
 
     M0 = ((S0 * dl.D / η)^3 * n0)^(1 / 5)
-    
+
     pta_A = m -> gw_amplitude(Mass(m, η), n_init, e_init, dl) / n0
     f = m -> pta_A(m) - S0
-    
-    ∂S_∂M = (S, M, k) -> (15 + 19*k) * S / (9*(1+k)*M)
-    k_aop = m ->  advance_of_periastron(Mass(m, η), n_init, e_init).k
+
+    ∂S_∂M = (S, M, k) -> (15 + 19 * k) * S / (9 * (1 + k) * M)
+    k_aop = m -> advance_of_periastron(Mass(m, η), n_init, e_init).k
     fp = m -> ∂S_∂M(pta_A(m), m, k_aop(m))
 
     M = newton_raphson(f, fp, M0)
@@ -74,11 +74,11 @@ function mass_from_gwdist(log10_A, log10_F, e0, gwdist, η)
 end
 
 
-function newton_raphson(f, fp, x0, atol=1e-6, maxiter=100)
-    for _ in 1:maxiter
+function newton_raphson(f, fp, x0, atol = 1e-6, maxiter = 100)
+    for _ = 1:maxiter
         x1 = x0 - f(x0) / fp(x0)
 
-        if abs(x0-x1) < atol
+        if abs(x0 - x1) < atol
             break
         end
 

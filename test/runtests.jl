@@ -908,7 +908,7 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         ampl = gw_amplitude(m1, n0, e0, dl) / n0.n
         log10_A = log10(ampl)
         m2 = mass_from_gwdist(log10_A, log10_F, e0.e, gwdist, eta)
-        @test m1.m ≈ m2.m atol=1e-6
+        @test m1.m ≈ m2.m atol = 1e-6
     end
 
 end
