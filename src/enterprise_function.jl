@@ -203,6 +203,8 @@ function validate_params(
         # Throws if binary merges
         n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, delay)
 
+        k = advance_of_periastron(mass, n, e)
+
         # Throws if QKP fails
         phase = OrbitalPhase(mass, n, e, l, γ)
     catch ex
@@ -232,6 +234,8 @@ function validate_params_target(
 
         # Throws if binary merges
         n, e, l, γ = evolve_orbit(coeffs, l_init, γ_init, delay)
+
+        k = advance_of_periastron(mass, n, e)
 
         # Throws if QKP fails
         phase = OrbitalPhase(mass, n, e, l, γ)
