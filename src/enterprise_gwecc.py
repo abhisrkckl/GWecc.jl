@@ -236,7 +236,40 @@ def gwecc_prior(pta, tref, tmax, name="gwecc"):
     return gwecc_target_prior_fn
 
 
-eccentric_pta_signal_components = jl.eccentric_pta_signal_components
+def eccentric_pta_signal_components(
+    toas,
+    theta,
+    phi,
+    pdist,
+    cos_gwtheta,
+    gwphi,
+    log10_M,
+    eta,
+    log10_F,
+    e0,
+    l0,
+    lp,
+    tref,
+    psrTerm=False,
+):
+    As = jl.eccentric_pta_signal_components(
+        toas,
+        float(theta),
+        float(phi),
+        float(pdist),
+        float(cos_gwtheta),
+        float(gwphi),
+        float(log10_M),
+        float(eta),
+        float(log10_F),
+        float(e0),
+        float(l0),
+        float(lp),
+        float(tref),
+        psrTerm=psrTerm,
+    )
+
+    return list(map(np.array, As))
 
 
 # ========= Functions for targeted search ===================
