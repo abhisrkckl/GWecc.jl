@@ -236,6 +236,9 @@ def gwecc_prior(pta, tref, tmax, name="gwecc"):
     return gwecc_target_prior_fn
 
 
+eccentric_pta_signal_components = jl.eccentric_pta_signal_components
+
+
 # ========= Functions for targeted search ===================
 
 # This thin wrapper function is required because ENTERPRISE relies on reflection
