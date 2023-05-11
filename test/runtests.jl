@@ -909,6 +909,23 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         log10_A = log10(ampl)
         m2 = mass_from_gwdist(log10_A, log10_F, e0.e, gwdist, eta)
         @test m1.m ≈ m2.m atol = 1e-6
+        
+        As = eccentric_pta_signal_components(
+            toas,
+            pi/2 - dec_p,
+            ra_p,
+            pdist,
+            sin(dec_gw),
+            ra_gw,
+            log10_M,
+            eta,
+            log10_F,
+            0.3,
+            l0,
+            lp,
+            tref,
+        )
+        @test all([all(isfinite.(Ais)) for Ais in As])
     end
 
 end
