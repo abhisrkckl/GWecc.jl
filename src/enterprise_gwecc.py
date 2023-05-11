@@ -12,6 +12,8 @@ from juliacall import Main as jl
 
 jl.seval("using GWecc")
 
+# ========= Functions for single-pulsar search ===================
+
 # This thin wrapper function is required because ENTERPRISE relies on reflection
 # of Python functions, which does not work properly with juliacall.
 @enterprise_function
@@ -42,104 +44,6 @@ def eccentric_pta_signal_1psr(
         float(tref),
         float(log10_A),
         float(deltap),
-        psrTerm,
-        spline,
-    )
-
-
-# This thin wrapper function is required because ENTERPRISE relies on reflection
-# of Python functions, which does not work properly with juliacall.
-@enterprise_function
-def eccentric_pta_signal(
-    toas,
-    theta,
-    phi,
-    pdist,
-    cos_gwtheta,
-    gwphi,
-    psi,
-    cos_inc,
-    log10_M,
-    eta,
-    log10_F,
-    e0,
-    gamma0,
-    gammap,
-    l0,
-    lp,
-    tref,
-    log10_A,
-    psrTerm=False,
-    spline=False,
-):
-    return jl.eccentric_pta_signal(
-        toas,
-        float(theta),
-        float(phi),
-        float(pdist[0] if isinstance(pdist, tuple) else pdist),
-        float(cos_gwtheta),
-        float(gwphi),
-        float(psi),
-        float(cos_inc),
-        float(log10_M),
-        float(eta),
-        float(log10_F),
-        float(e0),
-        float(gamma0),
-        float(gammap),
-        float(l0),
-        float(lp),
-        float(tref),
-        float(log10_A),
-        psrTerm,
-        spline,
-    )
-
-
-# This thin wrapper function is required because ENTERPRISE relies on reflection
-# of Python functions, which does not work properly with juliacall.
-@enterprise_function
-def eccentric_pta_signal_target(
-    toas,
-    theta,
-    phi,
-    pdist,
-    cos_gwtheta,
-    gwphi,
-    psi,
-    cos_inc,
-    eta,
-    log10_F,
-    e0,
-    gamma0,
-    gammap,
-    l0,
-    lp,
-    tref,
-    log10_A,
-    gwdist,
-    psrTerm=False,
-    spline=False,
-):
-    return jl.eccentric_pta_signal_target(
-        toas,
-        float(theta),
-        float(phi),
-        float(pdist[0] if isinstance(pdist, tuple) else pdist),
-        float(cos_gwtheta),
-        float(gwphi),
-        float(psi),
-        float(cos_inc),
-        float(eta),
-        float(log10_F),
-        float(e0),
-        float(gamma0),
-        float(gammap),
-        float(l0),
-        float(lp),
-        float(tref),
-        float(log10_A),
-        float(gwdist),
         psrTerm,
         spline,
     )
@@ -217,6 +121,57 @@ def gwecc_1psr_block(
     )
 
 
+# ========= Functions for full search ===================
+
+# This thin wrapper function is required because ENTERPRISE relies on reflection
+# of Python functions, which does not work properly with juliacall.
+@enterprise_function
+def eccentric_pta_signal(
+    toas,
+    theta,
+    phi,
+    pdist,
+    cos_gwtheta,
+    gwphi,
+    psi,
+    cos_inc,
+    log10_M,
+    eta,
+    log10_F,
+    e0,
+    gamma0,
+    gammap,
+    l0,
+    lp,
+    tref,
+    log10_A,
+    psrTerm=False,
+    spline=False,
+):
+    return jl.eccentric_pta_signal(
+        toas,
+        float(theta),
+        float(phi),
+        float(pdist[0] if isinstance(pdist, tuple) else pdist),
+        float(cos_gwtheta),
+        float(gwphi),
+        float(psi),
+        float(cos_inc),
+        float(log10_M),
+        float(eta),
+        float(log10_F),
+        float(e0),
+        float(gamma0),
+        float(gammap),
+        float(l0),
+        float(lp),
+        float(tref),
+        float(log10_A),
+        psrTerm,
+        spline,
+    )
+
+
 def gwecc_block(
     tref,
     cos_gwtheta=Uniform(-1, 1)("gwecc_cos_gwtheta"),
@@ -260,6 +215,75 @@ def gwecc_block(
             spline=spline,
         ),
         name=name,
+    )
+
+
+def gwecc_prior(pta, tref, tmax, name="gwecc"):
+    def gwecc_target_prior_fn(params):
+        param_map = pta.map_params(params)
+        if jl.validate_params(
+            param_map[f"{name}_log10_M"],
+            param_map[f"{name}_eta"],
+            param_map[f"{name}_log10_F"],
+            param_map[f"{name}_e0"],
+            tref,
+            tmax,
+        ):
+            return pta.get_lnprior(param_map)
+        else:
+            return -np.inf
+
+    return gwecc_target_prior_fn
+
+
+# ========= Functions for targeted search ===================
+
+# This thin wrapper function is required because ENTERPRISE relies on reflection
+# of Python functions, which does not work properly with juliacall.
+@enterprise_function
+def eccentric_pta_signal_target(
+    toas,
+    theta,
+    phi,
+    pdist,
+    cos_gwtheta,
+    gwphi,
+    psi,
+    cos_inc,
+    eta,
+    log10_F,
+    e0,
+    gamma0,
+    gammap,
+    l0,
+    lp,
+    tref,
+    log10_A,
+    gwdist,
+    psrTerm=False,
+    spline=False,
+):
+    return jl.eccentric_pta_signal_target(
+        toas,
+        float(theta),
+        float(phi),
+        float(pdist[0] if isinstance(pdist, tuple) else pdist),
+        float(cos_gwtheta),
+        float(gwphi),
+        float(psi),
+        float(cos_inc),
+        float(eta),
+        float(log10_F),
+        float(e0),
+        float(gamma0),
+        float(gammap),
+        float(l0),
+        float(lp),
+        float(tref),
+        float(log10_A),
+        float(gwdist),
+        psrTerm,
+        spline,
     )
 
 
@@ -307,24 +331,6 @@ def gwecc_target_block(
         ),
         name=name,
     )
-
-
-def gwecc_prior(pta, tref, tmax, name="gwecc"):
-    def gwecc_target_prior_fn(params):
-        param_map = pta.map_params(params)
-        if jl.validate_params(
-            param_map[f"{name}_log10_M"],
-            param_map[f"{name}_eta"],
-            param_map[f"{name}_log10_F"],
-            param_map[f"{name}_e0"],
-            tref,
-            tmax,
-        ):
-            return pta.get_lnprior(param_map)
-        else:
-            return -np.inf
-
-    return gwecc_target_prior_fn
 
 
 def gwecc_target_prior(pta, gwdist, tref, tmax, name="gwecc"):
