@@ -266,7 +266,7 @@ def eccentric_pta_signal_components(
         float(l0),
         float(lp),
         float(tref),
-        psrTerm=psrTerm,
+        psrTerm,
     )
 
     return list(map(np.array, As))
