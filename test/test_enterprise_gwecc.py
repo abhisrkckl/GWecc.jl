@@ -73,7 +73,7 @@ def test_eccentric_pta_signal_1psr(psrTerm, spline):
 
 
 @pytest.mark.parametrize("psrTerm, spline", it.product([True, False], [True, False]))
-def test_eccentric_pta_signal(psrTerm, tie_psrTerm, spline):
+def test_eccentric_pta_signal(psrTerm, spline):
     res = eccentric_pta_signal(
         toas,
         theta,
@@ -94,7 +94,6 @@ def test_eccentric_pta_signal(psrTerm, tie_psrTerm, spline):
         tref,
         log10_A,
         psrTerm=psrTerm,
-        tie_psrTerm=tie_psrTerm,
         spline=spline,
     )
     assert np.all(np.isfinite(res))
@@ -104,7 +103,7 @@ def test_eccentric_pta_signal(psrTerm, tie_psrTerm, spline):
     "psrTerm, spline",
     it.product([True, False], [True, False]),
 )
-def test_eccentric_pta_signal_target(psrTerm, tie_psrTerm, spline):
+def test_eccentric_pta_signal_target(psrTerm, spline):
     res = eccentric_pta_signal_target(
         toas,
         theta,
@@ -125,7 +124,6 @@ def test_eccentric_pta_signal_target(psrTerm, tie_psrTerm, spline):
         log10_A,
         gwdist,
         psrTerm=psrTerm,
-        tie_psrTerm=tie_psrTerm,
         spline=spline,
     )
     assert np.all(np.isfinite(res))
