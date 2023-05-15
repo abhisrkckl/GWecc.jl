@@ -291,7 +291,7 @@ def gwecc_target_block(
     name="gwecc",
 ):
     """Deterministic eccentric-orbit continuous GW model."""
-    
+
     if not psrTerm:
         # These are not used.
         gammap, lp = (0.0, 0.0)

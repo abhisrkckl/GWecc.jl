@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 import pathlib
+import itertools as it
 
 from enterprise.pulsar import Pulsar
 from enterprise.signals.gp_signals import MarginalizingTimingModel
@@ -51,9 +52,7 @@ log10_A = -9.0
 deltap = 100.0
 
 
-@pytest.mark.parametrize(
-    "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
-)
+@pytest.mark.parametrize("psrTerm, spline", it.product([True, False], [True, False]))
 def test_eccentric_pta_signal_1psr(psrTerm, spline):
     res = eccentric_pta_signal_1psr(
         toas=toas,
@@ -74,9 +73,10 @@ def test_eccentric_pta_signal_1psr(psrTerm, spline):
 
 
 @pytest.mark.parametrize(
-    "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
+    "psrTerm, tie_psrTerm, spline",
+    it.product([True, False], [True, False], [True, False]),
 )
-def test_eccentric_pta_signal(psrTerm, spline):
+def test_eccentric_pta_signal(psrTerm, tie_psrTerm, spline):
     res = eccentric_pta_signal(
         toas,
         theta,
@@ -97,15 +97,17 @@ def test_eccentric_pta_signal(psrTerm, spline):
         tref,
         log10_A,
         psrTerm=psrTerm,
+        tie_psrTerm=tie_psrTerm,
         spline=spline,
     )
     assert np.all(np.isfinite(res))
 
 
 @pytest.mark.parametrize(
-    "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
+    "psrTerm, tie_psrTerm, spline",
+    it.product([True, False], [True, False], [True, False]),
 )
-def test_eccentric_pta_signal_target(psrTerm, spline):
+def test_eccentric_pta_signal_target(psrTerm, tie_psrTerm, spline):
     res = eccentric_pta_signal_target(
         toas,
         theta,
@@ -126,20 +128,22 @@ def test_eccentric_pta_signal_target(psrTerm, spline):
         log10_A,
         gwdist,
         psrTerm=psrTerm,
+        tie_psrTerm=tie_psrTerm,
         spline=spline,
     )
     assert np.all(np.isfinite(res))
 
 
 @pytest.mark.parametrize(
-    "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
+    "psrTerm, tie_psrTerm, spline",
+    it.product([True, False], [True, False], [True, False]),
 )
-def test_gwecc_block(psr, psrTerm, spline):
+def test_gwecc_block(psr, psrTerm, tie_psrTerm, spline):
     tref = max(psr.toas)
 
     tm = MarginalizingTimingModel()
     wn = MeasurementNoise(efac=1.0)
-    wf = gwecc_block(tref=tref, psrTerm=psrTerm, spline=spline)
+    wf = gwecc_block(tref=tref, psrTerm=psrTerm, tie_psrTerm=tie_psrTerm, spline=spline)
     model = tm + wn + wf
 
     pta = PTA([model(psr)])
@@ -154,9 +158,7 @@ def test_gwecc_block(psr, psrTerm, spline):
         assert np.isfinite(pta.get_lnprior(x0))
 
 
-@pytest.mark.parametrize(
-    "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
-)
+@pytest.mark.parametrize("psrTerm, spline", it.product([True, False], [True, False]))
 def test_gwecc_1psr_block(psr, psrTerm, spline):
     tref = max(psr.toas)
 
@@ -178,9 +180,10 @@ def test_gwecc_1psr_block(psr, psrTerm, spline):
 
 
 @pytest.mark.parametrize(
-    "psrTerm, spline", [(True, True), (True, False), (False, True), (False, False)]
+    "psrTerm, tie_psrTerm, spline",
+    it.product([True, False], [True, False], [True, False]),
 )
-def test_gwecc_target_block(psr, psrTerm, spline):
+def test_gwecc_target_block(psr, psrTerm, tie_psrTerm, spline):
     tref = max(psr.toas)
 
     tm = MarginalizingTimingModel()
@@ -191,6 +194,7 @@ def test_gwecc_target_block(psr, psrTerm, spline):
         gwphi=gwphi,
         gwdist=gwdist,
         psrTerm=psrTerm,
+        tie_psrTerm=tie_psrTerm,
         spline=spline,
     )
     model = tm + wn + wf
