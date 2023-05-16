@@ -185,9 +185,7 @@ def eccentric_pta_signal(
     3. lp, gammap, and delta_pdist will be ignored if psrTerm is False.
     """
 
-    dp = max(
-        (pdist[0] + delta_pdist * pdist[1] if isinstance(pdist, tuple) else pdist), 0
-    )
+    dp = (pdist[0] + delta_pdist * pdist[1]) if isinstance(pdist, tuple) else pdist
 
     return jl.eccentric_pta_signal(
         toas,
