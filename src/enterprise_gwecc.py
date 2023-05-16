@@ -12,8 +12,7 @@ from juliacall import Main as jl
 
 jl.seval("using GWecc")
 
-# This thin wrapper function is required because ENTERPRISE relies on reflection
-# of Python functions, which does not work properly with juliacall.
+
 @enterprise_function
 def eccentric_pta_signal_1psr(
     toas,
@@ -96,8 +95,6 @@ def eccentric_pta_signal_1psr(
     )
 
 
-# This thin wrapper function is required because ENTERPRISE relies on reflection
-# of Python functions, which does not work properly with juliacall.
 @enterprise_function
 def eccentric_pta_signal(
     toas,
@@ -216,8 +213,6 @@ def eccentric_pta_signal(
     )
 
 
-# This thin wrapper function is required because ENTERPRISE relies on reflection
-# of Python functions, which does not work properly with juliacall.
 @enterprise_function
 def eccentric_pta_signal_target(
     toas,
