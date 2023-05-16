@@ -47,6 +47,7 @@ l0 = lp = 0.0
 tref = max(toas)
 log10_A = -9.0
 deltap = 100.0
+delta_pdist = 0.0
 
 
 @pytest.mark.parametrize("psrTerm, spline", it.product([True, False], [True, False]))
@@ -90,6 +91,7 @@ def test_eccentric_pta_signal(psrTerm, spline):
         lp,
         tref,
         log10_A,
+        delta_pdist,
         psrTerm=psrTerm,
         spline=spline,
     )
@@ -120,6 +122,7 @@ def test_eccentric_pta_signal_target(psrTerm, spline):
         tref,
         log10_A,
         gwdist,
+        delta_pdist,
         psrTerm=psrTerm,
         spline=spline,
     )
@@ -140,8 +143,9 @@ def test_gwecc_block(psrTerm, tie_psrTerm, spline):
 
     pta = PTA([model(psr)])
 
-    assert len(pta.param_names) == (13 if (psrTerm and not tie_psrTerm) else 11)
-    
+    # assert len(pta.param_names) == (14 if (psrTerm and not tie_psrTerm) else 11)
+    assert len(pta.param_names) == 11 + psrTerm * (1 + 2 * (not tie_psrTerm))
+
     x0 = [param.sample() for param in pta.params]
     lnprior_fn = gwecc_prior(pta, tref, tref, name="gwecc")
     if np.isfinite(lnprior_fn(x0)):
@@ -161,7 +165,7 @@ def test_gwecc_1psr_block(psrTerm, spline):
 
     pta = PTA([model(psr)])
 
-    assert len(pta.param_names) == (9 if psrTerm else 8)
+    assert len(pta.param_names) == 8 + (1 * psrTerm)
 
     x0 = [param.sample() for param in pta.params]
     lnprior_fn = gwecc_prior(pta, tref, tref, name="gwecc")
@@ -193,7 +197,7 @@ def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
 
     pta = PTA([model(psr)])
 
-    assert len(pta.param_names) == (10 if (psrTerm and not tie_psrTerm) else 8)
+    assert len(pta.param_names) == 8 + psrTerm * (1 + 2 * (not tie_psrTerm))
 
     x0 = [param.sample() for param in pta.params]
     lnprior_fn = gwecc_target_prior(pta, gwdist, tref, tref, name="gwecc")

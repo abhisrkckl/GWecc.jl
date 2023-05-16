@@ -74,11 +74,7 @@ def eccentric_pta_signal(
     spline=False,
 ):
     dp = max(
-        (
-            pdist[0] + delta_pdist * pdist[1]
-            if isinstance(pdist, tuple) 
-            else pdist
-        ), 0
+        (pdist[0] + delta_pdist * pdist[1] if isinstance(pdist, tuple) else pdist), 0
     )
 
     return jl.eccentric_pta_signal(
@@ -131,11 +127,7 @@ def eccentric_pta_signal_target(
     psrTerm=False,
     spline=False,
 ):
-    dp = (
-        pdist[0] + delta_pdist * pdist[1]
-        if isinstance(pdist, tuple) 
-        else pdist
-    ) 
+    dp = pdist[0] + delta_pdist * pdist[1] if isinstance(pdist, tuple) else pdist
 
     return jl.eccentric_pta_signal_target(
         toas,
@@ -180,8 +172,12 @@ def gwecc_1psr_block(
     using a reduced parametrization to avoid degeneracies. Should not be used
     while analyzing more than one pulsar.
 
+    Ref: Susobhanan 2023
+
     Parameters
     ----------
+    tref : float
+        Fiducial time (s)
     sigma : enterprise.signals.parameter.Parameter
         Projection angle 1 (rad)
     rho : enterprise.signals.parameter.Parameter
@@ -197,7 +193,7 @@ def gwecc_1psr_block(
     l0 : enterprise.signals.parameter.Parameter
         Initial mean anomaly (rad)
     log10_A : enterprise.signals.parameter.Parameter
-        Log10 PTA signal amplitude (s)
+        Log10 effective PTA signal amplitude (s)
     deltap : enterprise.signals.parameter.Parameter
         Pulsar term delay (yr)
     psrTerm : bool
@@ -254,8 +250,6 @@ def gwecc_block(
     spline=False,
     name="gwecc",
 ):
-    """Deterministic eccentric-orbit continuous GW model."""
-
     if not psrTerm:
         # These are not used.
         gammap, lp = (0.0, 0.0)
@@ -263,6 +257,8 @@ def gwecc_block(
         # Tie pulsar term phase to the earth term phase.
         # This ignores the explicitly given gammap and lp
         gammap, lp = (gamma0, l0)
+
+    delta_pdist = delta_pdist if psrTerm else 0.0
 
     return Deterministic(
         eccentric_pta_signal(
@@ -318,6 +314,8 @@ def gwecc_target_block(
         # Tie pulsar term phase to the earth term phase.
         # This ignores the explicitly given gammap and lp
         gammap, lp = (gamma0, l0)
+
+    delta_pdist = delta_pdist if psrTerm else 0.0
 
     return Deterministic(
         eccentric_pta_signal_target(
