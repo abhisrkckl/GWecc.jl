@@ -233,12 +233,19 @@ def gwecc_block(
     lp=Uniform(0, 2 * np.pi),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
     psrTerm=False,
+    tie_psrTerm=False,
     spline=False,
     name="gwecc",
 ):
     """Deterministic eccentric-orbit continuous GW model."""
 
-    gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
+    if not psrTerm:
+        # These are not used.
+        gammap, lp = (0.0, 0.0)
+    elif tie_psrTerm:
+        # Tie pulsar term phase to the earth term phase.
+        # This ignores the explicitly given gammap and lp
+        gammap, lp = (gamma0, l0)
 
     return Deterministic(
         eccentric_pta_signal(
@@ -279,12 +286,19 @@ def gwecc_target_block(
     lp=Uniform(0, 2 * np.pi),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
     psrTerm=False,
+    tie_psrTerm=False,
     spline=False,
     name="gwecc",
 ):
     """Deterministic eccentric-orbit continuous GW model."""
 
-    gammap, lp = (gammap, lp) if psrTerm else (0.0, 0.0)
+    if not psrTerm:
+        # These are not used.
+        gammap, lp = (0.0, 0.0)
+    elif tie_psrTerm:
+        # Tie pulsar term phase to the earth term phase.
+        # This ignores the explicitly given gammap and lp
+        gammap, lp = (gamma0, l0)
 
     return Deterministic(
         eccentric_pta_signal_target(
