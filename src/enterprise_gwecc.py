@@ -6,7 +6,7 @@ __version__ = "0.1.0"
 
 import numpy as np
 from enterprise.signals.deterministic_signals import Deterministic
-from enterprise.signals.parameter import Uniform
+from enterprise.signals.parameter import Uniform, TruncNormal
 from enterprise.signals.signal_base import function as enterprise_function
 from juliacall import Main as jl
 
@@ -69,14 +69,23 @@ def eccentric_pta_signal(
     lp,
     tref,
     log10_A,
+    delta_pdist,
     psrTerm=False,
     spline=False,
 ):
+    dp = max(
+        (
+            pdist[0] + delta_pdist * pdist[1]
+            if isinstance(pdist, tuple) 
+            else pdist
+        ), 0
+    )
+
     return jl.eccentric_pta_signal(
         toas,
         float(theta),
         float(phi),
-        float(pdist[0] if isinstance(pdist, tuple) else pdist),
+        float(dp),
         float(cos_gwtheta),
         float(gwphi),
         float(psi),
@@ -118,14 +127,21 @@ def eccentric_pta_signal_target(
     tref,
     log10_A,
     gwdist,
+    delta_pdist,
     psrTerm=False,
     spline=False,
 ):
+    dp = (
+        pdist[0] + delta_pdist * pdist[1]
+        if isinstance(pdist, tuple) 
+        else pdist
+    ) 
+
     return jl.eccentric_pta_signal_target(
         toas,
         float(theta),
         float(phi),
-        float(pdist[0] if isinstance(pdist, tuple) else pdist),
+        float(dp),
         float(cos_gwtheta),
         float(gwphi),
         float(psi),
@@ -232,6 +248,7 @@ def gwecc_block(
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     lp=Uniform(0, 2 * np.pi),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
+    delta_pdist=TruncNormal(0, 1, -5, 5),
     psrTerm=False,
     tie_psrTerm=False,
     spline=False,
@@ -263,6 +280,7 @@ def gwecc_block(
             lp=lp,
             tref=tref,
             log10_A=log10_A,
+            delta_pdist=delta_pdist,
             psrTerm=psrTerm,
             spline=spline,
         ),
@@ -285,6 +303,7 @@ def gwecc_target_block(
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     lp=Uniform(0, 2 * np.pi),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
+    delta_pdist=TruncNormal(0, 1, -5, 5),
     psrTerm=False,
     tie_psrTerm=False,
     spline=False,
@@ -315,6 +334,7 @@ def gwecc_target_block(
             lp=lp,
             tref=tref,
             log10_A=log10_A,
+            delta_pdist=delta_pdist,
             gwdist=gwdist,
             psrTerm=psrTerm,
             spline=spline,
