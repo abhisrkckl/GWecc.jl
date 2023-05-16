@@ -143,11 +143,8 @@ def test_gwecc_block(psr, psrTerm, tie_psrTerm, spline):
 
     pta = PTA([model(psr)])
 
-    if psrTerm:
-        assert len(pta.param_names) == (13 if tie_psrTerm else 11)
-    else:
-        assert len(pta.param_names) == 11
-
+    assert len(pta.param_names) == (13 if (psrTerm and not tie_psrTerm) else 11)
+    
     x0 = [param.sample() for param in pta.params]
     lnprior_fn = gwecc_prior(pta, tref, tref, name="gwecc")
     if np.isfinite(lnprior_fn(x0)):
@@ -199,10 +196,7 @@ def test_gwecc_target_block(psr, psrTerm, tie_psrTerm, spline):
 
     pta = PTA([model(psr)])
 
-    if psrTerm:
-        assert len(pta.param_names) == (10 if tie_psrTerm else 8)
-    else:
-        assert len(pta.param_names) == 8
+    assert len(pta.param_names) == (10 if (psrTerm and not tie_psrTerm) else 8)
 
     x0 = [param.sample() for param in pta.params]
     lnprior_fn = gwecc_target_prior(pta, gwdist, tref, tref, name="gwecc")
