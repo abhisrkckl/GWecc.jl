@@ -19,13 +19,10 @@ from enterprise_gwecc import (
     gwecc_target_prior,
 )
 
-
-@pytest.fixture()
-def psr():
-    testdatadir = pathlib.Path(__file__).resolve().parent / "testdata"
-    par = str(testdatadir / "J1909-3744_NANOGrav_12yv4.gls.par")
-    tim = str(testdatadir / "J1909-3744_NANOGrav_12yv4.tim")
-    return Pulsar(par, tim)
+testdatadir = pathlib.Path(__file__).resolve().parent / "testdata"
+par = str(testdatadir / "J1909-3744_NANOGrav_12yv4.gls.par")
+tim = str(testdatadir / "J1909-3744_NANOGrav_12yv4.tim")
+psr = Pulsar(par, tim)
 
 
 year = 365.25 * 24 * 3600
@@ -133,7 +130,7 @@ def test_eccentric_pta_signal_target(psrTerm, spline):
     "psrTerm, tie_psrTerm, spline",
     it.product([True, False], [True, False], [True, False]),
 )
-def test_gwecc_block(psr, psrTerm, tie_psrTerm, spline):
+def test_gwecc_block(psrTerm, tie_psrTerm, spline):
     tref = max(psr.toas)
 
     tm = MarginalizingTimingModel()
@@ -154,7 +151,7 @@ def test_gwecc_block(psr, psrTerm, tie_psrTerm, spline):
 
 
 @pytest.mark.parametrize("psrTerm, spline", it.product([True, False], [True, False]))
-def test_gwecc_1psr_block(psr, psrTerm, spline):
+def test_gwecc_1psr_block(psrTerm, spline):
     tref = max(psr.toas)
 
     tm = MarginalizingTimingModel()
@@ -178,7 +175,7 @@ def test_gwecc_1psr_block(psr, psrTerm, spline):
     "psrTerm, tie_psrTerm, spline",
     it.product([True, False], [True, False], [True, False]),
 )
-def test_gwecc_target_block(psr, psrTerm, tie_psrTerm, spline):
+def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
     tref = max(psr.toas)
 
     tm = MarginalizingTimingModel()
