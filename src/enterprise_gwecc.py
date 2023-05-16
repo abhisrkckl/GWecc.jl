@@ -30,6 +30,55 @@ def eccentric_pta_signal_1psr(
     psrTerm=False,
     spline=False,
 ):
+    """Compute the eccentric SMBHB PTA signal for the single-pulsar case
+    using the reduced parametrization. This is a thin wrapper around
+    `GWecc.eccentric_pta_signal_1psr`.
+
+    Ref: Susobhanan 2023
+
+    Parameters
+    ----------
+    toas : array-like
+        Collection of TOAs (s)
+    sigma : enterprise.signals.parameter.Parameter
+        Projection angle 1 (rad)
+    rho : enterprise.signals.parameter.Parameter
+        Projection angle 2 (rad)
+    log10_M : enterprise.signals.parameter.Parameter
+        Log10 total mass (Msun)
+    eta : enterprise.signals.parameter.Parameter
+        Symmetric mass ratio
+    log10_F : enterprise.signals.parameter.Parameter
+        Log10 initial GW frequency (Hz)
+    e0 : enterprise.signals.parameter.Parameter
+        Initial eccentricity
+    l0 : enterprise.signals.parameter.Parameter
+        Initial mean anomaly (rad)
+    tref : float
+        Fiducial time (s)
+    log10_A : enterprise.signals.parameter.Parameter
+        Log10 effective PTA signal amplitude (s)
+    deltap : enterprise.signals.parameter.Parameter
+        Pulsar term delay (yr)
+    psrTerm : bool
+        Whether to include pulsar term (default is False)
+    spline : bool
+        Whether to use spline-based fast computation (default is False)
+
+    Returns
+    -------
+    Rs : array-like
+        The PTA signal (s) evaluated at TOAs.
+
+    Notes
+    -----
+    1. This thin wrapper is required because ENTERPRISE relies on reflection
+       of Python functions, which does not work properly with juliacall.
+
+    2. This is an `enterprise_function`, and can be partially evaluated.
+
+    3. deltap will be ignored if psrTerm is False.
+    """
     return jl.eccentric_pta_signal_1psr(
         toas,
         float(sigma),
@@ -73,6 +122,72 @@ def eccentric_pta_signal(
     psrTerm=False,
     spline=False,
 ):
+    """Compute the eccentric SMBHB PTA signal. This is a thin wrapper around
+    `GWecc.eccentric_pta_signal`.
+
+    Ref: Susobhanan 2023
+
+    Parameters
+    ----------
+    toas : array-like
+        Collection of TOAs (s)
+    theta : float
+        Pulsar zenith angle (rad)
+    phi : float
+        Pulsar right ascension (rad)
+    pdist : tuple | float
+        Pulsar distance (kpc) -OR- Pulsar distance and distance uncertainty
+    cos_gwtheta : float
+        Cos zenith angle of the GW source (rad)
+    gwphi : float
+        Right ascension of the GW source (rad)
+    psi : float
+        Polarization angle (rad)
+    cos_inc : float
+        Cos inclination
+    log10_M : float
+        Log10 total mass (Msun)
+    eta : float
+        Symmetric mass ratio
+    log10_F : float
+        Log10 initial GW frequency (Hz)
+    e0 : float
+        Initial eccentricity
+    gamma0 : float
+        Initial periastron angle for the Earth term (rad)
+    gammap : float
+        Initial periastron angle for the Pulsar term (rad)
+    l0 : float
+        Initial mean anomaly for the Earth term (rad)
+    lp : float
+        Initial mean anomaly for the Pulsar term (rad)
+    tref : float
+        Fiducial time (s)
+    log10_A : float
+        Log10 PTA signal amplitude (s)
+    delta_pdist : float
+        Deviation from the pulsar distance as a multiple of the
+        1-sigma uncertainty in the pulsar distance
+    psrTerm : bool
+        Whether to include the pulsar term (default is False)
+    spline : bool
+        Whether to use the spline method for fast evaluation (default is False)
+
+    Returns
+    -------
+    Rs : array-like
+        The PTA signal (s) evaluated at TOAs.
+
+    Notes
+    -----
+    1. This thin wrapper is required because ENTERPRISE relies on reflection
+       of Python functions, which does not work properly with juliacall.
+
+    2. This is an `enterprise_function`, and can be partially evaluated.
+
+    3. lp, gammap, and delta_pdist will be ignored if psrTerm is False.
+    """
+
     dp = max(
         (pdist[0] + delta_pdist * pdist[1] if isinstance(pdist, tuple) else pdist), 0
     )
@@ -127,6 +242,75 @@ def eccentric_pta_signal_target(
     psrTerm=False,
     spline=False,
 ):
+    """Compute the eccentric SMBHB PTA signal. This is a thin wrapper around
+    `GWecc.eccentric_pta_signal_target`.
+
+    Ref: Susobhanan 2023
+
+    Parameters
+    ----------
+    toas : array-like
+        Collection of TOAs (s)
+    theta : float
+        Pulsar zenith angle (rad)
+    phi : float
+        Pulsar right ascension (rad)
+    pdist : tuple | float
+        Pulsar distance (kpc) -OR- Pulsar distance and distance uncertainty
+    cos_gwtheta : float
+        Cos zenith angle of the GW source (rad)
+    gwphi : float
+        Right ascension of the GW source (rad)
+    psi : float
+        Polarization angle (rad)
+    cos_inc : float
+        Cos inclination
+    eta : float
+        Symmetric mass ratio
+    log10_F : float
+        Log10 initial GW frequency (Hz)
+    e0 : float
+        Initial eccentricity
+    gamma0 : float
+        Initial periastron angle for the Earth term (rad)
+    gammap : float
+        Initial periastron angle for the Pulsar term (rad)
+    l0 : float
+        Initial mean anomaly for the Earth term (rad)
+    lp : float
+        Initial mean anomaly for the Pulsar term (rad)
+    tref : float
+        Fiducial time (s)
+    log10_A : float
+        Log10 PTA signal amplitude (s)
+    gwdist : float
+        Luminosity distance to the GW source (Mpc)
+    delta_pdist : float
+        Deviation from the pulsar distance as a multiple of the
+        1-sigma uncertainty in the pulsar distance
+    psrTerm : bool
+        Whether to include the pulsar term (default is False)
+    spline : bool
+        Whether to use the spline method for fast evaluation (default is False)
+
+    Returns
+    -------
+    Rs : array-like
+        The PTA signal (s) evaluated at TOAs.
+
+    Notes
+    -----
+    1. This thin wrapper is required because ENTERPRISE relies on reflection
+       of Python functions, which does not work properly with juliacall.
+
+    2. This is an `enterprise_function`, and can be partially evaluated.
+
+    3. lp, gammap, and delta_pdist will be ignored if psrTerm is False.
+
+    4. The total mass of the GW source is computed using the amplitude and the
+       luminosity distance.
+    """
+
     dp = pdist[0] + delta_pdist * pdist[1] if isinstance(pdist, tuple) else pdist
 
     return jl.eccentric_pta_signal_target(
@@ -169,7 +353,7 @@ def gwecc_1psr_block(
     name="gwecc",
 ):
     """Deterministic eccentric-orbit continuous GW model for a single pulsar
-    using a reduced parametrization to avoid degeneracies. Should not be used
+    using a reduced parametrization to avoid degeneracies. This should not be used
     while analyzing more than one pulsar.
 
     Ref: Susobhanan 2023
@@ -197,15 +381,20 @@ def gwecc_1psr_block(
     deltap : enterprise.signals.parameter.Parameter
         Pulsar term delay (yr)
     psrTerm : bool
-        Whether to include pulsar term
+        Whether to include the pulsar term (default is False)
     spline : bool
-        Whether to use spline-based fast computation
+        Whether to use spline-based fast computation (default is False)
     name : str
-        Name of the signal object
+        Name of the signal object (default is "gwecc")
 
     Returns
     -------
-        ENTERPRISE deterministic signal (`enterprise.signals.deterministic_signals.Deterministic`)
+    wf : enterprise.signals.deterministic_signals.Deterministic
+        ENTERPRISE deterministic signal
+
+    Notes
+    -----
+    1. deltap will be ignored if psrTerm is False.
     """
 
     deltap = deltap if psrTerm else 0.0
@@ -250,6 +439,69 @@ def gwecc_block(
     spline=False,
     name="gwecc",
 ):
+    """Deterministic eccentric-orbit continuous GW model.
+
+    Ref: Susobhanan 2023
+
+    Parameters
+    ----------
+    tref : float
+        Fiducial time (s)
+    cos_gwtheta : enterprise.signals.parameter.Parameter
+        Cos zenith angle of the GW source (rad)
+    gwphi : enterprise.signals.parameter.Parameter
+        Right ascension of the GW source (rad)
+    psi : enterprise.signals.parameter.Parameter
+        Polarization angle
+    cos_inc : enterprise.signals.parameter.Parameter
+        Cos inclination
+    log10_M : enterprise.signals.parameter.Parameter
+        Log10 total mass (Msun)
+    eta : enterprise.signals.parameter.Parameter
+        Symmetric mass ratio
+    log10_F : enterprise.signals.parameter.Parameter
+        Log10 initial GW frequency (Hz)
+    e0 : enterprise.signals.parameter.Parameter
+        Initial eccentricity
+    gamma0 : enterprise.signals.parameter.Parameter
+        Initial periastron angle of the Earth term (rad)
+    gammap : enterprise.signals.parameter.Parameter
+        Initial periastron angle of the Pulsar term (rad)
+    l0 : enterprise.signals.parameter.Parameter
+        Initial mean anomaly of the Earth term (rad)
+    lp : enterprise.signals.parameter.Parameter
+        Initial mean anomaly of the Pulsar term (rad)
+    log10_A : enterprise.signals.parameter.Parameter
+        Log10 effective PTA signal amplitude (s)
+    delta_pdist : enterprise.signals.parameter.Parameter
+        Deviation from the pulsar distance as a multiple of the
+        1-sigma uncertainty in the pulsar distance
+    psrTerm : bool
+        Whether to include the pulsar term (default is False)
+    tie_psrTerm : bool
+        Whether to tie the Pulsar term phase (lp, gammap) with
+        the Earth term phase (l0, gamma0)
+    spline : bool
+        Whether to use spline-based fast computation (default is False)
+    name : str
+        Name of the signal object (default is "gwecc")
+
+    Returns
+    -------
+    wf : enterprise.signals.deterministic_signals.Deterministic
+        ENTERPRISE deterministic signal
+
+    Notes
+    -----
+    1. lp, gammap, and delta_pdist will be ignored if psrTerm is False.
+
+    2. lp and gammap will be ignored if tie_psrTerm is True.
+
+    3. delta_pdist should have a truncated normal distribution to avoid
+       negative values. Negative values will cause exceptions in the orbital
+       dynamics code.
+    """
+
     if not psrTerm:
         # These are not used.
         gammap, lp = (0.0, 0.0)
@@ -305,7 +557,72 @@ def gwecc_target_block(
     spline=False,
     name="gwecc",
 ):
-    """Deterministic eccentric-orbit continuous GW model."""
+    """Deterministic eccentric-orbit continuous GW model for targeted
+    search (known source location and distance).
+
+    Ref: Susobhanan 2023
+
+    Parameters
+    ----------
+    tref : float
+        Fiducial time (s)
+    cos_gwtheta : float
+        Cos zenith angle of the GW source (rad)
+    gwphi : float
+        Right ascension of the GW source (rad)
+    gwdist : float
+        Luminosity distance to the GW source (Mpc)
+    psi : enterprise.signals.parameter.Parameter
+        Polarization angle (rad)
+    cos_inc : enterprise.signals.parameter.Parameter
+        Cos inclination
+    eta : enterprise.signals.parameter.Parameter
+        Symmetric mass ratio
+    log10_F : enterprise.signals.parameter.Parameter
+        Log10 initial GW frequency (Hz)
+    e0 : enterprise.signals.parameter.Parameter
+        Initial eccentricity
+    gamma0 : enterprise.signals.parameter.Parameter
+        Initial periastron angle of the Earth term (rad)
+    gammap : enterprise.signals.parameter.Parameter
+        Initial periastron angle of the Pulsar term (rad)
+    l0 : enterprise.signals.parameter.Parameter
+        Initial mean anomaly of the Earth term (rad)
+    lp : enterprise.signals.parameter.Parameter
+        Initial mean anomaly of the Pulsar term (rad)
+    log10_A : enterprise.signals.parameter.Parameter
+        Log10 effective PTA signal amplitude (s)
+    delta_pdist : enterprise.signals.parameter.Parameter
+        Deviation from the pulsar distance as a multiple of the
+        1-sigma uncertainty in the pulsar distance
+    psrTerm : bool
+        Whether to include the pulsar term (default is False)
+    tie_psrTerm : bool
+        Whether to tie the Pulsar term phase (lp, gammap) with
+        the Earth term phase (l0, gamma0)
+    spline : bool
+        Whether to use spline-based fast computation (default is False)
+    name : str
+        Name of the signal object (default is "gwecc")
+
+    Returns
+    -------
+    wf : enterprise.signals.deterministic_signals.Deterministic
+        ENTERPRISE deterministic signal
+
+    Notes
+    -----
+    1. lp, gammap, and delta_pdist will be ignored if psrTerm is False.
+
+    2. lp and gammap will be ignored if tie_psrTerm is True.
+
+    3. delta_pdist should have a truncated normal distribution to avoid
+       negative values. Negative values will cause exceptions in the orbital
+       dynamics code.
+
+    4. The total mass of the GW source is computed using the amplitude and the
+       luminosity distance.
+    """
 
     if not psrTerm:
         # These are not used.

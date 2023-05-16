@@ -1,3 +1,5 @@
+"""Tests for the enterprise_gwecc python interface."""
+
 import numpy as np
 import pytest
 import pathlib
