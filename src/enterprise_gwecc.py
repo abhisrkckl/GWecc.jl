@@ -669,13 +669,13 @@ def gwecc_prior(pta, tref, tmax, name="gwecc"):
     return gwecc_target_prior_fn
 
 
-def gwecc_target_prior(pta, gwdist, tref, tmax, name="gwecc"):
+def gwecc_target_prior(pta, psrs, gwdist, log10_F, tref, tmax, name="gwecc", psrTerm=False):
     def gwecc_target_prior_fn(params):
         param_map = pta.map_params(params)
         if jl.validate_params_target(
             param_map[f"{name}_log10_A"],
             param_map[f"{name}_eta"],
-            param_map[f"{name}_log10_F"],
+            log10_F,
             param_map[f"{name}_e0"],
             gwdist,
             tref,
@@ -686,3 +686,11 @@ def gwecc_target_prior(pta, gwdist, tref, tmax, name="gwecc"):
             return -np.inf
 
     return gwecc_target_prior_fn
+
+
+def validate_delta_pdist(psrs, param_map, name="gwecc"):
+    def get_Dp(psr):
+        delta_pdist = param_map[f"{psr.name}_{name}_delta_pdist"]
+        return psr.pdist[0] + delta_pdist * psr.pdist[1]
+
+    return all(get_Dp(psr) > 0 for psr in psrs)
