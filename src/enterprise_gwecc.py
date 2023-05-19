@@ -100,7 +100,6 @@ def eccentric_pta_signal(
     toas,
     theta,
     phi,
-    pdist,
     cos_gwtheta,
     gwphi,
     psi,
@@ -115,7 +114,7 @@ def eccentric_pta_signal(
     lp,
     tref,
     log10_A,
-    delta_pdist,
+    psrdist,
     psrTerm=False,
     spline=False,
 ):
@@ -132,8 +131,6 @@ def eccentric_pta_signal(
         Pulsar zenith angle (rad)
     phi : float
         Pulsar right ascension (rad)
-    pdist : tuple | float
-        Pulsar distance (kpc) -OR- Pulsar distance and distance uncertainty
     cos_gwtheta : float
         Cos zenith angle of the GW source (rad)
     gwphi : float
@@ -162,9 +159,8 @@ def eccentric_pta_signal(
         Fiducial time (s)
     log10_A : float
         Log10 PTA signal amplitude (s)
-    delta_pdist : float
-        Deviation from the pulsar distance as a multiple of the
-        1-sigma uncertainty in the pulsar distance
+    psrdist : float
+        Pulsar distance (kpc)
     psrTerm : bool
         Whether to include the pulsar term (default is False)
     spline : bool
@@ -185,13 +181,11 @@ def eccentric_pta_signal(
     3. lp, gammap, and delta_pdist will be ignored if psrTerm is False.
     """
 
-    dp = (pdist[0] + delta_pdist * pdist[1]) if isinstance(pdist, tuple) else pdist
-
     return jl.eccentric_pta_signal(
         toas,
         float(theta),
         float(phi),
-        float(dp),
+        float(psrdist),
         float(cos_gwtheta),
         float(gwphi),
         float(psi),
@@ -216,7 +210,6 @@ def eccentric_pta_signal_target(
     toas,
     theta,
     phi,
-    pdist,
     cos_gwtheta,
     gwphi,
     psi,
@@ -231,7 +224,7 @@ def eccentric_pta_signal_target(
     tref,
     log10_A,
     gwdist,
-    delta_pdist,
+    psrdist,
     psrTerm=False,
     spline=False,
 ):
@@ -248,8 +241,6 @@ def eccentric_pta_signal_target(
         Pulsar zenith angle (rad)
     phi : float
         Pulsar right ascension (rad)
-    pdist : tuple | float
-        Pulsar distance (kpc) -OR- Pulsar distance and distance uncertainty
     cos_gwtheta : float
         Cos zenith angle of the GW source (rad)
     gwphi : float
@@ -278,9 +269,8 @@ def eccentric_pta_signal_target(
         Log10 PTA signal amplitude (s)
     gwdist : float
         Luminosity distance to the GW source (Mpc)
-    delta_pdist : float
-        Deviation from the pulsar distance as a multiple of the
-        1-sigma uncertainty in the pulsar distance
+    psrdist : float
+        Pulsar distance (kpc)
     psrTerm : bool
         Whether to include the pulsar term (default is False)
     spline : bool
@@ -304,13 +294,11 @@ def eccentric_pta_signal_target(
        luminosity distance.
     """
 
-    dp = pdist[0] + delta_pdist * pdist[1] if isinstance(pdist, tuple) else pdist
-
     return jl.eccentric_pta_signal_target(
         toas,
         float(theta),
         float(phi),
-        float(dp),
+        float(psrdist),
         float(cos_gwtheta),
         float(gwphi),
         float(psi),
@@ -426,7 +414,7 @@ def gwecc_block(
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     lp=Uniform(0, 2 * np.pi),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
-    delta_pdist=TruncNormal(0, 1, -5, 5),
+    psrdist=None,
     psrTerm=False,
     tie_psrTerm=False,
     spline=False,
@@ -466,9 +454,8 @@ def gwecc_block(
         Initial mean anomaly of the Pulsar term (rad)
     log10_A : enterprise.signals.parameter.Parameter
         Log10 effective PTA signal amplitude (s)
-    delta_pdist : enterprise.signals.parameter.Parameter
-        Deviation from the pulsar distance as a multiple of the
-        1-sigma uncertainty in the pulsar distance
+    psrdist : enterprise.signals.parameter.Parameter
+        Pulsar distance (kpc)
     psrTerm : bool
         Whether to include the pulsar term (default is False)
     tie_psrTerm : bool
@@ -495,15 +482,19 @@ def gwecc_block(
        dynamics code.
     """
 
-    if not psrTerm:
+    if psrTerm:
+        assert(
+            psrdist is not None and psrdist != 0, 
+            "psrdist should be provided when psrTerm is True."
+        )
+        if tie_psrTerm:
+            # Tie pulsar term phase to the earth term phase.
+            # This ignores the explicitly given gammap and lp
+            gammap, lp = (gamma0, l0)
+    else:
         # These are not used.
         gammap, lp = (0.0, 0.0)
-    elif tie_psrTerm:
-        # Tie pulsar term phase to the earth term phase.
-        # This ignores the explicitly given gammap and lp
-        gammap, lp = (gamma0, l0)
-
-    delta_pdist = delta_pdist if psrTerm else 0.0
+        psrdist = 0.0
 
     return Deterministic(
         eccentric_pta_signal(
@@ -521,7 +512,7 @@ def gwecc_block(
             lp=lp,
             tref=tref,
             log10_A=log10_A,
-            delta_pdist=delta_pdist,
+            psrdist=psrdist,
             psrTerm=psrTerm,
             spline=spline,
         ),
@@ -544,7 +535,7 @@ def gwecc_target_block(
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     lp=Uniform(0, 2 * np.pi),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
-    delta_pdist=TruncNormal(0, 1, -5, 5),
+    psrdist=None,
     psrTerm=False,
     tie_psrTerm=False,
     spline=False,
@@ -585,9 +576,8 @@ def gwecc_target_block(
         Initial mean anomaly of the Pulsar term (rad)
     log10_A : enterprise.signals.parameter.Parameter
         Log10 effective PTA signal amplitude (s)
-    delta_pdist : enterprise.signals.parameter.Parameter
-        Deviation from the pulsar distance as a multiple of the
-        1-sigma uncertainty in the pulsar distance
+    psrdist : enterprise.signals.parameter.Parameter
+        Pulsar distance (kpc)
     psrTerm : bool
         Whether to include the pulsar term (default is False)
     tie_psrTerm : bool
@@ -617,15 +607,19 @@ def gwecc_target_block(
        luminosity distance.
     """
 
-    if not psrTerm:
+    if psrTerm:
+        assert(
+            psrdist is not None and psrdist != 0, 
+            "psrdist should be provided when psrTerm is True."
+        )
+        if tie_psrTerm:
+            # Tie pulsar term phase to the earth term phase.
+            # This ignores the explicitly given gammap and lp
+            gammap, lp = (gamma0, l0)
+    else:
         # These are not used.
         gammap, lp = (0.0, 0.0)
-    elif tie_psrTerm:
-        # Tie pulsar term phase to the earth term phase.
-        # This ignores the explicitly given gammap and lp
-        gammap, lp = (gamma0, l0)
-
-    delta_pdist = delta_pdist if psrTerm else 0.0
+        psrdist = 0.0
 
     return Deterministic(
         eccentric_pta_signal_target(
@@ -642,7 +636,7 @@ def gwecc_target_block(
             lp=lp,
             tref=tref,
             log10_A=log10_A,
-            delta_pdist=delta_pdist,
+            psrdist=psrdist,
             gwdist=gwdist,
             psrTerm=psrTerm,
             spline=spline,
