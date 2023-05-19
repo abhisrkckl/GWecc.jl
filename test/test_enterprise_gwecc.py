@@ -9,6 +9,7 @@ from enterprise.pulsar import Pulsar
 from enterprise.signals.gp_signals import MarginalizingTimingModel
 from enterprise.signals.white_signals import MeasurementNoise
 from enterprise.signals.signal_base import PTA
+from enterprise.signals.parameter import Uniform
 
 from enterprise_gwecc import (
     eccentric_pta_signal,
@@ -49,7 +50,7 @@ l0 = lp = 0.0
 tref = max(toas)
 log10_A = -9.0
 deltap = 100.0
-delta_pdist = 0.0
+psrdist = 1.0
 
 
 @pytest.mark.parametrize("psrTerm, spline", it.product([True, False], [True, False]))
@@ -78,7 +79,6 @@ def test_eccentric_pta_signal(psrTerm, spline):
         toas,
         theta,
         phi,
-        pdist,
         cos_gwtheta,
         gwphi,
         psi,
@@ -93,7 +93,7 @@ def test_eccentric_pta_signal(psrTerm, spline):
         lp,
         tref,
         log10_A,
-        delta_pdist,
+        psrdist,
         psrTerm=psrTerm,
         spline=spline,
     )
@@ -109,7 +109,6 @@ def test_eccentric_pta_signal_target(psrTerm, spline):
         toas,
         theta,
         phi,
-        pdist,
         cos_gwtheta,
         gwphi,
         psi,
@@ -124,7 +123,7 @@ def test_eccentric_pta_signal_target(psrTerm, spline):
         tref,
         log10_A,
         gwdist,
-        delta_pdist,
+        psrdist,
         psrTerm=psrTerm,
         spline=spline,
     )
@@ -140,7 +139,13 @@ def test_gwecc_block(psrTerm, tie_psrTerm, spline):
 
     tm = MarginalizingTimingModel()
     wn = MeasurementNoise(efac=1.0)
-    wf = gwecc_block(tref=tref, psrTerm=psrTerm, tie_psrTerm=tie_psrTerm, spline=spline)
+    wf = gwecc_block(
+        tref=tref,
+        psrdist=Uniform(1, 2),
+        psrTerm=psrTerm,
+        tie_psrTerm=tie_psrTerm,
+        spline=spline,
+    )
     model = tm + wn + wf
 
     pta = PTA([model(psr)])
@@ -191,6 +196,7 @@ def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
         cos_gwtheta=cos_gwtheta,
         gwphi=gwphi,
         gwdist=gwdist,
+        psrdist=Uniform(1, 2),
         psrTerm=psrTerm,
         tie_psrTerm=tie_psrTerm,
         spline=spline,
@@ -202,7 +208,7 @@ def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
     assert len(pta.param_names) == 8 + psrTerm * (1 + 2 * (not tie_psrTerm))
 
     x0 = [param.sample() for param in pta.params]
-    lnprior_fn = gwecc_target_prior(pta, gwdist, tref, tref, name="gwecc")
+    lnprior_fn = gwecc_target_prior(pta, gwdist, log10_F, tref, tref, name="gwecc")
     if np.isfinite(lnprior_fn(x0)):
         assert np.all(np.isfinite(x0))
         assert np.isfinite(pta.get_lnlikelihood(x0))

@@ -6,7 +6,7 @@ __version__ = "0.1.0"
 
 import numpy as np
 from enterprise.signals.deterministic_signals import Deterministic
-from enterprise.signals.parameter import Uniform, TruncNormal
+from enterprise.signals.parameter import Uniform
 from enterprise.signals.signal_base import function as enterprise_function
 from juliacall import Main as jl
 
@@ -483,10 +483,9 @@ def gwecc_block(
     """
 
     if psrTerm:
-        assert(
-            psrdist is not None and psrdist != 0, 
-            "psrdist should be provided when psrTerm is True."
-        )
+        assert (
+            psrdist is not None and psrdist != 0
+        ), "psrdist should be provided when psrTerm is True."
         if tie_psrTerm:
             # Tie pulsar term phase to the earth term phase.
             # This ignores the explicitly given gammap and lp
@@ -494,7 +493,7 @@ def gwecc_block(
     else:
         # These are not used.
         gammap, lp = (0.0, 0.0)
-        psrdist = 0.0
+        psrdist = 1.0
 
     return Deterministic(
         eccentric_pta_signal(
@@ -608,10 +607,9 @@ def gwecc_target_block(
     """
 
     if psrTerm:
-        assert(
-            psrdist is not None and psrdist != 0, 
-            "psrdist should be provided when psrTerm is True."
-        )
+        assert (
+            psrdist is not None and psrdist != 0
+        ), "psrdist should be provided when psrTerm is True."
         if tie_psrTerm:
             # Tie pulsar term phase to the earth term phase.
             # This ignores the explicitly given gammap and lp
@@ -619,7 +617,7 @@ def gwecc_target_block(
     else:
         # These are not used.
         gammap, lp = (0.0, 0.0)
-        psrdist = 0.0
+        psrdist = 1.0
 
     return Deterministic(
         eccentric_pta_signal_target(
@@ -663,11 +661,17 @@ def gwecc_prior(pta, tref, tmax, name="gwecc"):
     return gwecc_target_prior_fn
 
 
-def gwecc_target_prior(
-    pta, gwdist, log10_F, tref, tmax, name="gwecc"
-):
+def gwecc_target_prior(pta, gwdist, tref, tmax, log10_F=None, name="gwecc"):
     def gwecc_target_prior_fn(params):
         param_map = pta.map_params(params)
+
+        log10_F = (
+            param_map[f"{name}_log10_F"] if f"{name}_log10_F" in param_map else log10_F
+        )
+        assert (
+            log10_F is not None
+        ), "log10_F should either be given while calling gwecc_target_prior or should be a model parameter."
+
         if jl.validate_params_target(
             param_map[f"{name}_log10_A"],
             param_map[f"{name}_eta"],
