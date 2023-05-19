@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import pathlib
 import itertools as it
+import glob
 
 from enterprise.pulsar import Pulsar
 from enterprise.signals.gp_signals import MarginalizingTimingModel
@@ -20,6 +21,7 @@ from enterprise_gwecc import (
     gwecc_target_block,
     gwecc_prior,
     gwecc_target_prior,
+    PsrDistPrior,
 )
 
 testdatadir = pathlib.Path(__file__).resolve().parent / "testdata"
@@ -213,3 +215,56 @@ def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
         assert np.all(np.isfinite(x0))
         assert np.isfinite(pta.get_lnlikelihood(x0))
         assert np.isfinite(pta.get_lnprior(x0))
+
+
+def test_psrdist_prior():
+    parfiles = sorted(glob.glob(f"{testdatadir}/*.par"))
+    timfiles = sorted(glob.glob(f"{testdatadir}/*.tim"))
+
+    psrs = [Pulsar(p, t) for p, t in zip(parfiles, timfiles)]
+
+    psrdist_info = {
+        "J0340+4130": [1.7115, 0.34230000000000005, "DM"],
+        "J0613-0200": [1.0570824524312896, 0.1273862574811491, "PX"],
+        "J0636+5128": [0.7272727272727273, 0.12429752066115701, "PX"],
+        "J1909-3744": [1.1695906432748537, 0.01504736500119695, "PX"],
+    }
+
+    tref = max(max(psr.toas) for psr in psrs)
+
+    tm = MarginalizingTimingModel()
+    wn = MeasurementNoise(efac=1.0)
+    wf1 = gwecc_block(
+        tref=tref,
+        psrdist=PsrDistPrior(psrdist_info),
+        psrTerm=True,
+        tie_psrTerm=True,
+        spline=False,
+    )
+    model = tm + wn + wf1
+
+    pta = PTA([model(psr) for psr in psrs])
+    assert len(pta.param_names) == 11 + len(psrs)
+
+    x0 = [p.sample() for p in pta.params]
+    assert all(np.isfinite(x0))
+    assert np.isfinite(pta.get_lnprior(x0))
+
+    wf2 = gwecc_target_block(
+        tref=tref,
+        cos_gwtheta=cos_gwtheta,
+        gwphi=gwphi,
+        gwdist=gwdist,
+        psrdist=PsrDistPrior(psrdist_info),
+        psrTerm=True,
+        tie_psrTerm=True,
+        spline=False,
+    )
+    model = tm + wn + wf2
+
+    pta = PTA([model(psr) for psr in psrs])
+    assert len(pta.param_names) == 8 + len(psrs)
+
+    x0 = [p.sample() for p in pta.params]
+    assert all(np.isfinite(x0))
+    assert np.isfinite(pta.get_lnprior(x0))
