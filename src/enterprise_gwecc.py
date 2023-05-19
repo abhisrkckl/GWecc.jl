@@ -670,7 +670,7 @@ def gwecc_target_prior(pta, gwdist, tref, tmax, log10_F=None, name="gwecc"):
         )
         assert (
             log10_F is not None
-        ), "log10_F should either be given while calling gwecc_target_prior or should be a model parameter."
+        ), "log10_F should either be given while calling gwecc_target_prior or be a model parameter."
 
         if jl.validate_params_target(
             param_map[f"{name}_log10_A"],
