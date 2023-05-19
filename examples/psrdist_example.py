@@ -37,7 +37,7 @@ wf = gwecc_target_block(
     delta_pdist=DeltaPsrDistPrior(pdist_info),
     psrTerm=True,
     tie_psrTerm=True,
-    spline=True
+    spline=True,
 )
 tm = TimingModel()
 model = tm + wf
