@@ -1,0 +1,54 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  GWecc.jl: Pulsar timing array signals due to eccentric
+  supermassive binaries
+message: >-
+  If you use this software, please cite it using two papers
+  mentioned in this file.
+type: software
+authors:
+  - given-names: Abhimanyu
+    family-names: Susobhanan
+    affiliation: University of Wisconsin-Milwaukee
+    orcid: 'https://orcid.org/0000-0002-2820-0931'
+repository-code: 'https://github.com/abhisrkckl/GWecc.jl'
+abstract: >-
+  GWecc.jl computes Pulsar Timing Array signals due to
+  gravitational waves from eccentric supermassive binary
+  sources. The underlying orbital dynamics incorporates
+  leading order orbital decay due to gravitational radiation
+  reaction and third post-Newtonian-order advance of
+  periapsis. This package is designed to be used with the
+  ENTERPRISE package for gravitational wave analysis using
+  Pulsar Timing Array data.
+keywords:
+  - gravitational waves
+  - pulsars
+license: GPL-3.0
+references:
+  - title: "Pulsar timing array signals induced by black hole binaries in relativistic eccentric orbits"
+    doi: "10.1103/PhysRevD.101.043022"
+    year: "2020"
+    type: article
+    journal: "Physical Review D"
+    authors:
+      - family-names: Susobhanan
+        given-names: Abhimanyu
+      - family-names: Gopakumar
+        given-names: A
+      - family-names: Hobbs
+        given-names: George
+      - family-names: Taylor
+        given-names: Stephen R
+    url: "https://doi.org/10.1103/PhysRevD.101.043022"
+  - title: "Post-Newtonian-accurate pulsar timing array signals induced by inspiralling eccentric binaries: accuracy, computational cost, and single-pulsar search"
+    year: "2022"
+    type: article
+    journal: "arXiv eprints"
+    authors:
+      - family-names: Susobhanan
+        given-names: Abhimanyu
+    url: "https://arxiv.org/abs/2210.11454"
