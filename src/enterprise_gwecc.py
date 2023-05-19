@@ -719,7 +719,8 @@ def PsrDistPrior(psrdist_info: dict, dmdist_broaden_factor=2):
         _size = None
 
         def __init__(self, name):
-            super().__init__(name)
+            self.name = name
+            self.type = self.__class__.__name__.lower()
 
             self.psrname = name.split("_")[0]
 
@@ -756,14 +757,16 @@ def PsrDistPrior(psrdist_info: dict, dmdist_broaden_factor=2):
                 / (1 + erf(self.pdist / np.sqrt(2) / self.pdist_sigma))
             )
 
-        def _prior(self, name):
-            """Hack to make sure Parameter.__init__ doesn't throw an error"""
-            pass
+        def get_pdf(self, value=None, params=None):
+            if value is None and params is not None:
+                value = params[self.name]
 
-        def prior(self, x):
             return TruncNormalPrior(
-                x, self.pdist, self.pdist_sigma, 0, np.inf, norm=self.pnorm
+                value, self.pdist, self.pdist_sigma, 0, np.inf, norm=self.pnorm
             )
+
+        def get_logpdf(self, value=None, params=None):
+            return np.log(self.get_pdf(value=value, params=params))
 
         def sample(self):
             return TruncNormalSampler(
@@ -771,7 +774,7 @@ def PsrDistPrior(psrdist_info: dict, dmdist_broaden_factor=2):
             )
 
         def __repr__(self):
-            return self._typename
+            return f"{self.name}:{self._typename}(Dp={self.pdist:0.1e}, sigma_Dp={self.pdist_sigma:0.1e}, type={self.pdist_type})"
 
         @property
         def params(self):
