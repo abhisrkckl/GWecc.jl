@@ -34,7 +34,7 @@ function eccentric_pta_signal(
     toas,
     theta::Float64,
     phi::Float64,
-    pdist::Float64,
+    psrdist::Float64,
     cos_gwtheta::Float64,
     gwphi::Float64,
     psi::Float64,
@@ -62,7 +62,7 @@ function eccentric_pta_signal(
 
     proj = ProjectionParams(10^log10_A, psi, cos_inc, gamma0, gammap)
 
-    dp = psrdist_from_pdist(pdist)
+    dp = psrdist_from_kpc(psrdist)
 
     ra_psr = phi
     dec_psr = π / 2 - theta
@@ -85,7 +85,7 @@ function eccentric_pta_signal_target(
     toas,
     theta::Float64,
     phi::Float64,
-    pdist::Float64,
+    psrdist::Float64,
     cos_gwtheta::Float64,
     gwphi::Float64,
     psi::Float64,
@@ -114,7 +114,7 @@ function eccentric_pta_signal_target(
 
     proj = ProjectionParams(10^log10_A, psi, cos_inc, gamma0, gammap)
 
-    dp = psrdist_from_pdist(pdist)
+    dp = psrdist_from_kpc(psrdist)
 
     ra_psr = phi
     dec_psr = π / 2 - theta
