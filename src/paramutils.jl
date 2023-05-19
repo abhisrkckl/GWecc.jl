@@ -1,6 +1,6 @@
 export mass_from_log10_mass,
     mean_motion_from_log10_freq,
-    psrdist_from_pdist,
+    psrdist_from_kpc,
     Δp_from_deltap,
     dl_from_gwdist,
     mass_from_gwdist
@@ -21,7 +21,7 @@ function mean_motion_from_log10_freq(log10_F::Float64)::MeanMotion
     return MeanMotion(π * (10.0^log10_F))
 end
 
-function psrdist_from_pdist(pdist::Float64)::Distance
+function psrdist_from_kpc(pdist::Float64)::Distance
     dp = uconvert(u"s", pdist * u"kpc" / c_0).val
     return Distance(dp)
 end

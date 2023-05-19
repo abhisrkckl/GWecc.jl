@@ -2,13 +2,22 @@
 Provides the PTA signal due to an eccentric supermassive binary
 as an ENTERPRISE Signal object."""
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
+import json
+
+import enterprise
 import numpy as np
 from enterprise.signals.deterministic_signals import Deterministic
-from enterprise.signals.parameter import Uniform, TruncNormal
+from enterprise.signals.parameter import (
+    Parameter,
+    TruncNormalPrior,
+    TruncNormalSampler,
+    Uniform,
+)
 from enterprise.signals.signal_base import function as enterprise_function
 from juliacall import Main as jl
+from scipy.special import erf
 
 jl.seval("using GWecc")
 
@@ -100,7 +109,6 @@ def eccentric_pta_signal(
     toas,
     theta,
     phi,
-    pdist,
     cos_gwtheta,
     gwphi,
     psi,
@@ -115,7 +123,7 @@ def eccentric_pta_signal(
     lp,
     tref,
     log10_A,
-    delta_pdist,
+    psrdist,
     psrTerm=False,
     spline=False,
 ):
@@ -132,8 +140,6 @@ def eccentric_pta_signal(
         Pulsar zenith angle (rad)
     phi : float
         Pulsar right ascension (rad)
-    pdist : tuple | float
-        Pulsar distance (kpc) -OR- Pulsar distance and distance uncertainty
     cos_gwtheta : float
         Cos zenith angle of the GW source (rad)
     gwphi : float
@@ -162,9 +168,8 @@ def eccentric_pta_signal(
         Fiducial time (s)
     log10_A : float
         Log10 PTA signal amplitude (s)
-    delta_pdist : float
-        Deviation from the pulsar distance as a multiple of the
-        1-sigma uncertainty in the pulsar distance
+    psrdist : float
+        Pulsar distance (kpc)
     psrTerm : bool
         Whether to include the pulsar term (default is False)
     spline : bool
@@ -185,13 +190,11 @@ def eccentric_pta_signal(
     3. lp, gammap, and delta_pdist will be ignored if psrTerm is False.
     """
 
-    dp = (pdist[0] + delta_pdist * pdist[1]) if isinstance(pdist, tuple) else pdist
-
     return jl.eccentric_pta_signal(
         toas,
         float(theta),
         float(phi),
-        float(dp),
+        float(psrdist),
         float(cos_gwtheta),
         float(gwphi),
         float(psi),
@@ -216,7 +219,6 @@ def eccentric_pta_signal_target(
     toas,
     theta,
     phi,
-    pdist,
     cos_gwtheta,
     gwphi,
     psi,
@@ -231,7 +233,7 @@ def eccentric_pta_signal_target(
     tref,
     log10_A,
     gwdist,
-    delta_pdist,
+    psrdist,
     psrTerm=False,
     spline=False,
 ):
@@ -248,8 +250,6 @@ def eccentric_pta_signal_target(
         Pulsar zenith angle (rad)
     phi : float
         Pulsar right ascension (rad)
-    pdist : tuple | float
-        Pulsar distance (kpc) -OR- Pulsar distance and distance uncertainty
     cos_gwtheta : float
         Cos zenith angle of the GW source (rad)
     gwphi : float
@@ -278,9 +278,8 @@ def eccentric_pta_signal_target(
         Log10 PTA signal amplitude (s)
     gwdist : float
         Luminosity distance to the GW source (Mpc)
-    delta_pdist : float
-        Deviation from the pulsar distance as a multiple of the
-        1-sigma uncertainty in the pulsar distance
+    psrdist : float
+        Pulsar distance (kpc)
     psrTerm : bool
         Whether to include the pulsar term (default is False)
     spline : bool
@@ -304,13 +303,11 @@ def eccentric_pta_signal_target(
        luminosity distance.
     """
 
-    dp = pdist[0] + delta_pdist * pdist[1] if isinstance(pdist, tuple) else pdist
-
     return jl.eccentric_pta_signal_target(
         toas,
         float(theta),
         float(phi),
-        float(dp),
+        float(psrdist),
         float(cos_gwtheta),
         float(gwphi),
         float(psi),
@@ -426,7 +423,7 @@ def gwecc_block(
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     lp=Uniform(0, 2 * np.pi),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
-    delta_pdist=TruncNormal(0, 1, -5, 5),
+    psrdist=None,
     psrTerm=False,
     tie_psrTerm=False,
     spline=False,
@@ -466,9 +463,8 @@ def gwecc_block(
         Initial mean anomaly of the Pulsar term (rad)
     log10_A : enterprise.signals.parameter.Parameter
         Log10 effective PTA signal amplitude (s)
-    delta_pdist : enterprise.signals.parameter.Parameter
-        Deviation from the pulsar distance as a multiple of the
-        1-sigma uncertainty in the pulsar distance
+    psrdist : enterprise.signals.parameter.Parameter
+        Pulsar distance (kpc)
     psrTerm : bool
         Whether to include the pulsar term (default is False)
     tie_psrTerm : bool
@@ -495,15 +491,18 @@ def gwecc_block(
        dynamics code.
     """
 
-    if not psrTerm:
+    if psrTerm:
+        assert (
+            psrdist is not None and psrdist != 0
+        ), "psrdist should be provided when psrTerm is True."
+        if tie_psrTerm:
+            # Tie pulsar term phase to the earth term phase.
+            # This ignores the explicitly given gammap and lp
+            gammap, lp = (gamma0, l0)
+    else:
         # These are not used.
         gammap, lp = (0.0, 0.0)
-    elif tie_psrTerm:
-        # Tie pulsar term phase to the earth term phase.
-        # This ignores the explicitly given gammap and lp
-        gammap, lp = (gamma0, l0)
-
-    delta_pdist = delta_pdist if psrTerm else 0.0
+        psrdist = 1.0
 
     return Deterministic(
         eccentric_pta_signal(
@@ -521,7 +520,7 @@ def gwecc_block(
             lp=lp,
             tref=tref,
             log10_A=log10_A,
-            delta_pdist=delta_pdist,
+            psrdist=psrdist,
             psrTerm=psrTerm,
             spline=spline,
         ),
@@ -544,7 +543,7 @@ def gwecc_target_block(
     l0=Uniform(0, 2 * np.pi)("gwecc_l0"),
     lp=Uniform(0, 2 * np.pi),
     log10_A=Uniform(-11, -7)("gwecc_log10_A"),
-    delta_pdist=TruncNormal(0, 1, -5, 5),
+    psrdist=None,
     psrTerm=False,
     tie_psrTerm=False,
     spline=False,
@@ -585,9 +584,8 @@ def gwecc_target_block(
         Initial mean anomaly of the Pulsar term (rad)
     log10_A : enterprise.signals.parameter.Parameter
         Log10 effective PTA signal amplitude (s)
-    delta_pdist : enterprise.signals.parameter.Parameter
-        Deviation from the pulsar distance as a multiple of the
-        1-sigma uncertainty in the pulsar distance
+    psrdist : enterprise.signals.parameter.Parameter
+        Pulsar distance (kpc)
     psrTerm : bool
         Whether to include the pulsar term (default is False)
     tie_psrTerm : bool
@@ -617,15 +615,18 @@ def gwecc_target_block(
        luminosity distance.
     """
 
-    if not psrTerm:
+    if psrTerm:
+        assert (
+            psrdist is not None and psrdist != 0
+        ), "psrdist should be provided when psrTerm is True."
+        if tie_psrTerm:
+            # Tie pulsar term phase to the earth term phase.
+            # This ignores the explicitly given gammap and lp
+            gammap, lp = (gamma0, l0)
+    else:
         # These are not used.
         gammap, lp = (0.0, 0.0)
-    elif tie_psrTerm:
-        # Tie pulsar term phase to the earth term phase.
-        # This ignores the explicitly given gammap and lp
-        gammap, lp = (gamma0, l0)
-
-    delta_pdist = delta_pdist if psrTerm else 0.0
+        psrdist = 1.0
 
     return Deterministic(
         eccentric_pta_signal_target(
@@ -642,7 +643,7 @@ def gwecc_target_block(
             lp=lp,
             tref=tref,
             log10_A=log10_A,
-            delta_pdist=delta_pdist,
+            psrdist=psrdist,
             gwdist=gwdist,
             psrTerm=psrTerm,
             spline=spline,
@@ -669,13 +670,21 @@ def gwecc_prior(pta, tref, tmax, name="gwecc"):
     return gwecc_target_prior_fn
 
 
-def gwecc_target_prior(pta, gwdist, tref, tmax, name="gwecc"):
+def gwecc_target_prior(pta, gwdist, tref, tmax, log10_F=None, name="gwecc"):
     def gwecc_target_prior_fn(params):
         param_map = pta.map_params(params)
+
+        log10_F = (
+            param_map[f"{name}_log10_F"] if f"{name}_log10_F" in param_map else log10_F
+        )
+        assert (
+            log10_F is not None
+        ), "log10_F should either be given while calling gwecc_target_prior or be a model parameter."
+
         if jl.validate_params_target(
             param_map[f"{name}_log10_A"],
             param_map[f"{name}_eta"],
-            param_map[f"{name}_log10_F"],
+            log10_F,
             param_map[f"{name}_e0"],
             gwdist,
             tref,
@@ -686,3 +695,90 @@ def gwecc_target_prior(pta, gwdist, tref, tmax, name="gwecc"):
             return -np.inf
 
     return gwecc_target_prior_fn
+
+
+def PsrDistPrior(psrdist_info: dict, dmdist_broaden_factor=2):
+    """Truncated normal distribution for pulsar distances (psrdist).
+    This is a truncated Normal distribution with mean and variance
+    taken from the distance measurements, and a lower cutoff at 0, so
+    that the pulsar distance doesn't go negative.
+
+    The pulsar name is obtained by parsing the parameter name.
+    The pulsar distance info is obtained from the following sources
+    in that order:
+        1. The `psrdist_info` dictionary
+        2. The `pulsar_distances.json` file available in the ENTERPRISE
+           distribution
+        3. The default value used in ENTERPRISE (1.0 +/- 0.2)
+    """
+
+    class PsrDistPrior(Parameter):
+        _pulsar_distance_info = psrdist_info
+        _dmdist_broaden_factor = dmdist_broaden_factor
+        _typename = "PsrDistPrior"
+        _size = None
+
+        def __init__(self, name):
+            self.name = name
+            self.type = self.__class__.__name__.lower()
+
+            self.psrname = name.split("_")[0]
+
+            if self.psrname in self._pulsar_distance_info:
+                (
+                    self.pdist,
+                    self.pdist_sigma,
+                    self.pdist_type,
+                ) = self._pulsar_distance_info[self.psrname]
+                assert self.pdist_type in ["PX", "DM"]
+
+                if self.pdist_type == "DM":
+                    # Broader distribution to account for systematic uncertainties
+                    # in DM distance measurement
+                    self.pdist_sigma *= self._dmdist_broaden_factor
+            else:
+                # Try with ENTERPRISE
+                pdist_file_default = (
+                    f"{enterprise.__path__[0]}/datafiles/pulsar_distances.json"
+                )
+                with open(pdist_file_default, "r") as f:
+                    pdist_info_default = json.load(f)
+
+                if self.psrname in pdist_info_default:
+                    self.pdist, self.pdist_sigma = pdist_info_default[self.psrname]
+                else:
+                    # ENTERPRISE default value
+                    self.pdist, self.pdist_sigma = 1, 0.2
+
+            # Precompute the norm because erf is slow
+            self.pnorm = (
+                np.sqrt(2 / np.pi)
+                / self.pdist_sigma
+                / (1 + erf(self.pdist / np.sqrt(2) / self.pdist_sigma))
+            )
+
+        def get_pdf(self, value=None, params=None):
+            if value is None and params is not None:
+                value = params[self.name]
+
+            return TruncNormalPrior(
+                value, self.pdist, self.pdist_sigma, 0, np.inf, norm=self.pnorm
+            )
+
+        def get_logpdf(self, value=None, params=None):
+            return np.log(self.get_pdf(value=value, params=params))
+
+        def sample(self):
+            return TruncNormalSampler(
+                self.pdist, self.pdist_sigma, 0, np.inf, norm=self.pnorm
+            )
+
+        def __repr__(self):
+            return f"{self.name}:{self._typename}(Dp={self.pdist:0.1e}, sigma_Dp={self.pdist_sigma:0.1e}, type={self.pdist_type})"
+
+        @property
+        def params(self):
+            """Hack to make sure ENTERPRISE doesn't throw an error"""
+            return [self]
+
+    return PsrDistPrior

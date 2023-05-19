@@ -4,11 +4,13 @@ import numpy as np
 import pytest
 import pathlib
 import itertools as it
+import glob
 
 from enterprise.pulsar import Pulsar
 from enterprise.signals.gp_signals import MarginalizingTimingModel
 from enterprise.signals.white_signals import MeasurementNoise
 from enterprise.signals.signal_base import PTA
+from enterprise.signals.parameter import Uniform
 
 from enterprise_gwecc import (
     eccentric_pta_signal,
@@ -19,6 +21,7 @@ from enterprise_gwecc import (
     gwecc_target_block,
     gwecc_prior,
     gwecc_target_prior,
+    PsrDistPrior,
 )
 
 testdatadir = pathlib.Path(__file__).resolve().parent / "testdata"
@@ -49,7 +52,7 @@ l0 = lp = 0.0
 tref = max(toas)
 log10_A = -9.0
 deltap = 100.0
-delta_pdist = 0.0
+psrdist = 1.0
 
 
 @pytest.mark.parametrize("psrTerm, spline", it.product([True, False], [True, False]))
@@ -78,7 +81,6 @@ def test_eccentric_pta_signal(psrTerm, spline):
         toas,
         theta,
         phi,
-        pdist,
         cos_gwtheta,
         gwphi,
         psi,
@@ -93,7 +95,7 @@ def test_eccentric_pta_signal(psrTerm, spline):
         lp,
         tref,
         log10_A,
-        delta_pdist,
+        psrdist,
         psrTerm=psrTerm,
         spline=spline,
     )
@@ -109,7 +111,6 @@ def test_eccentric_pta_signal_target(psrTerm, spline):
         toas,
         theta,
         phi,
-        pdist,
         cos_gwtheta,
         gwphi,
         psi,
@@ -124,7 +125,7 @@ def test_eccentric_pta_signal_target(psrTerm, spline):
         tref,
         log10_A,
         gwdist,
-        delta_pdist,
+        psrdist,
         psrTerm=psrTerm,
         spline=spline,
     )
@@ -140,7 +141,13 @@ def test_gwecc_block(psrTerm, tie_psrTerm, spline):
 
     tm = MarginalizingTimingModel()
     wn = MeasurementNoise(efac=1.0)
-    wf = gwecc_block(tref=tref, psrTerm=psrTerm, tie_psrTerm=tie_psrTerm, spline=spline)
+    wf = gwecc_block(
+        tref=tref,
+        psrdist=Uniform(1, 2),
+        psrTerm=psrTerm,
+        tie_psrTerm=tie_psrTerm,
+        spline=spline,
+    )
     model = tm + wn + wf
 
     pta = PTA([model(psr)])
@@ -191,6 +198,7 @@ def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
         cos_gwtheta=cos_gwtheta,
         gwphi=gwphi,
         gwdist=gwdist,
+        psrdist=Uniform(1, 2),
         psrTerm=psrTerm,
         tie_psrTerm=tie_psrTerm,
         spline=spline,
@@ -202,8 +210,61 @@ def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
     assert len(pta.param_names) == 8 + psrTerm * (1 + 2 * (not tie_psrTerm))
 
     x0 = [param.sample() for param in pta.params]
-    lnprior_fn = gwecc_target_prior(pta, gwdist, tref, tref, name="gwecc")
+    lnprior_fn = gwecc_target_prior(pta, gwdist, log10_F, tref, tref, name="gwecc")
     if np.isfinite(lnprior_fn(x0)):
         assert np.all(np.isfinite(x0))
         assert np.isfinite(pta.get_lnlikelihood(x0))
         assert np.isfinite(pta.get_lnprior(x0))
+
+
+def test_psrdist_prior():
+    parfiles = sorted(glob.glob(f"{testdatadir}/*.par"))
+    timfiles = sorted(glob.glob(f"{testdatadir}/*.tim"))
+
+    psrs = [Pulsar(p, t) for p, t in zip(parfiles, timfiles)]
+
+    psrdist_info = {
+        "J0340+4130": [1.7115, 0.34230000000000005, "DM"],
+        "J0613-0200": [1.0570824524312896, 0.1273862574811491, "PX"],
+        "J0636+5128": [0.7272727272727273, 0.12429752066115701, "PX"],
+        "J1909-3744": [1.1695906432748537, 0.01504736500119695, "PX"],
+    }
+
+    tref = max(max(psr.toas) for psr in psrs)
+
+    tm = MarginalizingTimingModel()
+    wn = MeasurementNoise(efac=1.0)
+    wf1 = gwecc_block(
+        tref=tref,
+        psrdist=PsrDistPrior(psrdist_info),
+        psrTerm=True,
+        tie_psrTerm=True,
+        spline=False,
+    )
+    model = tm + wn + wf1
+
+    pta = PTA([model(psr) for psr in psrs])
+    assert len(pta.param_names) == 11 + len(psrs)
+
+    x0 = [p.sample() for p in pta.params]
+    assert all(np.isfinite(x0))
+    assert np.isfinite(pta.get_lnprior(x0))
+
+    wf2 = gwecc_target_block(
+        tref=tref,
+        cos_gwtheta=cos_gwtheta,
+        gwphi=gwphi,
+        gwdist=gwdist,
+        psrdist=PsrDistPrior(psrdist_info),
+        psrTerm=True,
+        tie_psrTerm=True,
+        spline=False,
+    )
+    model = tm + wn + wf2
+
+    pta = PTA([model(psr) for psr in psrs])
+    assert len(pta.param_names) == 8 + len(psrs)
+
+    x0 = [p.sample() for p in pta.params]
+    assert all(np.isfinite(x0))
+    assert np.isfinite(pta.get_lnprior(x0))

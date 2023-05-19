@@ -1,7 +1,7 @@
 name = "GWecc"
 uuid = "7a00343e-1486-4c3e-99d0-061b9ee738a7"
 authors = ["Abhimanyu Susobhanan <abhisrkckl@gmail.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
