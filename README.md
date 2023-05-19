@@ -7,7 +7,7 @@ GWecc.jl
 [![arXiv](https://img.shields.io/badge/arXiv-2002.03285-b31b1b.svg)](https://arxiv.org/abs/2002.03285)
 [![arXiv](https://img.shields.io/badge/arXiv-2210.11454-b31b1b.svg)](https://arxiv.org/abs/2210.11454)
 
-`GWecc.jl` computes pulsar TOA delays due to gravitational waves from eccentric supermassive binary sources.
+`GWecc.jl` computes Pulsar Timing Array signals due to gravitational waves from eccentric supermassive binary sources.
 This is a partial Julia rewrite of the C++ package [`GWecc`](https://github.com/abhisrkckl/GWecc).
 
 This code is based on Susobhanan et al. 2020 and Susobhanan 2022. If you use this code in your work please cite the original articles
