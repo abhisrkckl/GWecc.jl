@@ -674,6 +674,8 @@ def gwecc_target_prior(pta, gwdist, tref, tmax, log10_F=None, name="gwecc"):
     def gwecc_target_prior_fn(params):
         param_map = pta.map_params(params)
 
+        # Variable in the inner function cannot have the same
+        # name as a captured variable.
         log10_Fgw = (
             param_map[f"{name}_log10_F"] if f"{name}_log10_F" in param_map else log10_F
         )
