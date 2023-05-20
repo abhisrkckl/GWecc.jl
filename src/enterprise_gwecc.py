@@ -653,7 +653,7 @@ def gwecc_target_block(
 
 
 def gwecc_prior(pta, tref, tmax, name="gwecc"):
-    def gwecc_target_prior_fn(params):
+    def gwecc_prior_fn(params):
         param_map = pta.map_params(params)
         if jl.validate_params(
             param_map[f"{name}_log10_M"],
@@ -667,24 +667,24 @@ def gwecc_prior(pta, tref, tmax, name="gwecc"):
         else:
             return -np.inf
 
-    return gwecc_target_prior_fn
+    return gwecc_prior_fn
 
 
 def gwecc_target_prior(pta, gwdist, tref, tmax, log10_F=None, name="gwecc"):
     def gwecc_target_prior_fn(params):
         param_map = pta.map_params(params)
 
-        log10_F = (
+        log10_Fgw = (
             param_map[f"{name}_log10_F"] if f"{name}_log10_F" in param_map else log10_F
         )
         assert (
-            log10_F is not None
+            log10_Fgw is not None
         ), "log10_F should either be given while calling gwecc_target_prior or be a model parameter."
 
         if jl.validate_params_target(
             param_map[f"{name}_log10_A"],
             param_map[f"{name}_eta"],
-            log10_F,
+            log10_Fgw,
             param_map[f"{name}_e0"],
             gwdist,
             tref,
