@@ -162,6 +162,22 @@ def test_gwecc_block(psrTerm, tie_psrTerm, spline):
         assert np.isfinite(pta.get_lnlikelihood(x0))
         assert np.isfinite(pta.get_lnprior(x0))
 
+    # Test that the prior will be zero if validation fails.
+    wf = gwecc_block(
+        tref=tref,
+        log10_F=Uniform(-9, -2)("gwecc_log10_F"),
+        psrdist=Uniform(1, 2),
+        psrTerm=psrTerm,
+        tie_psrTerm=tie_psrTerm,
+        spline=spline,
+    )
+    model = tm + wn + wf
+    pta = PTA([model(psr)])
+    lnprior_fn = gwecc_prior(pta, tref, tref, name="gwecc")
+    log10_F_idx = pta.param_names.index("gwecc_log10_F")
+    x0[log10_F_idx] = -3
+    assert lnprior_fn(x0) == -np.inf
+
 
 @pytest.mark.parametrize("psrTerm, spline", it.product([True, False], [True, False]))
 def test_gwecc_1psr_block(psrTerm, spline):
@@ -182,6 +198,20 @@ def test_gwecc_1psr_block(psrTerm, spline):
         assert np.all(np.isfinite(x0))
         assert np.isfinite(pta.get_lnlikelihood(x0))
         assert np.isfinite(pta.get_lnprior(x0))
+
+    # Test that the prior will be zero if validation fails.
+    wf = gwecc_1psr_block(
+        tref=tref,
+        log10_F=Uniform(-9, -2)("gwecc_log10_F"),
+        psrTerm=psrTerm,
+        spline=spline,
+    )
+    model = tm + wn + wf
+    pta = PTA([model(psr)])
+    lnprior_fn = gwecc_prior(pta, tref, tref, name="gwecc")
+    log10_F_idx = pta.param_names.index("gwecc_log10_F")
+    x0[log10_F_idx] = -3
+    assert lnprior_fn(x0) == -np.inf
 
 
 @pytest.mark.parametrize(
@@ -215,7 +245,25 @@ def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
         assert np.all(np.isfinite(x0))
         assert np.isfinite(pta.get_lnlikelihood(x0))
         assert np.isfinite(pta.get_lnprior(x0))
-
+    
+    # Test that the prior will be zero if validation fails.
+    wf = gwecc_target_block(
+        tref=tref,
+        cos_gwtheta=cos_gwtheta,
+        gwphi=gwphi,
+        gwdist=gwdist,
+        log10_F=Uniform(-9, -2)("gwecc_log10_F"),
+        psrdist=Uniform(1, 2),
+        psrTerm=psrTerm,
+        tie_psrTerm=tie_psrTerm,
+        spline=spline,
+    )
+    model = tm + wn + wf
+    pta = PTA([model(psr)])
+    lnprior_fn = gwecc_target_prior(pta, gwdist, log10_F, tref, tref, name="gwecc")
+    log10_F_idx = pta.param_names.index("gwecc_log10_F")
+    x0[log10_F_idx] = -3
+    assert lnprior_fn(x0) == -np.inf
 
 def test_psrdist_prior():
     parfiles = sorted(glob.glob(f"{testdatadir}/*.par"))

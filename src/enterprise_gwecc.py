@@ -653,6 +653,9 @@ def gwecc_target_block(
 
 
 def gwecc_prior(pta, tref, tmax, name="gwecc"):
+    # This function will work for both 1psr and general cases,
+    # but not the target case
+    
     def gwecc_prior_fn(params):
         param_map = pta.map_params(params)
         if jl.validate_params(
