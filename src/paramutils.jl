@@ -18,7 +18,7 @@ const Mpc_to_s = uconvert(u"s", u"Mpc" / c_0).val
 const year_to_s = 365.25 * 24 * 3600
 
 function mass_from_log10_mass(log10_M::Float64, eta::Float64)::Mass
-    M::Float64 = 0.0^log10_M * Msun_to_s
+    M::Float64 = 10.0^log10_M * Msun_to_s
     return Mass(M, eta)
 end
 
