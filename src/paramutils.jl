@@ -12,8 +12,13 @@ using PhysicalConstants.CODATA2018
 const GMsun = UnitfulAstro.GMsun
 const c_0 = CODATA2018.c_0
 
+const Msun_to_s = uconvert(u"s", GMsun / c_0^3).val
+const kpc_to_s = uconvert(u"s", u"kpc" / c_0).val
+const Mpc_to_s = uconvert(u"s", u"Mpc" / c_0).val
+const year_to_s = 365.25 * 24 * 3600
+
 function mass_from_log10_mass(log10_M::Float64, eta::Float64)::Mass
-    M::Float64 = uconvert(u"s", (10.0^log10_M * GMsun) / c_0^3).val
+    M::Float64 = 0.0^log10_M * Msun_to_s
     return Mass(M, eta)
 end
 
@@ -22,18 +27,17 @@ function mean_motion_from_log10_freq(log10_F::Float64)::MeanMotion
 end
 
 function psrdist_from_kpc(pdist::Float64)::Distance
-    dp = uconvert(u"s", pdist * u"kpc" / c_0).val
+    dp = pdist * kpc_to_s
     return Distance(dp)
 end
 
 function dl_from_gwdist(gwdist::Float64)::Distance
-    dp = uconvert(u"s", gwdist * u"Mpc" / c_0).val
-    return Distance(dp)
+    dgw = gwdist * Mpc_to_s
+    return Distance(dgw)
 end
 
 function Δp_from_deltap(deltap::Float64)::Time
-    year = 365.25 * 24 * 3600
-    return Time(-deltap * year)
+    return Time(-deltap * year_to_s)
 end
 
 # function mean_motion_from_log10_sidereal_freq(
