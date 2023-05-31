@@ -18,8 +18,8 @@ This code is based on Susobhanan et al. 2020 and Susobhanan 2022. If you use thi
 Installation
 ------------
 I suggest installing this package in a new `conda` environment to avoid conflicts with existing package installations.
-I also suggest installing `enterprise-pulsar` via conda before installing `GWecc.jl` to make sure that `tempo2` is 
-installed properly.
+I also suggest installing `enterprise-pulsar` via conda before installing `GWecc.jl` to make sure that `tempo2`, which is
+a dependency of `enterprise-pulsar`, is installed properly.
 
 ```
 > conda create -n gwecc python=3.10
