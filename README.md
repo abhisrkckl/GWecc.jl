@@ -17,20 +17,33 @@ This code is based on Susobhanan et al. 2020 and Susobhanan 2022. If you use thi
  
 Installation
 ------------
+I suggest installing this package in a new `conda` environment to avoid conflicts with existing package installations.
+I also suggest installing `enterprise-pulsar` via conda before installing `GWecc.jl` to make sure that `tempo2`, which is
+a dependency of `enterprise-pulsar`, is installed properly.
+
+```
+> conda create -n gwecc python=3.10
+> conda activate gwecc
+> conda install -c conda-forge enterprise-pulsar
+> conda install -c conda-forge julia
+```
+
 `GWecc.jl` can be installed by typing the following in a Julia REPL:
 
 ```
-> import Pkg
-> Pkg.add(url="https://github.com/abhisrkckl/GWecc.jl.git")
+> julia
+julia> import Pkg
+julia> Pkg.add(url="https://github.com/abhisrkckl/GWecc.jl.git")
+julia> exit()
 ```
 
 The Python wrapper can be installed by typing
 
 ```
-$ pip install git+https://github.com/abhisrkckl/GWecc.jl.git
+> pip install git+https://github.com/abhisrkckl/GWecc.jl.git
 ```
 
-Note that the Julia package should be installed first.
+Note that the Julia package should be installed before installing the Python interface.
 
 Usage
 -----
