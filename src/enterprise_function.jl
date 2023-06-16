@@ -208,10 +208,10 @@ function validate_params(
         # Throws if QKP fails
         phase = OrbitalPhase(mass, n, e, l, γ)
     catch ex
-        return false
+        return false, ex.msg
     end
 
-    return true
+    return true, ""
 end
 
 function validate_params_target(
@@ -240,8 +240,8 @@ function validate_params_target(
         # Throws if QKP fails
         phase = OrbitalPhase(mass, n, e, l, γ)
     catch ex
-        return false
+        return false, ex.msg
     end
 
-    return true
+    return true, ""
 end

@@ -652,20 +652,24 @@ def gwecc_target_block(
     )
 
 
+validate_params = jl.validate_params
+validate_params_target = jl.validate_params_target
+
+
 def gwecc_prior(pta, tref, tmax, name="gwecc"):
     # This function will work for both 1psr and general cases,
     # but not the target case
-    
+
     def gwecc_prior_fn(params):
         param_map = pta.map_params(params)
-        if jl.validate_params(
+        if validate_params(
             param_map[f"{name}_log10_M"],
             param_map[f"{name}_eta"],
             param_map[f"{name}_log10_F"],
             param_map[f"{name}_e0"],
             tref,
             tmax,
-        ):
+        )[0]:
             return pta.get_lnprior(param_map)
         else:
             return -np.inf
@@ -686,7 +690,7 @@ def gwecc_target_prior(pta, gwdist, tref, tmax, log10_F=None, name="gwecc"):
             log10_Fgw is not None
         ), "log10_F should either be given while calling gwecc_target_prior or be a model parameter."
 
-        if jl.validate_params_target(
+        if validate_params_target(
             param_map[f"{name}_log10_A"],
             param_map[f"{name}_eta"],
             log10_Fgw,
@@ -694,7 +698,7 @@ def gwecc_target_prior(pta, gwdist, tref, tmax, log10_F=None, name="gwecc"):
             gwdist,
             tref,
             tmax,
-        ):
+        )[0]:
             return pta.get_lnprior(param_map)
         else:
             return -np.inf

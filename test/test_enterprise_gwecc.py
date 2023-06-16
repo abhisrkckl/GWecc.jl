@@ -245,7 +245,7 @@ def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
         assert np.all(np.isfinite(x0))
         assert np.isfinite(pta.get_lnlikelihood(x0))
         assert np.isfinite(pta.get_lnprior(x0))
-    
+
     # Test that the prior will be zero if validation fails.
     wf = gwecc_target_block(
         tref=tref,
@@ -264,6 +264,7 @@ def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
     log10_F_idx = pta.param_names.index("gwecc_log10_F")
     x0[log10_F_idx] = -3
     assert lnprior_fn(x0) == -np.inf
+
 
 def test_psrdist_prior():
     parfiles = sorted(glob.glob(f"{testdatadir}/*.par"))

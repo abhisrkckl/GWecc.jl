@@ -18,7 +18,7 @@ end
 struct PeriastronAdvance
     k::Float64
     PeriastronAdvance(k::Float64) =
-        abs(k) < 0.25 ? new(k) : throw(DomainError(k, "k out of range."))
+        abs(k) < 0.5 ? new(k) : throw(DomainError(k, "k out of range."))
 end
 
 "PN expansion parameter"
