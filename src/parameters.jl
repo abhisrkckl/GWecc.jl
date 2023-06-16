@@ -63,8 +63,7 @@ end
 "Mean motion in rad/s"
 struct MeanMotion
     n::Float64
-    MeanMotion(n::Float64) =
-        n > 0 ? new(n) : throw(DomainError(n, "n should be positive."))
+    MeanMotion(n::Float64) = n > 0 ? new(n) : throw(DomainError(n, "n should be positive."))
 end
 
 "Dimensionless scaled mean anomaly."
