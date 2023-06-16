@@ -71,7 +71,7 @@ end
 struct ScaledMeanAnomaly
     lbar::Float64
     ScaledMeanAnomaly(lbar::Float64) =
-        (lbar >= 0 && lbar <= 0.46137) ? new(lbar) :
+        (lbar >= 0 && lbar <= 0.461371) ? new(lbar) :
         throw(DomainError(lbar, "lbar out of range."))
 end
 
