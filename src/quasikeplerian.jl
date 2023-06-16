@@ -11,14 +11,14 @@ export PNParam,
 struct PNParam
     x::Float64
     PNParam(x::Float64) =
-        (x > 0 && x < 0.25) ? new(x) : throw(DomainError(x, "x out of range."))
+        (x > 0 && x < 0.3) ? new(x) : throw(DomainError(x, "x out of range (0,0.3)."))
 end
 
 "Periastron advance per orbit"
 struct PeriastronAdvance
     k::Float64
     PeriastronAdvance(k::Float64) =
-        abs(k) < 0.5 ? new(k) : throw(DomainError(k, "k out of range."))
+        abs(k) < 0.5 ? new(k) : throw(DomainError(k, "k out of range (0,0.5)."))
 end
 
 "PN expansion parameter"

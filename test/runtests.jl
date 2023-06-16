@@ -12,10 +12,10 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
 @testset verbose = true "GWecc" begin
     @testset "parameters" begin
         @testset "mass" begin
-            @test_throws DomainError Mass(4e-2, 0.2)
+            @test_throws DomainError Mass(-4e-2, 0.2)
             @test_throws DomainError Mass(1.0, -1.0)
             @test_throws DomainError Mass(1.0, 0.0)
-            @test_throws DomainError Mass(6e5, 0.2)
+            # @test_throws DomainError Mass(6e5, 0.2)
             @test_throws DomainError Mass(1.0, 0.26)
             @test Mass(1.0, 0.1).m == 1.0
             @test Mass(1.0, 0.25).η == 0.25

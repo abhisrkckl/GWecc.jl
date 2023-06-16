@@ -38,7 +38,7 @@ end
 struct Eccentricity
     e::Float64
     Eccentricity(e::Float64) =
-        (e > 0 && e < 1) ? new(e) : throw(DomainError(e, "e out of range."))
+        (e > 0 && e < 1) ? new(e) : throw(DomainError(e, "e should be in (0,1)."))
 end
 
 """Total mass, symmetric mass ratio and chirp mass. 
@@ -49,10 +49,10 @@ struct Mass
     η::Float64
     Mch::Float64
     function Mass(m::Float64, η::Float64)
-        if !(m >= 5e-2 && m <= 5e5)
-            throw(DomainError(m, "m out of range."))
+        if m <= 0
+            throw(DomainError(m, "m should be positive."))
         elseif !(η > 0 && η <= 0.25)
-            throw(DomainError(η, "η out of range."))
+            throw(DomainError(η, "η should be in (0,0.25]."))
         else
             Mc = m * η^(3 / 5)
             new(m, η, Mc)
@@ -63,8 +63,7 @@ end
 "Mean motion in rad/s"
 struct MeanMotion
     n::Float64
-    MeanMotion(n::Float64) =
-        (n > 0 && n <= 5e-6) ? new(n) : throw(DomainError(n, "n out of range."))
+    MeanMotion(n::Float64) = n > 0 ? new(n) : throw(DomainError(n, "n should be positive."))
 end
 
 "Dimensionless scaled mean anomaly."
@@ -72,7 +71,7 @@ struct ScaledMeanAnomaly
     lbar::Float64
     ScaledMeanAnomaly(lbar::Float64) =
         (lbar >= 0 && lbar <= 0.461371) ? new(lbar) :
-        throw(DomainError(lbar, "lbar out of range."))
+        throw(DomainError(lbar, "lbar out of range [0,0.461371]."))
 end
 
 "Dimensionless scaled periastron angles at the 1PN, 2PN and 3PN orders."
@@ -82,11 +81,11 @@ struct ScaledPeriastronAngle
     γbar3::Float64
     function ScaledPeriastronAngle(γbar1::Float64, γbar2::Float64, γbar3::Float64)
         if !(γbar1 > 0 && γbar1 < 0.084876)
-            throw(DomainError(γbar1, "γbar1 out of range."))
+            throw(DomainError(γbar1, "γbar1 out of range (0,0.084876)."))
         elseif !(γbar2 > 0 && γbar2 < 2.4914)
-            throw(DomainError(γbar2, "γbar2 out of range."))
+            throw(DomainError(γbar2, "γbar2 out of range (0,2.4914)."))
         elseif !(isfinite(γbar3) && γbar3 < -43.2093)
-            throw(DomainError(γbar3, "γbar3 out of range."))
+            throw(DomainError(γbar3, "γbar3 out of range (-inf,-43.2093)."))
         else
             new(γbar1, γbar2, γbar3)
         end
