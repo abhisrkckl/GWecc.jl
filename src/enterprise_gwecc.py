@@ -655,7 +655,7 @@ def gwecc_target_block(
 def gwecc_prior(pta, tref, tmax, name="gwecc"):
     # This function will work for both 1psr and general cases,
     # but not the target case
-    
+
     def gwecc_prior_fn(params):
         param_map = pta.map_params(params)
         if jl.validate_params(
@@ -700,6 +700,10 @@ def gwecc_target_prior(pta, gwdist, tref, tmax, log10_F=None, name="gwecc"):
             return -np.inf
 
     return gwecc_target_prior_fn
+
+
+validate_params = jl.validate_params
+validate_params_target = jl.validate_params_target
 
 
 def PsrDistPrior(psrdist_info: dict, dmdist_broaden_factor=2):
