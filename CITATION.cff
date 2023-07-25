@@ -45,10 +45,11 @@ references:
         given-names: Stephen R
     url: "https://doi.org/10.1103/PhysRevD.101.043022"
   - title: "Post-Newtonian-accurate pulsar timing array signals induced by inspiralling eccentric binaries: accuracy, computational cost, and single-pulsar search"
+    doi: "10.1088/1361-6382/ace234"
     year: "2022"
     type: article
-    journal: "arXiv eprints"
+    journal: "Classical and Quantum Gravity"
     authors:
       - family-names: Susobhanan
         given-names: Abhimanyu
-    url: "https://arxiv.org/abs/2210.11454"
+    url: "https://www.doi.org/10.1088/1361-6382/ace234"
