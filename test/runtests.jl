@@ -5,6 +5,7 @@ using LinearAlgebra
 using UnPack
 using NumericalIntegration
 using Statistics
+using Zygote
 
 
 e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))).e
@@ -911,4 +912,15 @@ e_from_τ_from_e(ecc::Float64)::Float64 = e_from_τ(τ_from_e(Eccentricity(ecc))
         @test m1.m ≈ m2.m atol = 1e-6
     end
 
+    @testset "autodiff" begin
+        m = 1000.0
+        η = 0.2
+
+        @testset "parameters and conversions" begin
+            chirp_mass = (m, η) -> Mass(m, η).Mch
+            Mch = chirp_mass(m, η)
+            ∂Mch_∂m, ∂Mch_∂η = gradient(chirp_mass, m, η)
+            @test ∂Mch_∂m ≈ Mch / m && ∂Mch_∂η ≈ (3 / 5) * Mch / η
+        end
+    end
 end
