@@ -82,9 +82,9 @@ jobs:
           sudo apt-get install libsuitesparse-dev
           # curl -sSL https://raw.githubusercontent.com/vallis/libstempo/master/install_tempo2.sh | sh
           # python -m pip install --upgrade pip setuptools wheel pytest pytest-cov libstempo
-          pip install -r requirements.txt
+          # pip install -r requirements.txt
           julia -e 'import Pkg; Pkg.add(path="."); Pkg.add(["BenchmarkTools", "Makie"])'
-          pip install .
+          # pip install .
       - name: Run examples
         run: |
           cd examples
