@@ -96,8 +96,8 @@ jobs:
           julia residuals_terms_px.jl
           julia tau_vs_e.jl
           julia waveform_residuals_px.jl
-          #python simulation_example.py
-          #python enterprise_example.py
+          # python simulation_example.py
+          # python enterprise_example.py
           cd ..
 
   format:
