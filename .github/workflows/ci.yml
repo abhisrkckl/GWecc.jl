@@ -88,7 +88,6 @@ jobs:
       - name: Run examples
         run: |
           cd examples
-          julia benchmark.jl
           julia lbar_gammabar_vs_e.jl
           julia residuals_1psr.jl
           julia residuals_components.jl
@@ -96,6 +95,7 @@ jobs:
           julia residuals_terms_px.jl
           julia tau_vs_e.jl
           julia waveform_residuals_px.jl
+          julia benchmark.jl
           python simulation_example.py
           python enterprise_example.py
           cd ..
