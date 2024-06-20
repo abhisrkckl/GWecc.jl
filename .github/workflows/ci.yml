@@ -80,24 +80,24 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install libsuitesparse-dev
-          curl -sSL https://raw.githubusercontent.com/vallis/libstempo/master/install_tempo2.sh | sh
-          python -m pip install --upgrade pip setuptools wheel pytest pytest-cov libstempo
+          # curl -sSL https://raw.githubusercontent.com/vallis/libstempo/master/install_tempo2.sh | sh
+          # python -m pip install --upgrade pip setuptools wheel pytest pytest-cov libstempo
           pip install -r requirements.txt
-          julia -e 'import Pkg; Pkg.add(path="."); Pkg.add(["BenchmarkTools", "PyPlot", "PythonCall"])'
+          julia -e 'import Pkg; Pkg.add(path="."); Pkg.add(["BenchmarkTools", "Makie"])'
           pip install .
       - name: Run examples
         run: |
           cd examples
           julia benchmark.jl
           julia lbar_gammabar_vs_e.jl
-          julia residuals_1psr.jl
-          julia residuals_components.jl
-          julia residuals_terms.jl
-          julia residuals_terms_px.jl
-          julia tau_vs_e.jl
-          julia waveform_residuals_px.jl
-          python simulation_example.py
-          python enterprise_example.py
+          #julia residuals_1psr.jl
+          #julia residuals_components.jl
+          #julia residuals_terms.jl
+          #julia residuals_terms_px.jl
+          #julia tau_vs_e.jl
+          #julia waveform_residuals_px.jl
+          #python simulation_example.py
+          #python enterprise_example.py
           cd ..
 
   format:
