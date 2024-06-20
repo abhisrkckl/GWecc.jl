@@ -41,7 +41,7 @@ gwecc_params = {
     "e0": 0.5,
     "l0": 0.0,
     "tref": tref,
-    "log10_A": -10,
+    "log10_A": -7,
     "deltap": 100.0,
 }
 with open(f"{output_dir}/true_gwecc_params.dat", "w") as outfile:
