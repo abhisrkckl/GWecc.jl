@@ -99,13 +99,13 @@ function residuals(
     tref::Time,
     tEs::Vector{Time},
 )
-    dts = [tE - tref for tE in tEs]
+    # dts = [tE - tref for tE in tEs]
 
     coeffs = EvolvCoeffs(mass, n_init, e_init)
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp)
 
-    ss = [residual(mass, coeffs, l0p, proj, ap, terms, Δp, dt) for dt in dts]
+    ss = [residual(mass, coeffs, l0p, proj, ap, terms, Δp, tE - tref) for tE in tEs]
 
     return ss
 end
