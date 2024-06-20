@@ -1,7 +1,7 @@
 """Comparison of eccentric waveforms and residuals (+/x polarizations) for different eccentricities."""
 
 using GWecc
-using PyPlot
+using CairoMakie
 
 println("Running ", PROGRAM_FILE)
 
@@ -17,6 +17,8 @@ proj = ProjectionParams(1e-9, 0.0, 1.0, 0.0, 0.0)
 
 ts = Time.(LinRange(0, 10 * year, 5000))
 
+fig = CairoMakie.Figure()
+
 for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.8]))
     coeffs = EvolvCoeffs(mass, n_init, e_init)
 
@@ -24,21 +26,21 @@ for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.8]))
     hps = [hpx[1] for hpx in hpxs]
     hxs = [hpx[2] for hpx in hpxs]
 
-    subplot(320 + 2 * idx - 1)
-    plot([t.t for t in ts] / year, hps)
-    plot([t.t for t in ts] / year, hxs)
-    ylabel("\$h_{+,\\times}\$")
-    xlabel("t (year)")
+    ax1 = CairoMakie.Axis(fig[idx, 1])
+    CairoMakie.lines!(ax1, [t.t for t in ts] / year, hps)
+    CairoMakie.lines!(ax1, [t.t for t in ts] / year, hxs)
+    ax1.ylabel = "h+, hx"
+    ax1.xlabel = "t (year)"
 
     spxs = [residual_px(mass, coeffs, l0p, proj, false, dt) for dt in ts]
     sps = [spx[1] for spx in spxs]
     sxs = [spx[2] for spx in spxs]
 
-    subplot(320 + 2 * idx)
-    plot([t.t for t in ts] / year, sps)
-    plot([t.t for t in ts] / year, sxs)
-    ylabel("\$s_{+,\\times}\$")
-    xlabel("t (year)")
+    ax2 = CairoMakie.Axis(fig[idx, 2])
+    CairoMakie.lines!(ax2, [t.t for t in ts] / year, sps)
+    CairoMakie.lines!(ax2, [t.t for t in ts] / year, sxs)
+    ax2.ylabel = "s+, sx"
+    ax2.xlabel = "t (year)"
 end
 
-show()
+save("waveform_residuals_px.pdf", fig)
