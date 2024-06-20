@@ -1,7 +1,7 @@
 """PTA signal components for fast likelihood"""
 
 using GWecc
-using PyPlot
+using CairoMakie
 
 println("Running ", PROGRAM_FILE)
 
@@ -39,32 +39,33 @@ sPs1 = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [PULSAR], t
 sEs2 = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [EARTH], tref, tEs)
 sPs2 = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [PULSAR], tref, tEs)
 
-subplot(221)
+fig = CairoMakie.Figure()
+ax1 = CairoMakie.Axis(fig[1,1])
 for (idx, 𝒜E) in enumerate(𝒜Es)
-    plot(tyrs, 𝒜E, label = "\$A_{$idx,E}\$")
+    CairoMakie.lines!(ax1, tyrs, 𝒜E, label = "A_$idx[E]")
 end
-legend()
-ylabel("\$A_{i,E}\$")
-xlabel("t (year)")
+CairoMakie.axislegend(ax1, framevisible=false)
+ax1.ylabel = "A_i[E]"
+ax1.xlabel = "t (year)"
 
-subplot(222)
-plot(tyrs, sEs1)
-plot(tyrs, sEs2)
-ylabel("\$s_E\$")
-xlabel("t (year)")
+ax2 = CairoMakie.Axis(fig[1,2])
+CairoMakie.lines!(ax2, tyrs, sEs1)
+CairoMakie.lines!(ax2, tyrs, sEs2)
+ax2.ylabel = "s_E"
+ax2.xlabel = "t (year)"
 
-subplot(223)
+ax3 = CairoMakie.Axis(fig[2,1])
 for (idx, 𝒜P) in enumerate(𝒜Ps)
-    plot(tyrs, 𝒜P, label = "\$A_{$idx,P}\$")
+    CairoMakie.lines!(ax3, tyrs, 𝒜P, label = "A_$idx[P]")
 end
-legend()
-ylabel("\$A_{i,P}\$")
-xlabel("t (year)")
+CairoMakie.axislegend(ax3, framevisible=false)
+ax3.ylabel = "A_i[P]"
+ax3.xlabel = "t (year)"
 
-subplot(224)
-plot(tyrs, sPs1)
-plot(tyrs, sPs2)
-ylabel("\$s_P\$")
-xlabel("t (year)")
+ax4 = CairoMakie.Axis(fig[2,2])
+CairoMakie.lines!(ax4, tyrs, sPs1)
+CairoMakie.lines!(tyrs, sPs2)
+ax4.ylabel = "s_P"
+ax4.xlabel = "t (year)"
 
-show()
+CairoMakie.save("residuals_components.pdf", fig)
