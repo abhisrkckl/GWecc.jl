@@ -1,4 +1,4 @@
-import PyPlot
+import CairoMakie
 using GWecc
 
 println("Running ", PROGRAM_FILE)
@@ -41,9 +41,10 @@ proj1 = ProjectionParams1psr(proj, ap)
 Rs = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [EARTH], tref, tEs)
 Rs1 = residuals_1psr(mass, n_init, e_init, l_init, proj1, Δp, [EARTH], tref, tEs)
 
-PyPlot.plot(extract(tEs) / year, Rs * 1e9, label = "Full waveform")
-PyPlot.plot(extract(tEs) / year, Rs1 * 1e9, label = "Single pulsar")
-PyPlot.legend()
-PyPlot.xlabel("t (year)")
-PyPlot.ylabel("R(t) (ns)")
-PyPlot.show()
+fig, ax, plt = CairoMakie.lines(extract(tEs) / year, Rs * 1e9, label = "Full waveform")
+CairoMakie.lines!(extract(tEs) / year, Rs1 * 1e9, label = "Single pulsar")
+CairoMakie.axislegend(ax)
+ax.xlabel = "t (year)"
+ax.ylabel = "R(t) (ns)"
+CairoMakie.current_figure()
+CairoMakie.save("residuals_1psr.pdf", fig)
