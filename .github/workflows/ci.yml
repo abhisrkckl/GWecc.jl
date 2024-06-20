@@ -90,7 +90,7 @@ jobs:
           cd examples
           julia benchmark.jl
           julia lbar_gammabar_vs_e.jl
-          #julia residuals_1psr.jl
+          julia residuals_1psr.jl
           #julia residuals_components.jl
           #julia residuals_terms.jl
           #julia residuals_terms_px.jl
