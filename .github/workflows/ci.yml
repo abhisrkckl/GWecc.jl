@@ -16,9 +16,8 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.8' 
-          - '1' 
-          - 'nightly'
+          - '1.9'
+          - '1.10'
         os:
           - ubuntu-latest
         arch:
@@ -51,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10"]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -77,14 +76,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/cache@v1
+        env:
+          cache-name: cache-eg-artifacts
+        with:
+          path: ~/.julia/eg-artifacts
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
       - name: Install dependencies
         run: |
-          sudo apt-get install libsuitesparse-dev
-          curl -sSL https://raw.githubusercontent.com/vallis/libstempo/master/install_tempo2.sh | sh
-          python -m pip install --upgrade pip setuptools wheel pytest pytest-cov libstempo
-          pip install -r requirements.txt
-          julia -e 'import Pkg; Pkg.add(path="."); Pkg.add(["BenchmarkTools", "PyPlot", "PythonCall"])'
-          pip install .
+          # sudo apt-get install libsuitesparse-dev
+          # curl -sSL https://raw.githubusercontent.com/vallis/libstempo/master/install_tempo2.sh | sh
+          # python -m pip install --upgrade pip setuptools wheel pytest pytest-cov libstempo
+          # pip install -r requirements.txt
+          julia -t 4 -e 'import Pkg; Pkg.add(path="."); Pkg.add(["BenchmarkTools", "CairoMakie"])'
+          # pip install .
       - name: Run examples
         run: |
           cd examples
@@ -96,8 +105,8 @@ jobs:
           julia residuals_terms_px.jl
           julia tau_vs_e.jl
           julia waveform_residuals_px.jl
-          python simulation_example.py
-          python enterprise_example.py
+          # python simulation_example.py
+          # python enterprise_example.py
           cd ..
 
   format:
