@@ -40,29 +40,29 @@ sEs2 = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [EARTH], tr
 sPs2 = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [PULSAR], tref, tEs)
 
 fig = CairoMakie.Figure()
-ax1 = CairoMakie.Axis(fig[1,1])
+ax1 = CairoMakie.Axis(fig[1, 1])
 for (idx, 𝒜E) in enumerate(𝒜Es)
     CairoMakie.lines!(ax1, tyrs, 𝒜E, label = "A_$idx[E]")
 end
-CairoMakie.axislegend(ax1, framevisible=false)
+CairoMakie.axislegend(ax1, framevisible = false)
 ax1.ylabel = "A_i[E]"
 ax1.xlabel = "t (year)"
 
-ax2 = CairoMakie.Axis(fig[1,2])
+ax2 = CairoMakie.Axis(fig[1, 2])
 CairoMakie.lines!(ax2, tyrs, sEs1)
 CairoMakie.lines!(ax2, tyrs, sEs2)
 ax2.ylabel = "s_E"
 ax2.xlabel = "t (year)"
 
-ax3 = CairoMakie.Axis(fig[2,1])
+ax3 = CairoMakie.Axis(fig[2, 1])
 for (idx, 𝒜P) in enumerate(𝒜Ps)
     CairoMakie.lines!(ax3, tyrs, 𝒜P, label = "A_$idx[P]")
 end
-CairoMakie.axislegend(ax3, framevisible=false)
+CairoMakie.axislegend(ax3, framevisible = false)
 ax3.ylabel = "A_i[P]"
 ax3.xlabel = "t (year)"
 
-ax4 = CairoMakie.Axis(fig[2,2])
+ax4 = CairoMakie.Axis(fig[2, 2])
 CairoMakie.lines!(ax4, tyrs, sPs1)
 CairoMakie.lines!(tyrs, sPs2)
 ax4.ylabel = "s_P"

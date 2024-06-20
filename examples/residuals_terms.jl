@@ -1,7 +1,7 @@
 """PTA signals - Earth and Pulsar terms"""
 
 using GWecc
-using PyPlot
+using CairoMakie
 
 println("Running ", PROGRAM_FILE)
 
@@ -28,6 +28,8 @@ dp = Distance(500 * parsec)
 tEs = Time.(LinRange(0, 10 * year, 5000))
 tyrs = [t.t for t in tEs] / year
 
+fig = CairoMakie.Figure()
+
 for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
 
     sEs = residuals(mass, n_init, e_init, l0p, proj, dp, psrpos, gwpos, [EARTH], tref, tEs)
@@ -46,20 +48,20 @@ for (idx, e_init) in enumerate(Eccentricity.([0.1, 0.4, 0.7]))
         tEs,
     )
 
-    subplot(330 + 3 * (idx - 1) + 1)
-    plot(tyrs, sEs)
-    ylabel("\$s_E\$")
-    xlabel("t (year)")
+    ax1 = CairoMakie.Axis(fig[idx, 1])
+    CairoMakie.lines!(ax1, tyrs, sEs)
+    ax1.ylabel = "s_E"
+    ax1.xlabel = "t (year)"
 
-    subplot(330 + 3 * (idx - 1) + 2)
-    plot(tyrs, sPs)
-    ylabel("\$s_P\$")
-    xlabel("t (year)")
+    ax2 = CairoMakie.Axis(fig[idx, 2])
+    CairoMakie.lines!(ax2, tyrs, sPs)
+    ax2.ylabel = "s_P"
+    ax2.xlabel = "t (year)"
 
-    subplot(330 + 3 * (idx - 1) + 3)
-    plot(tyrs, ss)
-    ylabel("\$s\$")
-    xlabel("t (year)")
+    ax3 = CairoMakie.Axis(fig[idx, 3])
+    CairoMakie.lines!(ax3, tyrs, ss)
+    ax3.ylabel = "s"
+    ax3.xlabel = "t (year)"
 end
 
-show()
+CairoMakie.save("residuals_terms.pdf", fig)
