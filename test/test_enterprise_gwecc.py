@@ -25,9 +25,12 @@ from enterprise_gwecc import (
 )
 
 testdatadir = pathlib.Path(__file__).resolve().parent / "testdata"
-par = str(testdatadir / "J1909-3744_NANOGrav_12yv4.gls.par")
-tim = str(testdatadir / "J1909-3744_NANOGrav_12yv4.tim")
-psr = Pulsar(par, tim)
+
+@pytest.fixture
+def psr():
+    par = str(testdatadir / "J1909-3744_NANOGrav_12yv4.gls.par")
+    tim = str(testdatadir / "J1909-3744_NANOGrav_12yv4.tim")
+    return Pulsar(par, tim, timing_package="pint")
 
 
 year = 365.25 * 24 * 3600
@@ -136,7 +139,7 @@ def test_eccentric_pta_signal_target(psrTerm, spline):
     "psrTerm, tie_psrTerm, spline",
     it.product([True, False], [True, False], [True, False]),
 )
-def test_gwecc_block(psrTerm, tie_psrTerm, spline):
+def test_gwecc_block(psr, psrTerm, tie_psrTerm, spline):
     tref = max(psr.toas)
 
     tm = MarginalizingTimingModel()
@@ -180,7 +183,7 @@ def test_gwecc_block(psrTerm, tie_psrTerm, spline):
 
 
 @pytest.mark.parametrize("psrTerm, spline", it.product([True, False], [True, False]))
-def test_gwecc_1psr_block(psrTerm, spline):
+def test_gwecc_1psr_block(psr, psrTerm, spline):
     tref = max(psr.toas)
 
     tm = MarginalizingTimingModel()
@@ -218,7 +221,7 @@ def test_gwecc_1psr_block(psrTerm, spline):
     "psrTerm, tie_psrTerm, spline",
     it.product([True, False], [True, False], [True, False]),
 )
-def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
+def test_gwecc_target_block(psr, psrTerm, tie_psrTerm, spline):
     tref = max(psr.toas)
 
     tm = MarginalizingTimingModel()
@@ -266,7 +269,7 @@ def test_gwecc_target_block(psrTerm, tie_psrTerm, spline):
     assert lnprior_fn(x0) == -np.inf
 
 
-def test_psrdist_prior():
+def test_psrdist_prior(psr):
     parfiles = sorted(glob.glob(f"{testdatadir}/*.par"))
     timfiles = sorted(glob.glob(f"{testdatadir}/*.tim"))
 

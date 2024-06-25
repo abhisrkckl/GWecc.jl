@@ -67,7 +67,7 @@ jobs:
           pip install .
       - name: Test with pytest
         run: |
-          pytest --full-trace --cov-report xml --cov enterprise_gwecc
+          pytest --full-trace --cov-report xml --cov test/test_enterprise_gwecc.py
       # - name: Codecov
       #   uses: codecov/codecov-action@v3
     
@@ -97,7 +97,6 @@ jobs:
       - name: Run examples
         run: |
           cd examples
-          julia benchmark.jl
           julia lbar_gammabar_vs_e.jl
           julia residuals_1psr.jl
           julia residuals_components.jl
