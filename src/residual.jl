@@ -1,5 +1,7 @@
 export waveform, residual, residuals, residual_and_waveform, residuals_and_waveform
 
+import ThreadsX
+
 "PTA waveform."
 function waveform(
     mass::Mass,
@@ -105,7 +107,8 @@ function residuals(
     ap = AntennaPattern(psrpos, gwpos)
     Δp = pulsar_term_delay(ap, dp)
 
-    ss = [residual(mass, coeffs, l0p, proj, ap, terms, Δp, tE - tref) for tE in tEs]
+    resid_fn = tE -> residual(mass, coeffs, l0p, proj, ap, terms, Δp, tE - tref)
+    ss = ThreadsX.map(resid_fn, tEs)
 
     return ss
 end
